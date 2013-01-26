@@ -1,0 +1,2 @@
+1234 decimal is 2322 octal!
+kernel panic at kern/debug.c:74: debug_trace not implemented
