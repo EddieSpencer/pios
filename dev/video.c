@@ -94,7 +94,7 @@ video_putc(int c)
 			(CRT_SIZE - CRT_COLS) * sizeof(uint16_t));
 		for (i = CRT_SIZE - CRT_COLS; i < CRT_SIZE; i++)
 			// crt_buf[i] = 0x0700 | ' ';
-			crt_buf[i] = 0x0700 | '#';
+			crt_buf[i] = 0x0700 | ' ';
 		crt_pos -= CRT_COLS;
 	}
 
