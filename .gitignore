@@ -17,6 +17,7 @@
 *.app
 
 # compiled objects
+/obj/.[^.]*  # hidden files that arn't ..
 /obj/*
 
 # files open or left behind by vim

@@ -71,7 +71,6 @@ debug_warn(const char *file, int line, const char *fmt,...)
 void gcc_noinline
 debug_trace(uint32_t ebp, uint32_t eips[DEBUG_TRACEFRAMES])
 {
-
   uint32_t *frame = (uint32_t *) ebp;
 
   int i;
