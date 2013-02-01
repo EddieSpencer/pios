@@ -1,31 +1,31 @@
-obj/kern/mem.o: kern/mem.c inc/x86.h inc/types.h inc/cdefs.h inc/mmu.h \
-  inc/types.h inc/string.h inc/assert.h inc/stdio.h inc/stdarg.h \
-  kern/cpu.h inc/trap.h kern/mem.h dev/nvram.h
 obj/kern/cons.o: kern/cons.c inc/stdio.h inc/types.h inc/stdarg.h \
   inc/stdarg.h inc/x86.h inc/cdefs.h inc/string.h inc/assert.h \
   inc/stdio.h kern/cpu.h inc/types.h inc/mmu.h inc/trap.h kern/cons.h \
   kern/mem.h dev/video.h dev/kbd.h dev/serial.h
-obj/kern/entry.o: kern/entry.S
+obj/kern/mem.o: kern/mem.c inc/x86.h inc/types.h inc/cdefs.h inc/mmu.h \
+  inc/types.h inc/string.h inc/assert.h inc/stdio.h inc/stdarg.h \
+  kern/cpu.h inc/trap.h kern/mem.h dev/nvram.h
 obj/kern/debug.o: kern/debug.c inc/stdio.h inc/types.h inc/stdarg.h \
   inc/stdarg.h inc/assert.h inc/stdio.h inc/cdefs.h inc/x86.h kern/cons.h \
   inc/types.h kern/debug.h inc/cdefs.h kern/init.h
+obj/kern/entry.o: kern/entry.S
+obj/boot/main.o: boot/main.c inc/x86.h inc/types.h inc/cdefs.h inc/elf.h
 obj/kern/init.o: kern/init.c inc/stdio.h inc/types.h inc/stdarg.h \
   inc/string.h inc/assert.h inc/stdio.h inc/cdefs.h inc/cdefs.h \
   kern/init.h kern/cons.h inc/types.h kern/debug.h kern/mem.h inc/mmu.h \
   inc/x86.h kern/cpu.h inc/trap.h kern/trap.h
-obj/boot/main.o: boot/main.c inc/x86.h inc/types.h inc/cdefs.h inc/elf.h
 obj/kern/string.o: lib/string.c inc/string.h inc/types.h
-obj/kern/trapasm.o: kern/trapasm.S inc/mmu.h inc/cdefs.h inc/trap.h \
-  kern/cpu.h
 obj/kern/cprintf.o: lib/cprintf.c inc/types.h inc/stdio.h inc/types.h \
   inc/stdarg.h inc/stdarg.h inc/assert.h inc/stdio.h inc/cdefs.h
+obj/kern/trapasm.o: kern/trapasm.S inc/mmu.h inc/cdefs.h inc/trap.h \
+  kern/cpu.h
+obj/boot/boot.o: boot/boot.S inc/mmu.h inc/cdefs.h
 obj/kern/trap.o: kern/trap.c inc/mmu.h inc/cdefs.h inc/types.h inc/x86.h \
   inc/types.h inc/assert.h inc/stdio.h inc/stdarg.h kern/cpu.h inc/trap.h \
   kern/trap.h inc/cdefs.h kern/cons.h kern/init.h
-obj/boot/boot.o: boot/boot.S inc/mmu.h inc/cdefs.h
-obj/kern/printfmt.o: lib/printfmt.c inc/types.h inc/stdio.h inc/types.h \
-  inc/stdarg.h inc/string.h inc/stdarg.h inc/assert.h inc/stdio.h \
-  inc/cdefs.h
 obj/kern/cpu.o: kern/cpu.c inc/assert.h inc/stdio.h inc/types.h \
   inc/stdarg.h inc/cdefs.h inc/string.h kern/mem.h inc/types.h inc/mmu.h \
   inc/x86.h kern/cpu.h inc/trap.h kern/init.h inc/cdefs.h
+obj/kern/printfmt.o: lib/printfmt.c inc/types.h inc/stdio.h inc/types.h \
+  inc/stdarg.h inc/string.h inc/stdarg.h inc/assert.h inc/stdio.h \
+  inc/cdefs.h

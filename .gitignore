@@ -15,3 +15,12 @@
 *.exe
 *.out
 *.app
+
+# compiled objects
+/obj/*
+
+# files open or left behind by vim
+*.swp
+
+# grade files
+grade-out
