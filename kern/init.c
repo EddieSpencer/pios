@@ -56,7 +56,9 @@ init(void)
 	debug_check();
 
 	// Initialize and load the bootstrap CPU's GDT, TSS, and IDT.
+  cprintf("start cpu_init\n");
 	cpu_init();
+  cprintf("got through cpu_init\n");
 	trap_init();
 
 	// Physical memory detection/initialization.

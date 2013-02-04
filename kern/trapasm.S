@@ -45,10 +45,50 @@
 /*
  * Lab 1: Your code here for generating entry points for the different traps.
  */
+TRAPHANDLER(,T_DIVIDE)
+TRAPHANDLER(,T_DEBUG)
+TRAPHANDLER(,T_NMI)
+TRAPHANDLER(,T_BRKPT)
+TRAPHANDLER(,T_OFLOW)
+TRAPHANDLER(,T_BOUND)
+TRAPHANDLER(,T_ILLOP)
+TRAPHANDLER(,T_DEVICE)
+TRAPHANDLER(,T_DBLFLT)
+TRAPHANDLER(,T_TSS)
+TRAPHANDLER(,T_SEGNP)
+TRAPHANDLER(,T_STACK)
+TRAPHANDLER(,T_GPFLT)
+TRAPHANDLER(,T_PGFLT)
+TRAPHANDLER(,T_FPERR)
+TRAPHANDLER(,T_ALIGN)
+TRAPHANDLER(,T_MCHK)
+TRAPHANDLER(,T_SIMD)
+TRAPHANDLER(,T_SECEV)
+TRAPHANDLER(,T_IRQ0)
+TRAPHANDLER(,T_SYSCALL)
+TRAPHANDLER(,T_LTIMER)
+TRAPHANDLER(,T_LERROR)
+TRAPHANDLER(,T_DEFAULT)
+TRAPHANDLER(,T_ICNT)
 
 /*
  * Lab 1: Your code here for _alltraps
  */
+ .globl _alltraps
+ _alltraps:
+  // Build struct trapframe
+  pushal;
+
+  // load CPU_GDT_KDATA into %ds and %es
+  mov CPU_GDT_KDATA, %ds;
+  mov CPU_GDT_KDATA, %es;
+
+  // push esp to pass a pointer to the trapframe as an argument to trap()
+  pushl %esp;
+
+  // call trap
+  call trap;
+  // never return
 
 
 

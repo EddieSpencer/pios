@@ -115,6 +115,7 @@ trap_print(trapframe *tf)
 void gcc_noreturn
 trap(trapframe *tf)
 {
+  cprintf("made it to trap");
 	// The user-level environment may have set the DF flag,
 	// and some versions of GCC rely on DF being clear.
 	asm volatile("cld" ::: "cc");
