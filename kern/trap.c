@@ -33,8 +33,53 @@ static void
 trap_init_idt(void)
 {
 	extern segdesc gdt[];
-	
-	panic("trap_init() not implemented.");
+  extern char trap_divide;
+  extern char trap_nmi;
+  extern char trap_brkpt;
+  extern char trap_oflow;
+  extern char trap_bound;
+  extern char trap_illop;
+  extern char trap_device;
+  extern char trap_dblflt;
+  extern char trap_tss;
+  extern char trap_segnp;
+  extern char trap_stack;
+  extern char trap_gpflt;
+  extern char trap_pgflt;
+  extern char trap_fperr;
+  extern char trap_align;
+  extern char trap_mchk;
+  extern char trap_simd;
+  extern char trap_secev;
+  extern char trap_irq0;
+  extern char trap_syscall;
+  extern char trap_ltimer;
+  extern char trap_lerror;
+  extern char trap_default;
+  extern char trap_icnt;
+
+  SETGATE(idt[T_DIVIDE], 0, CPU_GDT_KCODE, &trap_divide, 0);
+  SETGATE(idt[T_NMI], 0, CPU_GDT_KCODE, &trap_nmi, 0);
+  SETGATE(idt[T_BRKPT], 0, CPU_GDT_KCODE, &trap_brkpt, 0);
+  SETGATE(idt[T_OFLOW], 0, CPU_GDT_KCODE, &trap_oflow, 0);
+  SETGATE(idt[T_BOUND], 0, CPU_GDT_KCODE, &trap_bound, 0);
+  SETGATE(idt[T_ILLOP], 0, CPU_GDT_KCODE, &trap_illop, 0);
+  SETGATE(idt[T_DEVICE], 0, CPU_GDT_KCODE, &trap_device, 0);
+  SETGATE(idt[T_DBLFLT], 0, CPU_GDT_KCODE, &trap_dblflt, 0);
+  SETGATE     (idt[T_TSS], 0, CPU_GDT_KCODE, &trap_tss, 0);
+  SETGATE     (idt[T_SEGNP], 0, CPU_GDT_KCODE, &trap_segnp, 0);
+  SETGATE     (idt[T_STACK], 0, CPU_GDT_KCODE, &trap_stack, 0);
+  SETGATE     (idt[T_GPFLT], 0, CPU_GDT_KCODE, &trap_gpflt, 0);
+  SETGATE     (idt[T_PGFLT], 0, CPU_GDT_KCODE, &trap_pgflt, 0);
+  SETGATE(idt[T_FPERR], 0, CPU_GDT_KCODE, &trap_fperr, 0);
+  SETGATE(idt[T_ALIGN], 0, CPU_GDT_KCODE, &trap_align, 0);
+  SETGATE     (idt[T_MCHK], 0, CPU_GDT_KCODE, &trap_mchk, 0);
+  SETGATE(idt[T_SIMD], 0, CPU_GDT_KCODE, &trap_simd, 0);
+  SETGATE     (idt[T_SECEV], 0, CPU_GDT_KCODE, &trap_secev, 0);
+  SETGATE(idt[T_IRQ0], 0, CPU_GDT_KCODE, &trap_irq0, 0);
+  SETGATE(idt[T_SYSCALL], 0, CPU_GDT_KCODE, &trap_syscall, 0);
+  SETGATE(idt[T_LTIMER], 0, CPU_GDT_KCODE, &trap_ltimer, 0);
+  SETGATE(idt[T_LERROR], 0, CPU_GDT_KCODE, &trap_lerror, 0);
 }
 
 void

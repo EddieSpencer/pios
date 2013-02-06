@@ -77,17 +77,21 @@ TRAPHANDLER_NOEC(trap_lerror,T_LERROR)
  .globl _alltraps
  _alltraps:
   // Build struct trapframe
+  push %ds
+  push %es
   pushal;
-
+  
   // load CPU_GDT_KDATA into %ds and %es
-  mov CPU_GDT_KDATA, %ds;
-  mov CPU_GDT_KDATA, %es;
-
+  movw $CPU_GDT_KDATA, %ax
+  movw %ax, %es
+  movw %ax, %ds
+  
   // push esp to pass a pointer to the trapframe as an argument to trap()
   pushl %esp;
 
   // call trap
   call trap;
+  addl $4, %esp
   // never return
 
 

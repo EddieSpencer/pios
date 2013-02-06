@@ -57,10 +57,17 @@ void cpu_init()
 {
 	cpu *c = cpu_cur();
 
+  c->tss.ts_esp0 = (uint32_t) c->kstackhi;
+  c->tss.ts_ss0 = CPU_GDT_KDATA;
+
+  c->gdt[CPU_GDT_TSS >> 3] = SEGDESC16(0, STS_T32A, (uint32_t) (&c->tss),
+                              sizeof(taskstate)-1, 0);
+
 	// Load the GDT
 	struct pseudodesc gdt_pd = {
 		sizeof(c->gdt) - 1, (uint32_t) c->gdt };
 	asm volatile("lgdt %0" : : "m" (gdt_pd));
+
 
 	// Reload all segment registers.
 	asm volatile("movw %%ax,%%gs" :: "a" (CPU_GDT_UDATA|3));
@@ -72,6 +79,8 @@ void cpu_init()
 
 	// We don't need an LDT.
 	asm volatile("lldt %%ax" :: "a" (0));
+
+  ltr(CPU_GDT_TSS);
 }
 
 
