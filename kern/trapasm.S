@@ -77,8 +77,10 @@ TRAPHANDLER_NOEC(trap_lerror,T_LERROR)
  .globl _alltraps
  _alltraps:
   // Build struct trapframe
-  push %ds
-  push %es
+  pushl %ds
+  pushl %es
+  pushl %fs
+  pushl %gs
   pushal;
   
   // load CPU_GDT_KDATA into %ds and %es
@@ -91,7 +93,6 @@ TRAPHANDLER_NOEC(trap_lerror,T_LERROR)
 
   // call trap
   call trap;
-  addl $4, %esp
   // never return
 
 
@@ -113,5 +114,13 @@ trap_return:
 /*
  * Lab 1: Your code here for trap_return
  */
+ movl 4(%esp), %esp
+ popal
+ popl %gs
+ popl %fs
+ popl %es
+ popl %ds
+ addl $8, %esp
+ iret
 1:	jmp	1b		// just spin
 
