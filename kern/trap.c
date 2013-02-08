@@ -58,28 +58,33 @@ trap_init_idt(void)
   extern char trap_default;
   extern char trap_icnt;
 
-  SETGATE(idt[T_DIVIDE], 0, CPU_GDT_KCODE, &trap_divide, 0);
-  SETGATE(idt[T_NMI], 0, CPU_GDT_KCODE, &trap_nmi, 0);
-  SETGATE(idt[T_BRKPT], 0, CPU_GDT_KCODE, &trap_brkpt, 0);
-  SETGATE(idt[T_OFLOW], 0, CPU_GDT_KCODE, &trap_oflow, 0);
-  SETGATE(idt[T_BOUND], 0, CPU_GDT_KCODE, &trap_bound, 0);
-  SETGATE(idt[T_ILLOP], 0, CPU_GDT_KCODE, &trap_illop, 0);
-  SETGATE(idt[T_DEVICE], 0, CPU_GDT_KCODE, &trap_device, 0);
-  SETGATE(idt[T_DBLFLT], 0, CPU_GDT_KCODE, &trap_dblflt, 0);
-  SETGATE     (idt[T_TSS], 0, CPU_GDT_KCODE, &trap_tss, 0);
-  SETGATE     (idt[T_SEGNP], 0, CPU_GDT_KCODE, &trap_segnp, 0);
-  SETGATE     (idt[T_STACK], 0, CPU_GDT_KCODE, &trap_stack, 0);
-  SETGATE     (idt[T_GPFLT], 0, CPU_GDT_KCODE, &trap_gpflt, 0);
-  SETGATE     (idt[T_PGFLT], 0, CPU_GDT_KCODE, &trap_pgflt, 0);
-  SETGATE(idt[T_FPERR], 0, CPU_GDT_KCODE, &trap_fperr, 0);
-  SETGATE(idt[T_ALIGN], 0, CPU_GDT_KCODE, &trap_align, 0);
-  SETGATE     (idt[T_MCHK], 0, CPU_GDT_KCODE, &trap_mchk, 0);
-  SETGATE(idt[T_SIMD], 0, CPU_GDT_KCODE, &trap_simd, 0);
-  SETGATE     (idt[T_SECEV], 0, CPU_GDT_KCODE, &trap_secev, 0);
-  SETGATE(idt[T_IRQ0], 0, CPU_GDT_KCODE, &trap_irq0, 0);
-  SETGATE(idt[T_SYSCALL], 0, CPU_GDT_KCODE, &trap_syscall, 0);
-  SETGATE(idt[T_LTIMER], 0, CPU_GDT_KCODE, &trap_ltimer, 0);
-  SETGATE(idt[T_LERROR], 0, CPU_GDT_KCODE, &trap_lerror, 0);
+// - istrap: 1 for a trap (= exception) gate, 0 for an interrupt gate.
+// - sel: Code segment selector for interrupt/trap handler
+// - off: Offset in code segment for interrupt/trap handler
+// - dpl: Descriptor Privilege Level -
+//	  the privilege level required for software to invoke
+//	  this interrupt/trap gate explicitly using an int instruction.
+//        gate           istrap sel            off           dpl
+  SETGATE(idt[T_DIVIDE], 0,     CPU_GDT_KCODE, &trap_divide, 0);
+  SETGATE(idt[T_NMI],    0,     CPU_GDT_KCODE, &trap_nmi,    0);
+  SETGATE(idt[T_BRKPT],  0,     CPU_GDT_KCODE, &trap_brkpt,  3);
+  SETGATE(idt[T_OFLOW],  0,     CPU_GDT_KCODE, &trap_oflow,  3);
+  SETGATE(idt[T_BOUND],  0,     CPU_GDT_KCODE, &trap_bound,  0);
+  SETGATE(idt[T_ILLOP],  0,     CPU_GDT_KCODE, &trap_illop,  0);
+  SETGATE(idt[T_DEVICE], 0,     CPU_GDT_KCODE, &trap_device, 0);
+  SETGATE(idt[T_DBLFLT], 0,     CPU_GDT_KCODE, &trap_dblflt, 0);
+  SETGATE(idt[T_TSS],    0,     CPU_GDT_KCODE, &trap_tss,    0);
+  SETGATE(idt[T_GPFLT],  0,     CPU_GDT_KCODE, &trap_gpflt,  0);
+  SETGATE(idt[T_PGFLT],  0,     CPU_GDT_KCODE, &trap_pgflt,  0);
+  SETGATE(idt[T_FPERR],  0,     CPU_GDT_KCODE, &trap_fperr,  0);
+  SETGATE(idt[T_ALIGN],  0,     CPU_GDT_KCODE, &trap_align,  0);
+  SETGATE(idt[T_MCHK],   0,     CPU_GDT_KCODE, &trap_mchk,   0);
+  SETGATE(idt[T_SIMD],   0,     CPU_GDT_KCODE, &trap_simd,   0);
+  SETGATE(idt[T_SECEV],  0,     CPU_GDT_KCODE, &trap_secev,  0);
+  SETGATE(idt[T_IRQ0],   0,     CPU_GDT_KCODE, &trap_irq0,   0);
+  SETGATE(idt[T_SYSCALL],0,     CPU_GDT_KCODE, &trap_syscall,0);
+  SETGATE(idt[T_LTIMER], 0,     CPU_GDT_KCODE, &trap_ltimer, 0);
+  SETGATE(idt[T_LERROR], 0,     CPU_GDT_KCODE, &trap_lerror, 0);
 }
 
 void
@@ -160,7 +165,6 @@ trap_print(trapframe *tf)
 void gcc_noreturn
 trap(trapframe *tf)
 {
-  cprintf("made it to trap");
 	// The user-level environment may have set the DF flag,
 	// and some versions of GCC rely on DF being clear.
 	asm volatile("cld" ::: "cc");

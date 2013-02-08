@@ -61,13 +61,25 @@ init(void)
 
 	// Physical memory detection/initialization.
 	// Can't call mem_alloc until after we do this!
-	mem_init();
+	//mem_init();
 
 
 	// Lab 1: change this so it enters user() in user mode,
 	// running on the user_stack declared above,
 	// instead of just calling user() directly.
-	user();
+  static trapframe utf = {
+    gs: 0,
+    fs: 0,
+    ds: CPU_GDT_UDATA | 3,
+    es: CPU_GDT_UDATA | 3,
+    ss: CPU_GDT_UDATA | 3,
+    cs: CPU_GDT_UCODE | 3,
+    eip: (uint32_t) user,
+    eflags: FL_IOPL_3,
+    esp: (uint32_t) &user_stack[PAGESIZE],
+  };
+  trap_return(&utf);
+	//user();
 }
 
 // This is the first function that gets run in user mode (ring 3).
