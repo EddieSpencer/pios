@@ -61,7 +61,7 @@ init(void)
 
 	// Physical memory detection/initialization.
 	// Can't call mem_alloc until after we do this!
-	//mem_init();
+	mem_init();
 
 
 	// Lab 1: change this so it enters user() in user mode,
