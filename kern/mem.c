@@ -91,20 +91,21 @@ mem_init(void)
 
 	int i;
 	for (i = 0; i < mem_npage; i++) {
-    mem_pageinfo[i].refcount = 0;
 
     // physical address of current pageinfo
     uint32_t paddr = mem_pi2phys(mem_pageinfo + i);
-    if (!(i == 0 || i == 1 || // pages 0 and 1 are reserved for idt, bios, and bootstrap (see above)
+    if ((i == 0 || i == 1 || // pages 0 and 1 are reserved for idt, bios, and bootstrap (see above)
           (paddr + PAGESIZE >= MEM_IO && paddr < MEM_EXT) || // IO section is reserved
           (paddr + PAGESIZE >= (uint32_t) &start[0] && paddr < (uint32_t) &end[0]) || // kernel, 
           (paddr + PAGESIZE >= (uint32_t) &mem_pageinfo && // start of pageinfo array
            paddr < (uint32_t) &mem_pageinfo[mem_npage]) // end of pageinfo array
      )) {
-
-		// Add the page to the end of the free list.
-		*freetail = &mem_pageinfo[i];
-		freetail = &mem_pageinfo[i].free_next;
+      mem_pageinfo[i].refcount = 1; 
+    } else {
+      mem_pageinfo[i].refcount = 0; 
+      // Add the page to the end of the free list.
+      *freetail = &mem_pageinfo[i];
+      freetail = &mem_pageinfo[i].free_next;
     }
 	}
 
