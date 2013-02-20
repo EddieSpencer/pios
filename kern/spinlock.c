@@ -48,7 +48,7 @@ spinlock_release(struct spinlock *lk)
   if (!spinlock_holding(lk))
     panic("Attempt to release lock not held by this cpu");
   lk->cpu = NULL;
-  // lk->eips = NULL;
+  lk->eips[0] = 0;
   xchg(&lk->locked, 0);
 }
 

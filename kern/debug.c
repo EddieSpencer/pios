@@ -80,10 +80,10 @@ debug_trace(uint32_t ebp, uint32_t eips[DEBUG_TRACEFRAMES])
   // where n is DEBUG_TRACEFRAMES
   for (i = 0; i < DEBUG_TRACEFRAMES && frame; i++) {
     // print relevent information about the stack
-    cprintf("ebp: %08x ", frame[0]);
-    cprintf("eip: %08x ", frame[1]);
-    cprintf("args: %08x %08x %08x %08x %08x ", frame[2], frame[3], frame[4], frame[5], frame[6]);
-    cprintf("\n"); 
+    //cprintf("ebp: %08x ", frame[0]);
+    //cprintf("eip: %08x ", frame[1]);
+    //cprintf("args: %08x %08x %08x %08x %08x ", frame[2], frame[3], frame[4], frame[5], frame[6]);
+    //cprintf("\n"); 
 
     // add information to eips array
     eips[i] = frame[1];             // eip saved at ebp + 1
