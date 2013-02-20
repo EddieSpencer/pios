@@ -63,7 +63,6 @@ cons_intr(int (*proc)(void))
 			cons.wpos = 0;
 	}
 	spinlock_release(&cons_lock);
-
 }
 
 // return the next input character from the console, or 0 if none waiting

@@ -57,6 +57,10 @@ init(void)
 	// Can't call cprintf until after we do this!
 	cons_init();
 
+	// Lab 1: test cprintf and debug_trace
+	cprintf("1234 decimal is %o octal!\n", 1234);
+	debug_check();
+
 	// Initialize and load the bootstrap CPU's GDT, TSS, and IDT.
 	cpu_init();
 	trap_init();
@@ -84,7 +88,23 @@ init(void)
 	// Lab 1: change this so it enters user() in user mode,
 	// running on the user_stack declared above,
 	// instead of just calling user() directly.
+  // << HEAD
 	user();
+  
+  // static trapframe utf = {
+  //   gs: 0,
+  //   fs: 0,
+  //   ds: CPU_GDT_UDATA | 3,
+  //   es: CPU_GDT_UDATA | 3,
+  //   ss: CPU_GDT_UDATA | 3,
+  //   cs: CPU_GDT_UCODE | 3,
+  //   eip: (uint32_t) user,
+  //   eflags: FL_IOPL_3,
+  //   esp: (uint32_t) &user_stack[PAGESIZE],
+  // };
+  // trap_return(&utf);
+	// //user();
+  //>>> project1
 }
 
 // This is the first function that gets run in user mode (ring 3).
@@ -99,6 +119,9 @@ user()
 
 	// Check the system call and process scheduling code.
 	proc_check();
+
+	// Check that we're in user mode and can handle traps from there.
+	trap_check_user();
 
 	done();
 }

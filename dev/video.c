@@ -86,6 +86,7 @@ video_putc(int c)
 	}
 
 	// What is the purpose of this?
+  // if the crt position is creater than the crt area
 	if (crt_pos >= CRT_SIZE) {
 		int i;
 

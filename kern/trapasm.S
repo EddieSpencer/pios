@@ -45,10 +45,55 @@
 /*
  * Lab 1: Your code here for generating entry points for the different traps.
  */
+TRAPHANDLER_NOEC(trap_divide,T_DIVIDE)
+//TRAPHANDLER(trap_debug,T_DEBUG)
+TRAPHANDLER_NOEC(trap_nmi,T_NMI)
+TRAPHANDLER_NOEC(trap_brkpt,T_BRKPT)
+TRAPHANDLER_NOEC(trap_oflow,T_OFLOW)
+TRAPHANDLER_NOEC(trap_bound,T_BOUND)
+TRAPHANDLER_NOEC(trap_illop,T_ILLOP)
+TRAPHANDLER_NOEC(trap_device,T_DEVICE)
+TRAPHANDLER_NOEC(trap_dblflt,T_DBLFLT)
+TRAPHANDLER     (trap_tss,T_TSS)
+TRAPHANDLER     (trap_segnp,T_SEGNP)
+TRAPHANDLER     (trap_stack,T_STACK)
+TRAPHANDLER     (trap_gpflt,T_GPFLT)
+TRAPHANDLER     (trap_pgflt,T_PGFLT)
+TRAPHANDLER_NOEC(trap_fperr,T_FPERR)
+TRAPHANDLER_NOEC(trap_align,T_ALIGN)
+TRAPHANDLER     (trap_mchk,T_MCHK)
+TRAPHANDLER_NOEC(trap_simd,T_SIMD)
+TRAPHANDLER     (trap_secev,T_SECEV) //Not is intel doc
+TRAPHANDLER_NOEC(trap_irq0,T_IRQ0)
+TRAPHANDLER_NOEC(trap_syscall,T_SYSCALL)
+TRAPHANDLER_NOEC(trap_ltimer,T_LTIMER)
+TRAPHANDLER_NOEC(trap_lerror,T_LERROR)
+//TRAPHANDLER   (trap_default,T_DEFAULT)
+//TRAPHANDLER   (trap_icnt,T_ICNT)
 
 /*
  * Lab 1: Your code here for _alltraps
  */
+ .globl _alltraps
+ _alltraps:
+  // Build struct trapframe
+  pushl %ds
+  pushl %es
+  pushl %fs
+  pushl %gs
+  pushal;
+  
+  // load CPU_GDT_KDATA into %ds and %es
+  movw $CPU_GDT_KDATA, %ax
+  movw %ax, %es
+  movw %ax, %ds
+  
+  // push esp to pass a pointer to the trapframe as an argument to trap()
+  pushl %esp;
+
+  // call trap
+  call trap;
+  // never return
 
 
 
@@ -69,5 +114,13 @@ trap_return:
 /*
  * Lab 1: Your code here for trap_return
  */
+ movl 4(%esp), %esp
+ popal
+ popl %gs
+ popl %fs
+ popl %es
+ popl %ds
+ addl $8, %esp
+ iret
 1:	jmp	1b		// just spin
 
