@@ -23,7 +23,35 @@ proc proc_null;		// null process - just leave it initialized to 0
 proc *proc_root;	// root process, once it's created in init()
 
 // LAB 2: insert your scheduling data structure declarations here.
+static spinlock readylock;
+static proc *readyhead;
+static proc **readytail;
 
+proc *
+ready_pop(void)
+{
+  spinlock_acquire(&readylock);
+  proc *p = readyhead;
+  readyhead = p->readynext;
+  if (readytail == &p->readynext) {
+    assert(readyhead == NULL);
+    readytail = &readyhead;
+  }
+  p->readynext = NULL;
+  spinlock_release(&readylock);
+  return p;
+}
+
+
+void
+ready_push(proc *p)
+{
+  spinlock_acquire(&readylock);
+  p->readynext = NULL;
+  *readytail = p;
+  readytail = &p->readynext;
+  spinlock_release(&readylock);
+}
 
 void
 proc_init(void)
@@ -32,6 +60,8 @@ proc_init(void)
 		return;
 
 	// your module initialization code here
+  spinlock_init(&readylock);
+  readytail = &readyhead;
 }
 
 // Allocate and initialize a new proc as child 'cn' of parent 'p'.
@@ -66,6 +96,7 @@ proc_alloc(proc *p, uint32_t cn)
 void
 proc_ready(proc *p)
 {
+  p->state = PROC_READY;
 	panic("proc_ready not implemented");
 }
 

@@ -5,8 +5,11 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.6	//
 ALT	dev/kbd.c	28;"	d	file:
+APR	dev/lapic.h	28;"	d
 ASM	lib/string.c	16;"	d	file:
 ASM	obj/kern/kernel.asm	/^#define ASM 1$/;"	d
+ASSERT	dev/lapic.h	40;"	d
+BCAST	dev/lapic.h	42;"	d
 C	dev/kbd.c	94;"	d	file:
 CAPSLOCK	dev/kbd.c	29;"	d	file:
 CGA_BASE	dev/video.h	26;"	d
@@ -33,7 +36,7 @@ COM_MCR_OUT2	dev/serial.h	39;"	d
 COM_MCR_RTS	dev/serial.h	37;"	d
 COM_RX	dev/serial.h	25;"	d
 COM_TX	dev/serial.h	26;"	d
-CONSBUFSIZE	kern/cons.c	38;"	d	file:
+CONSBUFSIZE	kern/cons.c	41;"	d	file:
 CPUTS_MAX	inc/assert.h	20;"	d
 CPUTS_MAX	lib/cprintf.c	28;"	d	file:
 CPU_GDT_KCODE	kern/cpu.h	18;"	d
@@ -44,7 +47,7 @@ CPU_GDT_TSS	kern/cpu.h	23;"	d
 CPU_GDT_UCODE	kern/cpu.h	20;"	d
 CPU_GDT_UDATA	kern/cpu.h	21;"	d
 CPU_GDT_UDTLS	kern/cpu.h	22;"	d
-CPU_MAGIC	kern/cpu.h	66;"	d
+CPU_MAGIC	kern/cpu.h	78;"	d
 CR0_AM	inc/mmu.h	98;"	d
 CR0_CD	inc/mmu.h	100;"	d
 CR0_EM	inc/mmu.h	93;"	d
@@ -73,7 +76,10 @@ CRT_SIZE	dev/video.h	31;"	d
 CTL	dev/kbd.c	27;"	d	file:
 DEBUG_TRACEFRAMES	kern/cons.h	24;"	d
 DEBUG_TRACEFRAMES	kern/debug.h	20;"	d
+DELIVS	dev/lapic.h	39;"	d
+DFR	dev/lapic.h	32;"	d
 Disassembly	obj/boot/bootblock.asm	/^Disassembly of section .text:$/;"	l
+Disassembly	obj/boot/bootother.asm	/^Disassembly of section .text:$/;"	l
 Disassembly	obj/kern/kernel.asm	/^Disassembly of section .text:$/;"	l
 E0ESC	dev/kbd.c	32;"	d	file:
 ELFHDR	boot/main.c	41;"	d	file:
@@ -87,6 +93,10 @@ ELF_SHT_NULL	inc/elf.h	69;"	d
 ELF_SHT_PROGBITS	inc/elf.h	70;"	d
 ELF_SHT_STRTAB	inc/elf.h	72;"	d
 ELF_SHT_SYMTAB	inc/elf.h	71;"	d
+ENABLE	dev/lapic.h	34;"	d
+EOI	dev/lapic.h	30;"	d
+ERROR	dev/lapic.h	50;"	d
+ESR	dev/lapic.h	35;"	d
 EXIT_FAILURE	inc/stdlib.h	24;"	d
 EXIT_SUCCESS	inc/stdlib.h	23;"	d
 FL_AC	inc/x86.h	36;"	d
@@ -106,6 +116,7 @@ FL_PF	inc/x86.h	20;"	d
 FL_RF	inc/x86.h	34;"	d
 FL_SF	inc/x86.h	23;"	d
 FL_TF	inc/x86.h	24;"	d
+FL_USER	kern/syscall.c	27;"	d	file:
 FL_VIF	inc/x86.h	37;"	d
 FL_VIP	inc/x86.h	38;"	d
 FL_VM	inc/x86.h	35;"	d
@@ -115,10 +126,28 @@ F_DOT	lib/printfmt.c	39;"	d	file:
 F_L	lib/printfmt.c	36;"	d	file:
 F_LL	lib/printfmt.c	37;"	d	file:
 F_RPAD	lib/printfmt.c	40;"	d	file:
+HZ	dev/lapic.h	21;"	d
+ICRHI	dev/lapic.h	43;"	d
+ICRLO	dev/lapic.h	36;"	d
+ID	dev/lapic.h	25;"	d
+INIT	dev/lapic.h	37;"	d
+INT_ACTIVELOW	dev/ioapic.c	36;"	d	file:
+INT_DELMOD	dev/ioapic.c	38;"	d	file:
+INT_DISABLED	dev/ioapic.c	34;"	d	file:
+INT_FIXED	dev/ioapic.c	39;"	d	file:
+INT_LEVEL	dev/ioapic.c	35;"	d	file:
+INT_LOGICAL	dev/ioapic.c	37;"	d	file:
+INT_LOWEST	dev/ioapic.c	40;"	d	file:
+IOAPIC	dev/ioapic.c	23;"	d	file:
+IO_PIC1	dev/pic.h	21;"	d
+IO_PIC2	dev/pic.h	22;"	d
+IO_RTC	dev/lapic.c	107;"	d	file:
 IO_RTC	dev/nvram.h	19;"	d
+IO_RTC	obj/kern/kernel.asm	/^#define IO_RTC  0x70$/;"	d
 IRQ_IDE	inc/trap.h	59;"	d
 IRQ_KBD	inc/trap.h	56;"	d
 IRQ_SERIAL	inc/trap.h	57;"	d
+IRQ_SLAVE	dev/pic.h	24;"	d
 IRQ_SPURIOUS	inc/trap.h	58;"	d
 IRQ_TIMER	inc/trap.h	55;"	d
 KBCMDP	dev/kbd.h	46;"	d
@@ -185,8 +214,14 @@ KEY_RT	dev/kbd.h	27;"	d
 KEY_UP	dev/kbd.h	24;"	d
 K_LDCMDBYTE	dev/kbd.h	68;"	d
 K_RDCMDBYTE	dev/kbd.h	67;"	d
-LAB	conf/lab.mk	/^LAB=1$/;"	m
+LAB	conf/lab.mk	/^LAB=2$/;"	m
+LDR	dev/lapic.h	31;"	d
+LEVEL	dev/lapic.h	41;"	d
+LINT0	dev/lapic.h	48;"	d
+LINT1	dev/lapic.h	49;"	d
+MASKED	dev/lapic.h	51;"	d
 MAX	inc/types.h	72;"	d
+MAX_IRQS	dev/pic.h	18;"	d
 MC_NVRAM_SIZE	dev/nvram.h	22;"	d
 MC_NVRAM_START	dev/nvram.h	21;"	d
 MEM_EXT	kern/mem.h	26;"	d
@@ -194,6 +229,13 @@ MEM_IO	kern/mem.h	25;"	d
 MIN	inc/types.h	66;"	d
 MONO_BASE	dev/video.h	24;"	d
 MONO_BUF	dev/video.h	25;"	d
+MPBOOT	kern/mp.h	50;"	d
+MPBUS	kern/mp.h	66;"	d
+MPENAB	kern/mp.h	49;"	d
+MPIOAPIC	kern/mp.h	67;"	d
+MPIOINTR	kern/mp.h	68;"	d
+MPLINTR	kern/mp.h	69;"	d
+MPPROC	kern/mp.h	65;"	d
 MULTIBOOT_HEADER_FLAGS	kern/entry.S	/^#define MULTIBOOT_HEADER_FLAGS (MULTIBOOT_MEMORY_INFO | MULTIBOOT_PAGE_ALIGN)$/;"	d
 MULTIBOOT_HEADER_MAGIC	kern/entry.S	/^#define MULTIBOOT_HEADER_MAGIC (0x1BADB002)$/;"	d
 MULTIBOOT_MEMORY_INFO	kern/entry.S	/^#define MULTIBOOT_MEMORY_INFO (1<<1)$/;"	d
@@ -212,17 +254,25 @@ NVRAM_EXTHI	dev/nvram.h	30;"	d
 NVRAM_EXTLO	dev/nvram.h	29;"	d
 NVRAM_PEXTHI	dev/nvram.h	34;"	d
 NVRAM_PEXTLO	dev/nvram.h	33;"	d
-PACKAGEDATE	conf/lab.mk	/^PACKAGEDATE=Sat Jan 15 18:24:38 EST 2011$/;"	m
+PACKAGEDATE	conf/lab.mk	/^PACKAGEDATE=Sun Jan 30 13:55:21 EST 2011$/;"	m
 PAGESHIFT	inc/mmu.h	63;"	d
 PAGESIZE	inc/mmu.h	62;"	d
+PCINT	dev/lapic.h	47;"	d
 PDX	inc/mmu.h	45;"	d
 PDXSHIFT	inc/mmu.h	69;"	d
+PERIODIC	dev/lapic.h	46;"	d
 PFE_PR	inc/mmu.h	116;"	d
 PFE_U	inc/mmu.h	118;"	d
 PFE_WR	inc/mmu.h	117;"	d
+PFF_ICNT	inc/syscall.h	57;"	d
+PFF_NONDET	inc/syscall.h	56;"	d
+PFF_USEFPU	inc/syscall.h	55;"	d
 PGADDR	inc/mmu.h	52;"	d
 PGOFF	inc/mmu.h	53;"	d
+PIOS_DEV_IOAPIC_H	dev/ioapic.h	11;"	d
+PIOS_DEV_LAPIC_H	dev/lapic.h	12;"	d
 PIOS_DEV_NVRAM_H	dev/nvram.h	14;"	d
+PIOS_DEV_PIC_H	dev/pic.h	12;"	d
 PIOS_INC_ASSERT_H	inc/assert.h	12;"	d
 PIOS_INC_CDEFS_H	inc/cdefs.h	4;"	d
 PIOS_INC_ELF_H	inc/elf.h	11;"	d
@@ -231,6 +281,7 @@ PIOS_INC_STDARG_H	inc/stdarg.h	11;"	d
 PIOS_INC_STDIO_H	inc/stdio.h	14;"	d
 PIOS_INC_STDLIB_H	inc/stdlib.h	12;"	d
 PIOS_INC_STRING_H	inc/string.h	12;"	d
+PIOS_INC_SYSCALL_H	inc/syscall.h	11;"	d
 PIOS_INC_TRAP_H	inc/trap.h	12;"	d
 PIOS_INC_TYPES_H	inc/types.h	18;"	d
 PIOS_INC_X86_H	inc/x86.h	12;"	d
@@ -239,11 +290,21 @@ PIOS_KERN_DEBUG_H_	kern/debug.h	11;"	d
 PIOS_KERN_INIT_H	kern/init.h	12;"	d
 PIOS_KERN_KBD_H_	dev/kbd.h	15;"	d
 PIOS_KERN_MEM_H	kern/mem.h	12;"	d
+PIOS_KERN_MP_H	kern/mp.h	13;"	d
+PIOS_KERN_PROC_H	kern/proc.h	11;"	d
 PIOS_KERN_SEG_H	kern/cpu.h	10;"	d
 PIOS_KERN_SERIAL_H_	dev/serial.h	15;"	d
+PIOS_KERN_SPINLOCK_H	kern/spinlock.h	12;"	d
+PIOS_KERN_SYSCALL_H	kern/syscall.h	12;"	d
 PIOS_KERN_TRAP_H	kern/trap.h	12;"	d
 PIOS_KERN_VIDEO_H_	dev/video.h	15;"	d
 PPN	inc/mmu.h	41;"	d
+PPR	dev/lapic.h	29;"	d
+PROC_CHILDREN	kern/proc.h	20;"	d
+PROC_READY	kern/proc.h	/^	PROC_READY,		\/\/ Scheduled to run but not running now$/;"	e	enum:proc_state
+PROC_RUN	kern/proc.h	/^	PROC_RUN,		\/\/ Running on some CPU$/;"	e	enum:proc_state
+PROC_STOP	kern/proc.h	/^	PROC_STOP	= 0,	\/\/ Passively waiting for parent to run it$/;"	e	enum:proc_state
+PROC_WAIT	kern/proc.h	/^	PROC_WAIT,		\/\/ Waiting to synchronize with child$/;"	e	enum:proc_state
 PTADDR	inc/mmu.h	55;"	d
 PTE_A	inc/mmu.h	77;"	d
 PTE_AVAIL	inc/mmu.h	85;"	d
@@ -262,7 +323,10 @@ PTSHIFT	inc/mmu.h	66;"	d
 PTSIZE	inc/mmu.h	65;"	d
 PTX	inc/mmu.h	49;"	d
 PTXSHIFT	inc/mmu.h	68;"	d
-ROOTEXE_START	kern/init.c	28;"	d	file:
+REG_ID	dev/ioapic.c	25;"	d	file:
+REG_TABLE	dev/ioapic.c	27;"	d	file:
+REG_VER	dev/ioapic.c	26;"	d	file:
+ROOTEXE_START	kern/init.c	34;"	d	file:
 ROUNDDOWN	inc/types.h	81;"	d
 ROUNDUP	inc/types.h	87;"	d
 SCROLLLOCK	dev/kbd.c	31;"	d	file:
@@ -272,11 +336,14 @@ SEGDESC16	inc/mmu.h	170;"	d
 SEGDESC32	inc/mmu.h	166;"	d
 SEGDESC_FAULT	inc/mmu.h	164;"	d
 SEGDESC_NULL	inc/mmu.h	162;"	d
+SEG_KCODE	boot/bootother.S	/^#define SEG_KCODE 1  \/\/ kernel code$/;"	d
+SEG_KDATA	boot/bootother.S	/^#define SEG_KDATA 2  \/\/ kernel data+stack$/;"	d
 SEG_NULL	inc/mmu.h	132;"	d
 SETCALLGATE	inc/mmu.h	283;"	d
 SETGATE	inc/mmu.h	269;"	d
 SHIFT	dev/kbd.c	26;"	d	file:
 SIZEOF_STRUCT_TRAPFRAME	inc/trap.h	143;"	d
+STARTUP	dev/lapic.h	38;"	d
 STA_A	inc/mmu.h	183;"	d
 STA_C	inc/mmu.h	180;"	d
 STA_E	inc/mmu.h	179;"	d
@@ -295,6 +362,20 @@ STS_T32B	inc/mmu.h	194;"	d
 STS_TG	inc/mmu.h	190;"	d
 STS_TG16	inc/mmu.h	192;"	d
 STS_TG32	inc/mmu.h	197;"	d
+SVR	dev/lapic.h	33;"	d
+SYS_CPUTS	inc/syscall.h	18;"	d
+SYS_FPU	inc/syscall.h	26;"	d
+SYS_GET	inc/syscall.h	20;"	d
+SYS_PUT	inc/syscall.h	19;"	d
+SYS_REGS	inc/syscall.h	25;"	d
+SYS_RET	inc/syscall.h	21;"	d
+SYS_START	inc/syscall.h	23;"	d
+SYS_TYPE	inc/syscall.h	17;"	d
+TCCR	dev/lapic.h	53;"	d
+TDCR	dev/lapic.h	54;"	d
+TICR	dev/lapic.h	52;"	d
+TIMER	dev/lapic.h	44;"	d
+TPR	dev/lapic.h	27;"	d
 TRAPHANDLER	kern/trapasm.S	/^#define TRAPHANDLER(name, num)						\\$/;"	d
 TRAPHANDLER	kern/trapasm.S	/^TRAPHANDLER     (trap_gpflt,T_GPFLT)$/;"	l
 TRAPHANDLER	kern/trapasm.S	/^TRAPHANDLER     (trap_mchk,T_MCHK)$/;"	l
@@ -338,19 +419,26 @@ T_SYSCALL	inc/trap.h	45;"	d
 T_TSS	inc/trap.h	29;"	d
 USED	inc/types.h	97;"	d
 V	conf/env.mk	/^V = @$/;"	m
+VER	dev/lapic.h	26;"	d
 VPD	inc/mmu.h	46;"	d
 VPN	inc/mmu.h	42;"	d
+X1	dev/lapic.h	45;"	d
 __va_size	inc/stdarg.h	15;"	d
 _alltraps	kern/trapasm.S	/^ _alltraps:$/;"	l
 _alltraps	obj/kern/kernel.asm	/^ _alltraps:$/;"	l
+addr	kern/mp.h	/^	uint32_t *addr;			\/\/ I\/O APIC address$/;"	m	struct:mpioapic
 addr_6845	dev/video.c	/^static unsigned addr_6845;$/;"	v	file:
 addr_6845	obj/kern/kernel.asm	/^		addr_6845 = CGA_BASE;$/;"	d
 addr_6845	obj/kern/kernel.asm	/^		addr_6845 = MONO_BASE;$/;"	d
+apicid	kern/mp.h	/^	uint8_t apicid;			\/\/ local APIC id$/;"	m	struct:mpproc
+apicno	kern/mp.h	/^	uint8_t apicno;			\/\/ I\/O APIC id$/;"	m	struct:mpioapic
 assert	inc/assert.h	31;"	d
 assert	inc/assert.h	34;"	d
 available	inc/trap.h	/^	uint8_t		available[3][16];	\/\/ byte 464: available to OS$/;"	m	struct:fxsave
 base	lib/printfmt.c	/^	int base;		\/\/ base for numeric output$/;"	m	struct:printstate	file:
+bda	obj/kern/kernel.asm	/^	bda = (uint8_t *) 0x400;$/;"	d
 bool	inc/types.h	/^typedef int bool;$/;"	t
+booted	kern/cpu.h	/^	volatile uint32_t booted;$/;"	m	struct:cpu
 bootmain	boot/main.c	/^bootmain(void)$/;"	f
 breakpoint	inc/x86.h	/^breakpoint(void)$/;"	f
 buf	kern/cons.c	/^	uint8_t buf[CONSBUFSIZE];$/;"	m	struct:__anon1	file:
@@ -361,13 +449,21 @@ c	obj/kern/kernel.asm	/^	c = charcode[shift & (CTL | SHIFT)][data];$/;"	d
 ch	obj/kern/kernel.asm	/^				ch = *fmt;$/;"	d
 char	obj/kern/kernel.asm	/^char *$/;"	l
 charcode	dev/kbd.c	/^static uint8_t *charcode[4] = {$/;"	v	file:
+checksum	kern/mp.h	/^	uint8_t checksum;		\/\/ all bytes must add up to 0$/;"	m	struct:mp
+checksum	kern/mp.h	/^	uint8_t checksum;		\/\/ all bytes must add up to 0$/;"	m	struct:mpconf
+checkva	kern/syscall.c	/^static void checkva(trapframe *utf, uint32_t uva, size_t size)$/;"	f	file:
+child	kern/proc.c	/^static void child(int n)$/;"	f	file:
+child	kern/proc.h	/^	struct proc	*child[PROC_CHILDREN];$/;"	m	struct:proc	typeref:struct:proc::proc
+child_state	kern/proc.c	/^static struct procstate child_state;$/;"	v	typeref:struct:procstate	file:
 cli	inc/x86.h	/^cli(void)$/;"	f
 cnt	lib/cprintf.c	/^	int cnt;	\/\/ total bytes printed so far$/;"	m	struct:printbuf	file:
 cnt	obj/kern/kernel.asm	/^	cnt = vcprintf(fmt, ap);$/;"	d
+conf	obj/kern/kernel.asm	/^	conf = (struct mpconf *) mp->physaddr;$/;"	d
 cons	kern/cons.c	/^} cons;$/;"	v	typeref:struct:__anon1	file:
 cons_getc	kern/cons.c	/^cons_getc(void)$/;"	f
 cons_init	kern/cons.c	/^cons_init(void)$/;"	f
 cons_intr	kern/cons.c	/^cons_intr(int (*proc)(void))$/;"	f
+cons_lock	kern/cons.c	/^spinlock cons_lock;	\/\/ Spinlock to make console output atomic$/;"	v
 cons_putc	kern/cons.c	/^cons_putc(int c)$/;"	f	file:
 const	obj/kern/kernel.asm	/^const char *trap_name(int trapno)$/;"	l
 cp	obj/kern/kernel.asm	/^		cp = (uint16_t*) mem_ptr(MONO_BUF);$/;"	d
@@ -375,11 +471,16 @@ cp	obj/kern/kernel.asm	/^	cp = (uint16_t*) mem_ptr(CGA_BUF);$/;"	d
 cprintf	lib/cprintf.c	/^cprintf(const char *fmt, ...)$/;"	f
 cpu	kern/cpu.h	/^typedef struct cpu {$/;"	s
 cpu	kern/cpu.h	/^} cpu;$/;"	t	typeref:struct:cpu
+cpu	kern/spinlock.h	/^	struct cpu *cpu;	\/\/ The cpu holding the lock.$/;"	m	struct:spinlock	typeref:struct:spinlock::cpu
+cpu	obj/kern/kernel.asm	/^cpu *$/;"	l
+cpu_alloc	kern/cpu.c	/^cpu_alloc(void)$/;"	f
 cpu_boot	kern/cpu.c	/^cpu cpu_boot = {$/;"	v
+cpu_bootothers	kern/cpu.c	/^cpu_bootothers(void)$/;"	f
 cpu_cur	kern/cpu.h	/^cpu_cur() {$/;"	f
-cpu_disabled	kern/cpu.h	73;"	d
+cpu_disabled	kern/cpu.h	85;"	d
 cpu_init	kern/cpu.c	/^void cpu_init()$/;"	f
 cpu_onboot	kern/cpu.h	/^cpu_onboot() {$/;"	f
+cpu_tail	obj/kern/kernel.asm	/^	cpu_tail = &c->next;$/;"	d
 cpuid	inc/x86.h	/^cpuid(uint32_t idx, cpuinfo *info)$/;"	f
 cpuinfo	inc/x86.h	/^typedef struct cpuinfo {$/;"	s
 cpuinfo	inc/x86.h	/^} cpuinfo;$/;"	t	typeref:struct:cpuinfo
@@ -390,9 +491,9 @@ crt_pos	dev/video.c	/^static uint16_t crt_pos;$/;"	v	file:
 crt_pos	obj/kern/kernel.asm	/^	crt_pos = pos;$/;"	d
 cs	inc/trap.h	/^	uint16_t	cs;$/;"	m	struct:fxsave
 cs	inc/trap.h	/^	uint16_t cs; 		uint16_t padding_cs;$/;"	m	struct:trapframe
-cs	obj/kern/kernel.asm	/^    cs: CPU_GDT_UCODE | 3,$/;"	l
 ctlmap	dev/kbd.c	/^static uint8_t ctlmap[256] = $/;"	v	file:
 d	obj/kern/kernel.asm	/^	d = dst;$/;"	d
+data	dev/ioapic.c	/^	uint32_t data;$/;"	m	struct:ioapic	file:
 data	obj/kern/kernel.asm	/^		data = (shift & E0ESC ? data : data & 0x7F);$/;"	d
 data	obj/kern/kernel.asm	/^	data = inb(KBDATAP);$/;"	d
 dead	obj/kern/kernel.asm	/^dead:$/;"	l
@@ -401,15 +502,19 @@ debug_panic	kern/debug.c	/^debug_panic(const char *file, int line, const char *f
 debug_trace	kern/debug.c	/^debug_trace(uint32_t ebp, uint32_t eips[DEBUG_TRACEFRAMES])$/;"	f
 debug_warn	kern/debug.c	/^debug_warn(const char *file, int line, const char *fmt,...)$/;"	f
 default	obj/kern/kernel.asm	/^		default:$/;"	l
+default	obj/kern/kernel.asm	/^	default:	return;		\/\/ handle as a regular trap$/;"	l
 default	obj/kern/kernel.asm	/^	default:$/;"	l
 delay	dev/serial.c	/^delay(void)$/;"	f	file:
+didinit	dev/pic.c	/^static bool didinit;$/;"	v	file:
+didinit	obj/kern/kernel.asm	/^	didinit = 1;$/;"	d
+do_cputs	kern/syscall.c	/^do_cputs(trapframe *tf, uint32_t cmd)$/;"	f	file:
 done	kern/init.c	/^done()$/;"	f
 double_t	inc/types.h	/^typedef	double			double_t;$/;"	t
 ds	inc/trap.h	/^	uint16_t	ds;$/;"	m	struct:fxsave
 ds	inc/trap.h	/^	uint16_t ds; 		uint16_t padding_ds;$/;"	m	struct:trapframe
-ds	obj/kern/kernel.asm	/^    ds: CPU_GDT_UDATA | 3,$/;"	l
 dst_in	obj/kern/kernel.asm	/^	dst_in = dst;$/;"	d
 dump	inc/assert.h	28;"	d
+e	obj/kern/kernel.asm	/^	e = addr + len;$/;"	d
 e_ehsize	inc/elf.h	/^	uint16_t e_ehsize;$/;"	m	struct:elfhdf
 e_elf	inc/elf.h	/^	uint8_t e_elf[12];$/;"	m	struct:elfhdf
 e_entry	inc/elf.h	/^	uint32_t e_entry;$/;"	m	struct:elfhdf
@@ -437,17 +542,15 @@ edi	inc/trap.h	/^	uint32_t edi;$/;"	m	struct:pushregs
 edx	inc/trap.h	/^	uint32_t edx;$/;"	m	struct:pushregs
 edx	inc/x86.h	/^	uint32_t	edx;$/;"	m	struct:cpuinfo
 eflags	inc/trap.h	/^	uint32_t eflags;$/;"	m	struct:trapframe
-eflags	obj/kern/kernel.asm	/^    eflags: FL_IOPL_3,$/;"	l
 eip	inc/trap.h	/^	uintptr_t eip;$/;"	m	struct:trapframe
-eip	obj/kern/kernel.asm	/^    eip: (uint32_t) user,$/;"	l
+eips	kern/spinlock.h	/^	uint32_t eips[DEBUG_TRACEFRAMES]; \/\/ Call stack that locked the lock.$/;"	m	struct:spinlock
 elfhdf	inc/elf.h	/^typedef struct elfhdf {$/;"	s
 elfhdr	inc/elf.h	/^} elfhdr;$/;"	t	typeref:struct:elfhdf
+entry	kern/mp.h	/^	uint16_t entry;			\/\/ entry count$/;"	m	struct:mpconf
 err	inc/trap.h	/^	uint32_t err;$/;"	m	struct:trapframe
 es	inc/trap.h	/^	uint16_t es;		uint16_t padding_es;$/;"	m	struct:trapframe
-es	obj/kern/kernel.asm	/^    es: CPU_GDT_UDATA | 3,$/;"	l
 esi	inc/trap.h	/^	uint32_t esi;$/;"	m	struct:pushregs
 esp	inc/trap.h	/^	uintptr_t esp;$/;"	m	struct:trapframe
-esp	obj/kern/kernel.asm	/^    esp: (uint32_t) &user_stack[PAGESIZE],$/;"	l
 extmem	obj/kern/kernel.asm	/^	extmem = 1024*1024*1024 - MEM_EXT;	\/\/ assume 1GB total memory$/;"	d
 f1	kern/debug.c	/^static void gcc_noinline f1(int r, uint32_t *e) { r & 1 ? f2(r,e) : f2(r,e); }$/;"	f	file:
 f2	kern/debug.c	/^static void gcc_noinline f2(int r, uint32_t *e) { r & 2 ? f3(r,e) : f3(r,e); }$/;"	f	file:
@@ -455,7 +558,11 @@ f3	kern/debug.c	/^static void gcc_noinline f3(int r, uint32_t *e) { debug_trace(
 fail	misc/grade-functions.sh	/^fail () {$/;"	f
 false	inc/types.h	26;"	d
 fcw	inc/trap.h	/^	uint16_t	fcw;			\/\/ byte 0$/;"	m	struct:fxsave
+feature	kern/mp.h	/^	uint32_t feature;		\/\/ feature flags from CPUID instruction$/;"	m	struct:mpproc
+file	kern/spinlock.h	/^	const char *file;	\/\/ Source file where spinlock_init() was called$/;"	m	struct:spinlock
 fl	obj/kern/kernel.asm	/^	fl = mem_freelist;$/;"	d
+flags	kern/mp.h	/^	uint8_t flags;			\/\/ CPU flags$/;"	m	struct:mpproc
+flags	kern/mp.h	/^	uint8_t flags;			\/\/ I\/O APIC flags$/;"	m	struct:mpioapic
 flags	lib/printfmt.c	/^	int flags;		\/\/ flags below$/;"	m	struct:printstate	file:
 float_t	inc/types.h	/^typedef	float			float_t;$/;"	t
 fop	inc/trap.h	/^	uint16_t	fop;$/;"	m	struct:fxsave
@@ -463,11 +570,11 @@ fpu_dp	inc/trap.h	/^	uint32_t	fpu_dp;			\/\/ byte 16$/;"	m	struct:fxsave
 fpu_ip	inc/trap.h	/^	uint32_t	fpu_ip;$/;"	m	struct:fxsave
 frame	obj/kern/kernel.asm	/^    frame = (uint32_t*)frame[0];  \/\/ prev ebp saved at ebp 0$/;"	d
 free_next	kern/mem.h	/^	struct pageinfo	*free_next;	\/\/ Next page number on free list$/;"	m	struct:pageinfo	typeref:struct:pageinfo::pageinfo
-freetail	obj/kern/kernel.asm	/^		freetail = &mem_pageinfo[i].free_next;$/;"	d
+freetail	obj/kern/kernel.asm	/^      freetail = &mem_pageinfo[i].free_next;$/;"	d
 fs	inc/trap.h	/^	uint16_t fs; 		uint16_t padding_fs;$/;"	m	struct:trapframe
-fs	obj/kern/kernel.asm	/^    fs: 0,$/;"	l
 fsw	inc/trap.h	/^	uint16_t	fsw;$/;"	m	struct:fxsave
 ftw	inc/trap.h	/^	uint16_t	ftw;$/;"	m	struct:fxsave
+fx	inc/syscall.h	/^	fxsave		fx;		\/\/ x87\/MMX\/XMM registers$/;"	m	struct:procstate
 fxsave	inc/trap.h	/^typedef gcc_aligned(16) struct fxsave {$/;"	s
 fxsave	inc/trap.h	/^} fxsave;$/;"	v	typeref:struct:fxsave
 gatedesc	inc/mmu.h	/^typedef struct gatedesc {$/;"	s
@@ -489,21 +596,29 @@ gd_s	inc/mmu.h	/^	unsigned gd_s : 1;           \/\/ must be 0 (system)$/;"	m	str
 gd_ss	inc/mmu.h	/^	unsigned gd_ss : 16;         \/\/ segment selector$/;"	m	struct:gatedesc
 gd_type	inc/mmu.h	/^	unsigned gd_type : 4;        \/\/ type(STS_{TG,IG32,TG32})$/;"	m	struct:gatedesc
 gdt	boot/boot.S	/^gdt:$/;"	l
+gdt	boot/bootother.S	/^gdt:$/;"	l
 gdt	kern/cpu.h	/^	segdesc		gdt[CPU_GDT_NDESC];$/;"	m	struct:cpu
 gdtdesc	boot/boot.S	/^gdtdesc:$/;"	l
+gdtdesc	boot/bootother.S	/^gdtdesc:$/;"	l
 genfint	lib/printfmt.c	/^genfint(printstate *st, char *p, double num)$/;"	f	file:
 genfrac	lib/printfmt.c	/^genfrac(printstate *st, char *p, double num, int fmtch)$/;"	f	file:
 genint	lib/printfmt.c	/^genint(printstate *st, char *p, uintmax_t num)$/;"	f	file:
 getint	lib/printfmt.c	/^getint(printstate *st, va_list *ap)$/;"	f	file:
 getuint	lib/printfmt.c	/^getuint(printstate *st, va_list *ap)$/;"	f	file:
 gotprec	obj/kern/kernel.asm	/^		gotprec:$/;"	l
+grandchild	kern/proc.c	/^static void grandchild(int n)$/;"	f	file:
 greptest	misc/grade-functions.sh	/^greptest () {$/;"	f
 grmltest	misc/grade-functions.sh	/^grmltest () {$/;"	f
 gs	inc/trap.h	/^	uint16_t gs;		uint16_t padding_gs;$/;"	m	struct:trapframe
-gs	obj/kern/kernel.asm	/^    gs: 0,$/;"	l
+i	obj/kern/kernel.asm	/^		i = (i+1) % 4;	\/\/ rotate to next child proc$/;"	d
+i	obj/kern/kernel.asm	/^	i = 0;$/;"	d
+id	kern/cpu.h	/^	uint8_t		id;$/;"	m	struct:cpu
+id	obj/kern/kernel.asm	/^		id = ioapicid;$/;"	d
+id	obj/kern/kernel.asm	/^	id = ioapic_read(REG_ID) >> 24;$/;"	d
 idt	kern/trap.c	/^static struct gatedesc idt[256];$/;"	v	typeref:struct:gatedesc	file:
 idt_pd	kern/trap.c	/^static struct pseudodesc idt_pd = {$/;"	v	typeref:struct:pseudodesc	file:
 idx	lib/cprintf.c	/^	int idx;	\/\/ current buffer index$/;"	m	struct:printbuf	file:
+imcrp	kern/mp.h	/^	uint8_t imcrp;$/;"	m	struct:mp
 inb	inc/x86.h	/^inb(int port)$/;"	f
 init	kern/init.c	/^init(void)$/;"	f
 inl	inc/x86.h	/^inl(int port)$/;"	f
@@ -511,6 +626,7 @@ ino_t	inc/types.h	/^typedef int			ino_t;		\/\/ file inode numbers$/;"	t
 insb	inc/x86.h	/^insb(int port, void *addr, int cnt)$/;"	f
 insl	inc/x86.h	/^insl(int port, void *addr, int cnt)$/;"	f
 insw	inc/x86.h	/^insw(int port, void *addr, int cnt)$/;"	f
+int	obj/kern/kernel.asm	/^int gcc_noinline$/;"	l
 int	obj/kern/kernel.asm	/^int$/;"	l
 int16_t	inc/types.h	/^typedef short			int16_t;$/;"	t
 int32_t	inc/types.h	/^typedef int			int32_t;$/;"	t
@@ -520,24 +636,52 @@ intmax_t	inc/types.h	/^typedef long long		intmax_t;$/;"	t
 intptr_t	inc/types.h	/^typedef int			intptr_t;	\/\/ pointer-size signed integer$/;"	t
 invlpg	inc/x86.h	/^invlpg(void *addr)$/;"	f
 inw	inc/x86.h	/^inw(int port)$/;"	f
+ioapic	dev/ioapic.c	/^struct ioapic {$/;"	s	file:
+ioapic	kern/mp.c	/^volatile struct ioapic *ioapic;$/;"	v	typeref:struct:ioapic
+ioapic	obj/kern/kernel.asm	/^			ioapic = (struct ioapic *) mpio->addr;$/;"	d
+ioapic	obj/kern/kernel.asm	/^		ioapic = mem_ptr(IOAPIC);	\/\/ assume default address$/;"	d
+ioapic_enable	dev/ioapic.c	/^ioapic_enable(int irq)$/;"	f
+ioapic_init	dev/ioapic.c	/^ioapic_init(void)$/;"	f
+ioapic_read	dev/ioapic.c	/^ioapic_read(int reg)$/;"	f	file:
+ioapic_write	dev/ioapic.c	/^ioapic_write(int reg, uint32_t data)$/;"	f	file:
+ioapicid	kern/mp.c	/^uint8_t ioapicid;$/;"	v
+ioapicid	obj/kern/kernel.asm	/^			ioapicid = mpio->apicno;$/;"	d
+irqmask	dev/pic.c	/^static uint16_t irqmask = 0xFFFF & ~(1<<IRQ_SLAVE);$/;"	v	file:
+irqmask	obj/kern/kernel.asm	/^	irqmask = mask;$/;"	d
+ismp	kern/mp.c	/^int ismp;$/;"	v
+ismp	obj/kern/kernel.asm	/^	ismp = 1;$/;"	d
 kbd_init	dev/kbd.c	/^kbd_init(void)$/;"	f
 kbd_intr	dev/kbd.c	/^kbd_intr(void)$/;"	f
 kbd_proc_data	dev/kbd.c	/^kbd_proc_data(void)$/;"	f	file:
 kstackhi	kern/cpu.h	/^	char gcc_aligned(PAGESIZE) kstackhi[0];$/;"	m	struct:cpu
 kstacklo	kern/cpu.h	/^	char		kstacklo[1];$/;"	m	struct:cpu
 l10	obj/kern/kernel.asm	/^		l10 = -l10, st->signc = '-';$/;"	d
+lapic	dev/lapic.c	/^volatile uint32_t *lapic;  \/\/ Initialized in mp.c$/;"	v
+lapic	obj/kern/kernel.asm	/^	lapic = (uint32_t *) conf->lapicaddr;$/;"	d
+lapic_eoi	dev/lapic.c	/^lapic_eoi(void)$/;"	f
+lapic_errintr	dev/lapic.c	/^void lapic_errintr(void)$/;"	f
+lapic_init	dev/lapic.c	/^lapic_init()$/;"	f
+lapic_startcpu	dev/lapic.c	/^lapic_startcpu(uint8_t apicid, uint32_t addr)$/;"	f
+lapicaddr	kern/mp.h	/^	uint32_t *lapicaddr;		\/\/ address of local APIC$/;"	m	struct:mpconf
+lapicw	dev/lapic.c	/^lapicw(int index, int value)$/;"	f	file:
 lcr0	inc/x86.h	/^lcr0(uint32_t val)$/;"	f
 lcr3	inc/x86.h	/^lcr3(uint32_t val)$/;"	f
 lcr4	inc/x86.h	/^lcr4(uint32_t val)$/;"	f
+length	kern/mp.h	/^	uint16_t length;		\/\/ total table length$/;"	m	struct:mpconf
+length	kern/mp.h	/^	uint8_t length;			\/\/ 1$/;"	m	struct:mp
 lidt	inc/x86.h	/^lidt(void *p)$/;"	f
 lim	obj/kern/kernel.asm	/^		lim = str + maxlen;$/;"	d
 lim	obj/kern/kernel.asm	/^		lim = strchr(str, 0);	\/\/ find the terminating null$/;"	d
+line	kern/spinlock.h	/^	int line;		\/\/ Line number of spinlock_init()$/;"	m	struct:spinlock
 lldt	inc/x86.h	/^lldt(uint16_t sel)$/;"	f
+lock	kern/proc.h	/^	spinlock	lock;$/;"	m	struct:proc
 lockadd	inc/x86.h	/^lockadd(volatile int32_t *addr, int32_t incr)$/;"	f
 lockaddz	inc/x86.h	/^lockaddz(volatile int32_t *addr, int32_t incr)$/;"	f
+locked	kern/spinlock.h	/^	uint32_t locked;	\/\/ Is the lock held?$/;"	m	struct:spinlock
 ltr	inc/x86.h	/^ltr(uint16_t sel)$/;"	f
 m	obj/kern/kernel.asm	/^	m = n;$/;"	d
 magic	kern/cpu.h	/^	uint32_t	magic;$/;"	m	struct:cpu
+maxintr	obj/kern/kernel.asm	/^	maxintr = (ioapic_read(REG_VER) >> 16) & 0xFF;$/;"	d
 mem_alloc	kern/mem.c	/^mem_alloc(void)$/;"	f
 mem_check	kern/mem.c	/^mem_check()$/;"	f
 mem_decref	kern/mem.h	/^mem_decref(pageinfo* pi, void (*freefun)(pageinfo *pi))$/;"	f
@@ -545,6 +689,8 @@ mem_free	kern/mem.c	/^mem_free(pageinfo *pi)$/;"	f
 mem_freelist	kern/mem.c	/^pageinfo *mem_freelist;		\/\/ Start of free page list$/;"	v
 mem_freelist	obj/kern/kernel.asm	/^	mem_freelist = 0;$/;"	d
 mem_freelist	obj/kern/kernel.asm	/^	mem_freelist = fl;$/;"	d
+mem_freelist	obj/kern/kernel.asm	/^    mem_freelist = pi->free_next; \/\/ move front of list to next pageinfo$/;"	d
+mem_freelist	obj/kern/kernel.asm	/^  mem_freelist = pi; \/\/ point the front of the list to this$/;"	d
 mem_incref	kern/mem.h	/^mem_incref(pageinfo *pi)$/;"	f
 mem_init	kern/mem.c	/^mem_init(void)$/;"	f
 mem_max	kern/mem.c	/^size_t mem_max;			\/\/ Maximum physical address$/;"	v
@@ -552,6 +698,7 @@ mem_max	obj/kern/kernel.asm	/^	mem_max = MEM_EXT + extmem;$/;"	d
 mem_npage	kern/mem.c	/^size_t mem_npage;		\/\/ Total number of physical memory pages$/;"	v
 mem_npage	obj/kern/kernel.asm	/^	mem_npage = mem_max \/ PAGESIZE;$/;"	d
 mem_pageinfo	kern/mem.c	/^pageinfo *mem_pageinfo;		\/\/ Metadata array indexed by page number$/;"	v
+mem_pageinfo	obj/kern/kernel.asm	/^  mem_pageinfo = (pageinfo *) ROUNDUP(((int)end), sizeof(pageinfo));$/;"	d
 mem_phys	kern/mem.h	38;"	d
 mem_phys2pi	kern/mem.h	58;"	d
 mem_pi2phys	kern/mem.h	59;"	d
@@ -563,17 +710,31 @@ memcmp	lib/string.c	/^memcmp(const void *v1, const void *v2, size_t n)$/;"	f
 memcpy	lib/string.c	/^memcpy(void *dst, const void *src, size_t n)$/;"	f
 memmove	lib/string.c	/^memmove(void *dst, const void *src, size_t n)$/;"	f
 memset	lib/string.c	/^memset(void *v, int c, size_t n)$/;"	f
+microdelay	dev/lapic.c	/^microdelay(int us)$/;"	f
 mode_t	inc/types.h	/^typedef int			mode_t;		\/\/ file mode flags$/;"	t
+mp	kern/mp.h	/^struct mp {            	\/\/ MP floating pointer structure$/;"	s
+mp_init	kern/mp.c	/^mp_init(void)$/;"	f
+mpconf	kern/mp.h	/^struct mpconf {         \/\/ configuration table header$/;"	s
+mpconfig	kern/mp.c	/^mpconfig(struct mp **pmp) {$/;"	f	file:
+mpio	obj/kern/kernel.asm	/^			mpio = (struct mpioapic *) p;$/;"	d
+mpioapic	kern/mp.h	/^struct mpioapic {       \/\/ I\/O APIC table entry$/;"	s
+mpproc	kern/mp.h	/^struct mpproc {         \/\/ processor table entry$/;"	s
+mpsearch	kern/mp.c	/^mpsearch(void)$/;"	f	file:
+mpsearch1	kern/mp.c	/^mpsearch1(uint8_t * addr, int len)$/;"	f	file:
 mxcsr	inc/trap.h	/^	uint32_t	mxcsr;$/;"	m	struct:fxsave
 mxcsr_mask	inc/trap.h	/^	uint32_t	mxcsr_mask;$/;"	m	struct:fxsave
 name	kern/trapasm.S	/^	name:								\\$/;"	l
 name	kern/trapasm.S	/^	name:			\/* function starts here *\/		\\$/;"	l
+ncpu	kern/mp.c	/^int ncpu;$/;"	v
+next	kern/cpu.h	/^	struct cpu	*next;$/;"	m	struct:cpu	typeref:struct:cpu::cpu
 normalmap	dev/kbd.c	/^static uint8_t normalmap[256] =$/;"	v	file:
 num	obj/kern/kernel.asm	/^				num = -(intmax_t) num;$/;"	d
 num	obj/kern/kernel.asm	/^			num = getint(&st, &ap);$/;"	d
 nvram_read	dev/nvram.c	/^nvram_read(unsigned reg)$/;"	f
 nvram_read16	dev/nvram.c	/^nvram_read16(unsigned r)$/;"	f
 nvram_write	dev/nvram.c	/^nvram_write(unsigned reg, unsigned datum)$/;"	f
+oemlength	kern/mp.h	/^	uint16_t oemlength;		\/\/ OEM table length$/;"	m	struct:mpconf
+oemtable	kern/mp.h	/^	uint32_t *oemtable;		\/\/ OEM table pointer$/;"	m	struct:mpconf
 oesp	inc/trap.h	/^	uint32_t oesp;		\/* Useless *\/$/;"	m	struct:pushregs
 off_t	inc/types.h	/^typedef int			off_t;		\/\/ file offsets and lengths$/;"	t
 offsetof	inc/types.h	94;"	d
@@ -583,6 +744,7 @@ outsb	inc/x86.h	/^outsb(int port, const void *addr, int cnt)$/;"	f
 outsl	inc/x86.h	/^outsl(int port, const void *addr, int cnt)$/;"	f
 outsw	inc/x86.h	/^outsw(int port, const void *addr, int cnt)$/;"	f
 outw	inc/x86.h	/^outw(int port, uint16_t data)$/;"	f
+p	obj/kern/kernel.asm	/^		p = ((bda[0x14] << 8) | bda[0x13]) * 1024;$/;"	d
 p	obj/kern/kernel.asm	/^		p = genfint(st, p, num \/ 10.0);	\/\/ recursively print higher digits$/;"	d
 p	obj/kern/kernel.asm	/^		p = genint(st, p, num \/ st->base);	\/\/ output higher digits$/;"	d
 p	obj/kern/kernel.asm	/^	p = genfint(st, p, num);			\/\/ sign and integer part$/;"	d
@@ -600,6 +762,7 @@ p_offset	inc/elf.h	/^	uint32_t p_offset;$/;"	m	struct:proghdr
 p_pa	inc/elf.h	/^	uint32_t p_pa;$/;"	m	struct:proghdr
 p_type	inc/elf.h	/^	uint32_t p_type;$/;"	m	struct:proghdr
 p_va	inc/elf.h	/^	uint32_t p_va;$/;"	m	struct:proghdr
+pad	dev/ioapic.c	/^	uint32_t pad[3];$/;"	m	struct:ioapic	file:
 padc	lib/printfmt.c	/^	int padc;		\/\/ left pad character, ' ' or '0'$/;"	m	struct:printstate	file:
 padding_cs	inc/trap.h	/^	uint16_t cs; 		uint16_t padding_cs;$/;"	m	struct:trapframe
 padding_ds	inc/trap.h	/^	uint16_t ds; 		uint16_t padding_ds;$/;"	m	struct:trapframe
@@ -607,18 +770,26 @@ padding_es	inc/trap.h	/^	uint16_t es;		uint16_t padding_es;$/;"	m	struct:trapfra
 padding_fs	inc/trap.h	/^	uint16_t fs; 		uint16_t padding_fs;$/;"	m	struct:trapframe
 padding_gs	inc/trap.h	/^	uint16_t gs;		uint16_t padding_gs;$/;"	m	struct:trapframe
 padding_ss	inc/trap.h	/^	uint16_t ss;		uint16_t padding_ss;$/;"	m	struct:trapframe
+page_spinlock	kern/mem.c	/^spinlock page_spinlock;$/;"	v
 pageinfo	kern/mem.h	/^typedef struct pageinfo {$/;"	s
 pageinfo	kern/mem.h	/^} pageinfo;$/;"	t	typeref:struct:pageinfo
 pageinfo	obj/kern/kernel.asm	/^pageinfo *$/;"	l
 panic	inc/assert.h	27;"	d
 panicstr	kern/debug.c	/^static const char *panicstr;$/;"	v	file:
 panicstr	obj/kern/kernel.asm	/^		panicstr = fmt;$/;"	d
+parent	kern/proc.h	/^	struct proc	*parent;$/;"	m	struct:proc	typeref:struct:proc::proc
 pass	misc/grade-functions.sh	/^pass () {$/;"	f
 passfailmsg	misc/grade-functions.sh	/^passfailmsg () {$/;"	f
 pause	inc/x86.h	/^pause(void)$/;"	f
 pd_base	inc/mmu.h	/^	uint32_t gcc_packed	pd_base;	\/\/ Base - NOT 4-byte aligned!$/;"	m	struct:pseudodesc
 pd_lim	inc/mmu.h	/^	uint16_t		pd_lim;		\/\/ Limit$/;"	m	struct:pseudodesc
+pff	inc/syscall.h	/^	uint32_t	pff;		\/\/ process feature flags - see below$/;"	m	struct:procstate
+physaddr	kern/mp.h	/^	void *physaddr;			\/\/ phys addr of MP config table$/;"	m	struct:mp
+pic_enable	dev/pic.c	/^pic_enable(int irq)$/;"	f
+pic_init	dev/pic.c	/^pic_init(void)$/;"	f
+pic_setmask	dev/pic.c	/^pic_setmask(uint16_t mask)$/;"	f
 pid_t	inc/types.h	/^typedef int			pid_t;		\/\/ process IDs$/;"	t
+pingpong	kern/proc.c	/^static volatile uint32_t pingpong = 0;$/;"	v	file:
 pos	obj/kern/kernel.asm	/^	pos = inb(addr_6845 + 1) << 8;$/;"	d
 pp0	obj/kern/kernel.asm	/^	pp0 = mem_alloc(); assert(pp0 != 0);$/;"	d
 pp0	obj/kern/kernel.asm	/^	pp0 = pp1 = pp2 = 0;$/;"	d
@@ -628,6 +799,28 @@ prec	lib/printfmt.c	/^	int prec;		\/\/ numeric precision or string length, -1=no
 printbuf	lib/cprintf.c	/^struct printbuf {$/;"	s	file:
 printstate	lib/printfmt.c	/^typedef struct printstate {$/;"	s	file:
 printstate	lib/printfmt.c	/^} printstate;$/;"	t	typeref:struct:printstate	file:
+proc	kern/cpu.h	/^	struct proc	*proc;$/;"	m	struct:cpu	typeref:struct:cpu::proc
+proc	kern/proc.h	/^typedef struct proc {$/;"	s
+proc	kern/proc.h	/^} proc;$/;"	t	typeref:struct:proc
+proc	obj/kern/kernel.asm	/^			proc = (struct mpproc *) p;$/;"	d
+proc_alloc	kern/proc.c	/^proc_alloc(proc *p, uint32_t cn)$/;"	f
+proc_check	kern/proc.c	/^proc_check(void)$/;"	f
+proc_cur	kern/proc.h	52;"	d
+proc_init	kern/proc.c	/^proc_init(void)$/;"	f
+proc_null	kern/proc.c	/^proc proc_null;		\/\/ null process - just leave it initialized to 0$/;"	v
+proc_ready	kern/proc.c	/^proc_ready(proc *p)$/;"	f
+proc_ret	kern/proc.c	/^proc_ret(trapframe *tf, int entry)$/;"	f
+proc_root	kern/proc.c	/^proc *proc_root;	\/\/ root process, once it's created in init()$/;"	v
+proc_run	kern/proc.c	/^proc_run(proc *p)$/;"	f
+proc_save	kern/proc.c	/^proc_save(proc *p, trapframe *tf, int entry)$/;"	f
+proc_sched	kern/proc.c	/^proc_sched(void)$/;"	f
+proc_state	kern/proc.h	/^typedef enum proc_state {$/;"	g
+proc_state	kern/proc.h	/^} proc_state;$/;"	t	typeref:enum:proc_state
+proc_wait	kern/proc.c	/^proc_wait(proc *p, proc *cp, trapframe *tf)$/;"	f
+proc_yield	kern/proc.c	/^proc_yield(trapframe *tf)$/;"	f
+procstate	inc/syscall.h	/^typedef struct procstate {$/;"	s
+procstate	inc/syscall.h	/^} procstate;$/;"	t	typeref:struct:procstate
+product	kern/mp.h	/^	uint8_t product[20];		\/\/ product id$/;"	m	struct:mpconf
 proghdr	inc/elf.h	/^typedef struct proghdr {$/;"	s
 proghdr	inc/elf.h	/^} proghdr;$/;"	t	typeref:struct:proghdr
 protcseg	boot/boot.S	/^protcseg:$/;"	l
@@ -659,11 +852,26 @@ read_esp	inc/x86.h	/^read_esp(void)$/;"	f
 readdeps	misc/mergedep.pl	/^sub readdeps {$/;"	s
 readsect	boot/main.c	/^readsect(void *dst, uint32_t offset)$/;"	f
 readseg	boot/main.c	/^readseg(uint32_t va, uint32_t count, uint32_t offset)$/;"	f
+ready_pop	kern/proc.c	/^ready_pop(void)$/;"	f
+ready_push	kern/proc.c	/^ready_push(proc *p)$/;"	f
+readyhead	kern/proc.c	/^static proc *readyhead;$/;"	v	file:
+readyhead	obj/kern/kernel.asm	/^  readyhead = p->readynext;$/;"	d
+readylock	kern/proc.c	/^static spinlock readylock;$/;"	v	file:
+readynext	kern/proc.h	/^	struct proc	*readynext;	\/\/ chain on ready queue$/;"	m	struct:proc	typeref:struct:proc::proc
+readytail	kern/proc.c	/^static proc **readytail;$/;"	v	file:
+readytail	obj/kern/kernel.asm	/^    readytail = &readyhead;$/;"	d
+readytail	obj/kern/kernel.asm	/^  readytail = &p->readynext;$/;"	d
+readytail	obj/kern/kernel.asm	/^  readytail = &readyhead;$/;"	d
+recovargs	kern/proc.c	/^static void *recovargs;$/;"	v	file:
 recover	kern/cpu.h	/^	gcc_noreturn void (*recover)(trapframe *tf, void *recoverdata);$/;"	m	struct:cpu
 recoverdata	kern/cpu.h	/^	void		*recoverdata;$/;"	m	struct:cpu
 refcount	kern/mem.h	/^	int32_t	refcount;		\/\/ Reference count on allocated pages$/;"	m	struct:pageinfo
+reg	dev/ioapic.c	/^	uint32_t reg;$/;"	m	struct:ioapic	file:
 regs	inc/trap.h	/^	pushregs regs;$/;"	m	struct:trapframe
 reip	kern/trap.h	/^	void *reip;		\/\/ In: EIP at which to resume trapping code$/;"	m	struct:trap_check_args
+reserved	kern/mp.h	/^	uint8_t reserved;$/;"	m	struct:mpconf
+reserved	kern/mp.h	/^	uint8_t reserved[3];$/;"	m	struct:mp
+reserved	kern/mp.h	/^	uint8_t reserved[8];$/;"	m	struct:mpproc
 reserved1	inc/trap.h	/^	uint16_t	reserved1;$/;"	m	struct:fxsave
 reserved2	inc/trap.h	/^	uint16_t	reserved2;$/;"	m	struct:fxsave
 reserved3	inc/trap.h	/^	uint8_t		reserved3[11][16];	\/\/ byte 288: reserved area$/;"	m	struct:fxsave
@@ -671,6 +879,7 @@ reswitch	obj/kern/kernel.asm	/^	reswitch:$/;"	l
 ret	obj/kern/kernel.asm	/^	ret = dst;$/;"	d
 rpos	kern/cons.c	/^	uint32_t rpos;$/;"	m	struct:__anon1	file:
 run	misc/grade-functions.sh	/^run () {$/;"	f
+runcpu	kern/proc.h	/^	struct cpu	*runcpu;	\/\/ cpu we're running on if running$/;"	m	struct:proc	typeref:struct:proc::cpu
 s	obj/kern/kernel.asm	/^				s = "(null)";$/;"	d
 s	obj/kern/kernel.asm	/^	s = src;$/;"	d
 sd_avl	inc/mmu.h	/^	unsigned sd_avl : 1;        \/\/ Unused (available for software use)$/;"	m	struct:segdesc
@@ -708,39 +917,75 @@ sh_size	inc/elf.h	/^	uint32_t sh_size;$/;"	m	struct:sechdr
 sh_type	inc/elf.h	/^	uint32_t sh_type;$/;"	m	struct:sechdr
 shiftcode	dev/kbd.c	/^static uint8_t shiftcode[256] = $/;"	v	file:
 shiftmap	dev/kbd.c	/^static uint8_t shiftmap[256] = $/;"	v	file:
+signature	kern/mp.h	/^	uint8_t signature[4];		\/\/ "PCMP"$/;"	m	struct:mpconf
+signature	kern/mp.h	/^	uint8_t signature[4];		\/\/ "_MP_"$/;"	m	struct:mp
+signature	kern/mp.h	/^	uint8_t signature[4];		\/\/ CPU signature$/;"	m	struct:mpproc
 signc	lib/printfmt.c	/^	int signc;		\/\/ sign character: '+', '-', ' ', or -1=none$/;"	m	struct:printstate	file:
 size_t	inc/types.h	/^typedef unsigned		size_t;$/;"	t
 size_t	obj/kern/kernel.asm	/^size_t$/;"	l
+specrev	kern/mp.h	/^	uint8_t specrev;		\/\/ [14]$/;"	m	struct:mp
 spin	boot/boot.S	/^spin:$/;"	l
+spin	boot/bootother.S	/^spin:$/;"	l
 spin	kern/entry.S	/^spin:	jmp	spin$/;"	l
 spin	obj/boot/bootblock.asm	/^spin:$/;"	l
+spin	obj/boot/bootother.asm	/^spin:$/;"	l
 spin	obj/kern/kernel.asm	/^spin:	jmp	spin$/;"	l
+spinlock	kern/spinlock.h	/^typedef struct spinlock {$/;"	s
+spinlock	kern/spinlock.h	/^} spinlock;$/;"	t	typeref:struct:spinlock
+spinlock_acquire	kern/spinlock.c	/^spinlock_acquire(struct spinlock *lk)$/;"	f
+spinlock_check	kern/spinlock.c	/^void spinlock_check()$/;"	f
+spinlock_godeep	kern/spinlock.c	/^spinlock_godeep(volatile int depth, spinlock* lk)$/;"	f
+spinlock_holding	kern/spinlock.c	/^spinlock_holding(spinlock *lk)$/;"	f
+spinlock_init	kern/spinlock.h	33;"	d
+spinlock_init_	kern/spinlock.c	/^spinlock_init_(struct spinlock *lk, const char *file, int line)$/;"	f
+spinlock_release	kern/spinlock.c	/^spinlock_release(struct spinlock *lk)$/;"	f
 ss	inc/trap.h	/^	uint16_t ss;		uint16_t padding_ss;$/;"	m	struct:trapframe
-ss	obj/kern/kernel.asm	/^    ss: CPU_GDT_UDATA | 3,$/;"	l
 ssize_t	inc/types.h	/^typedef int			ssize_t;$/;"	t
 st_mm	inc/trap.h	/^	uint8_t		st_mm[8][16];		\/\/ byte 32: x87\/MMX registers$/;"	m	struct:fxsave
 start	boot/boot.S	/^start:$/;"	l
+start	boot/bootother.S	/^start:$/;"	l
 start	kern/entry.S	/^start: _start:$/;"	l
 start	obj/boot/bootblock.asm	/^start:$/;"	l
+start	obj/boot/bootother.asm	/^start:$/;"	l
 start	obj/kern/kernel.asm	/^start: _start:$/;"	l
+start32	boot/bootother.S	/^start32:$/;"	l
+start32	obj/boot/bootother.asm	/^start32:$/;"	l
+state	kern/proc.h	/^	proc_state	state;		\/\/ current state$/;"	m	struct:proc
 static	obj/boot/bootblock.asm	/^static gcc_inline uint8_t$/;"	l
 static	obj/boot/bootblock.asm	/^static gcc_inline void$/;"	l
 static	obj/kern/kernel.asm	/^static char *$/;"	l
+static	obj/kern/kernel.asm	/^static char gcc_aligned(16) child_stack[4][PAGESIZE];$/;"	l
 static	obj/kern/kernel.asm	/^static gcc_inline uint16_t$/;"	l
 static	obj/kern/kernel.asm	/^static gcc_inline uint32_t$/;"	l
 static	obj/kern/kernel.asm	/^static gcc_inline uint8_t$/;"	l
 static	obj/kern/kernel.asm	/^static gcc_inline void$/;"	l
 static	obj/kern/kernel.asm	/^static inline cpu *$/;"	l
 static	obj/kern/kernel.asm	/^static inline int$/;"	l
+static	obj/kern/kernel.asm	/^static inline uint32_t$/;"	l
+static	obj/kern/kernel.asm	/^static inline void$/;"	l
 static	obj/kern/kernel.asm	/^static int$/;"	l
 static	obj/kern/kernel.asm	/^static intmax_t$/;"	l
+static	obj/kern/kernel.asm	/^static proc **readytail;$/;"	l
+static	obj/kern/kernel.asm	/^static struct mp *$/;"	t
+static	obj/kern/kernel.asm	/^static struct mpconf *$/;"	t
+static	obj/kern/kernel.asm	/^static struct procstate child_state;$/;"	t
 static	obj/kern/kernel.asm	/^static uint16_t crt_pos;$/;"	l
+static	obj/kern/kernel.asm	/^static uint32_t$/;"	l
+static	obj/kern/kernel.asm	/^static uint8_t$/;"	l
 static	obj/kern/kernel.asm	/^static uintmax_t$/;"	l
+static	obj/kern/kernel.asm	/^static void *recovargs;$/;"	l
+static	obj/kern/kernel.asm	/^static void checkva(trapframe *utf, uint32_t uva, size_t size)$/;"	l
+static	obj/kern/kernel.asm	/^static void child(int n)$/;"	l
+static	obj/kern/kernel.asm	/^static void child(int n);$/;"	l
+static	obj/kern/kernel.asm	/^static void gcc_inline$/;"	l
 static	obj/kern/kernel.asm	/^static void gcc_noinline f1(int r, uint32_t *e) { r & 1 ? f2(r,e) : f2(r,e); }$/;"	l
 static	obj/kern/kernel.asm	/^static void gcc_noinline f2(int r, uint32_t *e) { r & 2 ? f3(r,e) : f3(r,e); }$/;"	l
 static	obj/kern/kernel.asm	/^static void gcc_noinline f3(int r, uint32_t *e) { debug_trace(read_ebp(), e); }$/;"	l
 static	obj/kern/kernel.asm	/^static void gcc_noreturn$/;"	l
+static	obj/kern/kernel.asm	/^static void grandchild(int n)$/;"	l
+static	obj/kern/kernel.asm	/^static void grandchild(int n);$/;"	l
 static	obj/kern/kernel.asm	/^static void$/;"	l
+static	obj/kern/kernel.asm	/^static volatile uint32_t pingpong = 0;$/;"	l
 static_assert	inc/assert.h	38;"	d
 sti	inc/x86.h	/^sti(void)$/;"	f
 strchr	lib/string.c	/^strchr(const char *s, char c)$/;"	f
@@ -750,8 +995,19 @@ strlcpy	lib/string.c	/^strlcpy(char *dst, const char *src, size_t size)$/;"	f
 strlen	lib/string.c	/^strlen(const char *s)$/;"	f
 strncmp	lib/string.c	/^strncmp(const char *p, const char *q, size_t n)$/;"	f
 strncpy	lib/string.c	/^strncpy(char *dst, const char *src, size_t size)$/;"	f
+sum	kern/mp.c	/^sum(uint8_t * addr, int len)$/;"	f	file:
+sum	obj/kern/kernel.asm	/^	sum = 0;$/;"	d
+sv	kern/proc.h	/^	procstate	sv;$/;"	m	struct:proc
+sys_cputs	inc/syscall.h	/^sys_cputs(const char *s)$/;"	f
+sys_get	inc/syscall.h	/^sys_get(uint32_t flags, uint16_t child, procstate *save,$/;"	f
+sys_put	inc/syscall.h	/^sys_put(uint32_t flags, uint16_t child, procstate *save,$/;"	f
+sys_ret	inc/syscall.h	/^sys_ret(void)$/;"	f
+syscall	kern/syscall.c	/^syscall(trapframe *tf)$/;"	f
+sysrecover	kern/syscall.c	/^sysrecover(trapframe *ktf, void *recoverdata)$/;"	f	file:
+systrap	kern/syscall.c	/^systrap(trapframe *utf, int trapno, int err)$/;"	f	file:
 taskstate	inc/mmu.h	/^typedef struct taskstate {$/;"	s
 taskstate	inc/mmu.h	/^} taskstate;$/;"	t	typeref:struct:taskstate
+tf	inc/syscall.h	/^	trapframe	tf;		\/\/ general registers$/;"	m	struct:procstate
 tlbflush	inc/x86.h	/^tlbflush(void)$/;"	f
 togglecode	dev/kbd.c	/^static uint8_t togglecode[256] = $/;"	v	file:
 trap	kern/trap.c	/^trap(trapframe *tf)$/;"	f
@@ -813,6 +1069,9 @@ ts_ss1	inc/mmu.h	/^	uint16_t ts_ss1;$/;"	m	struct:taskstate
 ts_ss2	inc/mmu.h	/^	uint16_t ts_ss2;$/;"	m	struct:taskstate
 ts_t	inc/mmu.h	/^	uint16_t ts_t;		\/\/ Trap on task switch$/;"	m	struct:taskstate
 tss	kern/cpu.h	/^	taskstate	tss;$/;"	m	struct:cpu
+type	kern/mp.h	/^	uint8_t type;			\/\/ MP system config type$/;"	m	struct:mp
+type	kern/mp.h	/^	uint8_t type;			\/\/ entry type (0)$/;"	m	struct:mpproc
+type	kern/mp.h	/^	uint8_t type;			\/\/ entry type (2)$/;"	m	struct:mpioapic
 uint16_t	inc/types.h	/^typedef unsigned short		uint16_t;$/;"	t
 uint32_t	inc/types.h	/^typedef unsigned int		uint32_t;$/;"	t
 uint64_t	inc/types.h	/^typedef unsigned long long	uint64_t;$/;"	t
@@ -821,12 +1080,16 @@ uintmax_t	inc/types.h	/^typedef unsigned long long	uintmax_t;$/;"	t
 uintptr_t	inc/types.h	/^typedef unsigned		uintptr_t;	\/\/ pointer-size unsigned integer$/;"	t
 unsigned	obj/kern/kernel.asm	/^unsigned$/;"	l
 user	kern/init.c	/^user()$/;"	f
+usercopy	kern/syscall.c	/^void usercopy(trapframe *utf, bool copyout,$/;"	f
 va_arg	inc/stdarg.h	21;"	d
 va_end	inc/stdarg.h	24;"	d
 va_list	inc/stdarg.h	/^typedef char *va_list;$/;"	t
 va_start	inc/stdarg.h	18;"	d
 val	obj/kern/kernel.asm	/^				val = -val;$/;"	d
 vcprintf	lib/cprintf.c	/^vcprintf(const char *fmt, va_list ap)$/;"	f
+version	kern/mp.h	/^	uint8_t version;		\/\/ I\/O APIC version$/;"	m	struct:mpioapic
+version	kern/mp.h	/^	uint8_t version;		\/\/ [14]$/;"	m	struct:mpconf
+version	kern/mp.h	/^	uint8_t version;		\/\/ local APIC version$/;"	m	struct:mpproc
 video_init	dev/video.c	/^video_init(void)$/;"	f
 video_putc	dev/video.c	/^video_putc(int c)$/;"	f
 void	obj/boot/bootblock.asm	/^void$/;"	l
@@ -841,15 +1104,22 @@ void	obj/kern/kernel.asm	/^void after_priv();$/;"	l
 void	obj/kern/kernel.asm	/^void cpu_init()$/;"	l
 void	obj/kern/kernel.asm	/^void gcc_noinline$/;"	l
 void	obj/kern/kernel.asm	/^void gcc_noreturn$/;"	l
+void	obj/kern/kernel.asm	/^void lapic_errintr(void)$/;"	l
 void	obj/kern/kernel.asm	/^void mem_check(void);$/;"	l
+void	obj/kern/kernel.asm	/^void spinlock_check()$/;"	l
+void	obj/kern/kernel.asm	/^void usercopy(trapframe *utf, bool copyout,$/;"	l
 void	obj/kern/kernel.asm	/^void$/;"	l
 vprintfmt	lib/printfmt.c	/^vprintfmt(void (*putch)(int, void*), void *putdat, const char *fmt, va_list ap)$/;"	f
+waitchild	kern/proc.h	/^	struct proc	*waitchild;	\/\/ child proc if waiting for child$/;"	m	struct:proc	typeref:struct:proc::proc
 waitdisk	boot/main.c	/^waitdisk(void)$/;"	f
 warn	inc/assert.h	26;"	d
 was	obj/kern/kernel.asm	/^	was = *cp;$/;"	d
 width	lib/printfmt.c	/^	int width;		\/\/ field width, -1=none$/;"	m	struct:printstate	file:
 wpos	kern/cons.c	/^	uint32_t wpos;$/;"	m	struct:__anon1	file:
 write_eflags	inc/x86.h	/^write_eflags(uint32_t eflags)$/;"	f
+wrv	obj/kern/kernel.asm	/^	wrv = (uint16_t*)(0x40<<4 | 0x67);  \/\/ Warm reset vector$/;"	d
 xadd	inc/x86.h	/^xadd(volatile uint32_t *addr, int32_t incr)$/;"	f
+xchecksum	kern/mp.h	/^	uint8_t xchecksum;		\/\/ extended table checksum$/;"	m	struct:mpconf
 xchg	inc/x86.h	/^xchg(volatile uint32_t *addr, uint32_t newval)$/;"	f
+xlength	kern/mp.h	/^	uint16_t xlength;		\/\/ extended table length$/;"	m	struct:mpconf
 xmm	inc/trap.h	/^	uint8_t		xmm[8][16];		\/\/ byte 160: XMM registers$/;"	m	struct:fxsave
