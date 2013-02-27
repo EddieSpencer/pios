@@ -96,8 +96,13 @@ proc_alloc(proc *p, uint32_t cn)
 void
 proc_ready(proc *p)
 {
+<<<<<<< HEAD
   p->state = PROC_READY;
 	panic("proc_ready not implemented");
+=======
+	p->proc_state = PROC_READY;
+	ready_push(p);
+>>>>>>> f4b31929baedf189057ccc7eefd2261bbc29bc43
 }
 
 // Save the current process's state before switching to another process.
@@ -110,6 +115,7 @@ proc_ready(proc *p)
 void
 proc_save(proc *p, trapframe *tf, int entry)
 {
+	p->sv.tf = tf; //YAY!!!!!
 }
 
 // Go to sleep waiting for a given child process to finish running.
@@ -124,14 +130,21 @@ proc_wait(proc *p, proc *cp, trapframe *tf)
 void gcc_noreturn
 proc_sched(void)
 {
-	panic("proc_sched not implemented");
-}
-
+	p = ready_pop();
+	while(p == NULL){
+		pause();
+		p = ready_pop();
+	}
+	proc_run(p);
+}	
 // Switch to and run a specified process, which must already be locked.
 void gcc_noreturn
 proc_run(proc *p)
 {
-	panic("proc_run not implemented");
+	p->proc_state = PROC_RUN;
+	cpu *c = cpu_cur();
+	p->cpu = c;
+	c->proc = p;
 }
 
 // Yield the current CPU to another ready process.
@@ -139,7 +152,11 @@ proc_run(proc *p)
 void gcc_noreturn
 proc_yield(trapframe *tf)
 {
-	panic("proc_yield not implemented");
+	proc *p = proc_cur();
+	p->runcpu = NULL;
+	proc_save(p,tf,-1);
+	proc_ready(p);
+	
 }
 
 // Put the current process to sleep by "returning" to its parent process.

@@ -1,3 +1,4 @@
+tags
 # Object files
 *.o
 
@@ -25,4 +26,3 @@
 
 # grade files
 grade-out
->>>>>>> project1
