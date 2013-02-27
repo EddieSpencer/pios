@@ -122,5 +122,4 @@ trap_return:
  popl %ds
  addl $8, %esp
  iret
-1:	jmp	1b		// just spin
 

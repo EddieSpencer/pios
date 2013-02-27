@@ -89,22 +89,15 @@ init(void)
 	// running on the user_stack declared above,
 	// instead of just calling user() directly.
   // << HEAD
-	user();
-  
-  // static trapframe utf = {
-  //   gs: 0,
-  //   fs: 0,
-  //   ds: CPU_GDT_UDATA | 3,
-  //   es: CPU_GDT_UDATA | 3,
-  //   ss: CPU_GDT_UDATA | 3,
-  //   cs: CPU_GDT_UCODE | 3,
-  //   eip: (uint32_t) user,
-  //   eflags: FL_IOPL_3,
-  //   esp: (uint32_t) &user_stack[PAGESIZE],
-  // };
-  // trap_return(&utf);
-	// //user();
-  //>>> project1
+  if (!cpu_onboot())
+    proc_sched();
+
+  proc *root = proc_alloc(NULL, 0);
+  root->sv.tf.eip = (uint32_t) user;
+  root->sv.tf.esp = (uint32_t) &user_stack[PAGESIZE];
+
+  proc_ready(root);
+  proc_sched();
 }
 
 // This is the first function that gets run in user mode (ring 3).
@@ -118,6 +111,7 @@ user()
 	assert(read_esp() < (uint32_t) &user_stack[sizeof(user_stack)]);
 
 	// Check the system call and process scheduling code.
+  cprintf("proc_check");
 	proc_check();
 
 	// Check that we're in user mode and can handle traps from there.

@@ -137,6 +137,7 @@ include lib/Makefrag
 
 NCPUS = 2
 IMAGES = $(OBJDIR)/kern/kernel.img
+# single cpu qemu
 QEMUOPTS = -smp $(NCPUS) -hda $(OBJDIR)/kern/kernel.img -serial mon:stdio \
 		-k en-us -m 1100M
 #QEMUNET = -net socket,mcast=230.0.0.1:$(NETPORT) -net nic,model=i82559er

@@ -27,32 +27,6 @@ static spinlock readylock;
 static proc *readyhead;
 static proc **readytail;
 
-proc *
-ready_pop(void)
-{
-  spinlock_acquire(&readylock);
-  proc *p = readyhead;
-  readyhead = p->readynext;
-  if (readytail == &p->readynext) {
-    assert(readyhead == NULL);
-    readytail = &readyhead;
-  }
-  p->readynext = NULL;
-  spinlock_release(&readylock);
-  return p;
-}
-
-
-void
-ready_push(proc *p)
-{
-  spinlock_acquire(&readylock);
-  p->readynext = NULL;
-  *readytail = p;
-  readytail = &p->readynext;
-  spinlock_release(&readylock);
-}
-
 void
 proc_init(void)
 {
@@ -86,7 +60,6 @@ proc_alloc(proc *p, uint32_t cn)
 	cp->sv.tf.cs = CPU_GDT_UCODE | 3;
 	cp->sv.tf.ss = CPU_GDT_UDATA | 3;
 
-
 	if (p)
 		p->child[cn] = cp;
 	return cp;
@@ -96,13 +69,14 @@ proc_alloc(proc *p, uint32_t cn)
 void
 proc_ready(proc *p)
 {
-<<<<<<< HEAD
-  p->state = PROC_READY;
-	panic("proc_ready not implemented");
-=======
-	p->proc_state = PROC_READY;
-	ready_push(p);
->>>>>>> f4b31929baedf189057ccc7eefd2261bbc29bc43
+  spinlock_acquire(&readylock);
+
+	p->state = PROC_READY;
+  p->readynext = NULL;
+  *readytail = p;
+  readytail = &p->readynext;
+
+  spinlock_release(&readylock);
 }
 
 // Save the current process's state before switching to another process.
@@ -115,7 +89,11 @@ proc_ready(proc *p)
 void
 proc_save(proc *p, trapframe *tf, int entry)
 {
-	p->sv.tf = tf; //YAY!!!!!
+  assert(p == proc_cur()); // only save the current process
+  if (tf != &p->sv.tf)
+    p->sv.tf = *tf; //YAY!!!!!
+  if (entry == 0)
+    p->sv.tf.eip -= 2;
 }
 
 // Go to sleep waiting for a given child process to finish running.
@@ -124,27 +102,66 @@ proc_save(proc *p, trapframe *tf, int entry)
 void gcc_noreturn
 proc_wait(proc *p, proc *cp, trapframe *tf)
 {
-	panic("proc_wait not implemented");
+  assert(spinlock_holding(&p->lock));
+  assert(cp && cp != &proc_null); // null proc is always stopped
+  assert(cp->state != PROC_STOP);
+
+  p->state = PROC_WAIT;
+  p->runcpu = NULL;
+  p->waitchild = cp;  // remember what child we're waiting on
+  proc_save(p, tf, 0);  // save process state before INT instruction
+
+  spinlock_release(&p->lock);
+
+  proc_sched();
 }
 
 void gcc_noreturn
 proc_sched(void)
 {
-	p = ready_pop();
-	while(p == NULL){
-		pause();
-		p = ready_pop();
-	}
+  cpu *c = cpu_cur();
+  spinlock_acquire(&readylock);
+  while (!readyhead || cpu_disabled(c)) {
+    spinlock_release(&readylock);
+
+    while (!readyhead || cpu_disabled(c)) {
+      sti();
+      pause();
+      cli();
+    }
+
+    spinlock_acquire(&readylock);
+  }
+	proc *p = readyhead;
+  readyhead = p->readynext;
+  if (readytail == &p->readynext) {
+    assert(readyhead == NULL);
+    readytail = &readyhead;
+  }
+  p->readynext = NULL;
+
+  spinlock_acquire(&p->lock);
+  spinlock_release(&readylock);
+
+  cprintf("proc_run\n");
 	proc_run(p);
 }	
 // Switch to and run a specified process, which must already be locked.
 void gcc_noreturn
 proc_run(proc *p)
 {
-	p->proc_state = PROC_RUN;
+  assert(spinlock_holding(&p->lock));
+
 	cpu *c = cpu_cur();
-	p->cpu = c;
+
+	p->state = PROC_RUN;
+	p->runcpu = c;
 	c->proc = p;
+
+  spinlock_release(&p->lock);
+
+  cprintf("trap_return\n");
+  trap_return(&p->sv.tf);
 }
 
 // Yield the current CPU to another ready process.
@@ -153,9 +170,12 @@ void gcc_noreturn
 proc_yield(trapframe *tf)
 {
 	proc *p = proc_cur();
+  assert(p->runcpu == cpu_cur());
 	p->runcpu = NULL;
 	proc_save(p,tf,-1);
 	proc_ready(p);
+
+  proc_sched();
 	
 }
 
