@@ -85,26 +85,15 @@ init(void)
 	// Initialize the process management code.
 	proc_init();
 
-	// Lab 1: change this so it enters user() in user mode,
-	// running on the user_stack declared above,
-	// instead of just calling user() directly.
-  // << HEAD
-	user();
-  
-  // static trapframe utf = {
-  //   gs: 0,
-  //   fs: 0,
-  //   ds: CPU_GDT_UDATA | 3,
-  //   es: CPU_GDT_UDATA | 3,
-  //   ss: CPU_GDT_UDATA | 3,
-  //   cs: CPU_GDT_UCODE | 3,
-  //   eip: (uint32_t) user,
-  //   eflags: FL_IOPL_3,
-  //   esp: (uint32_t) &user_stack[PAGESIZE],
-  // };
-  // trap_return(&utf);
-	// //user();
-  //>>> project1
+  if (!cpu_onboot())
+    proc_sched();
+
+  proc *root = proc_alloc(NULL, 0);
+  root->sv.tf.eip = (uint32_t) user;
+  root->sv.tf.esp = (uint32_t) &user_stack[PAGESIZE];
+
+  proc_ready(root);
+  proc_sched();
 }
 
 // This is the first function that gets run in user mode (ring 3).
