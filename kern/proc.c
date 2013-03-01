@@ -27,6 +27,31 @@ static spinlock readylock;
 static proc *readyhead;
 static proc **readytail;
 
+proc *
+ready_pop(void)
+{
+  spinlock_acquire(&readylock);
+  proc *p = readyhead;
+  readyhead = p->readynext;
+  if (readytail == &p->readynext) {
+    assert(readyhead == NULL);
+    readytail = &readyhead;
+  }
+  p->readynext = NULL;
+  spinlock_release(&readylock);
+  return p;
+}
+
+
+void
+ready_push(proc *p)
+{
+  spinlock_acquire(&readylock);
+  p->readynext = NULL;
+  *readytail = p;
+  readytail = &p->readynext;
+  spinlock_release(&readylock);
+}
 
 void
 proc_init(void)
@@ -38,6 +63,8 @@ proc_init(void)
   readytail = &readyhead;
 
 	// your module initialization code here
+  spinlock_init(&readylock);
+  readytail = &readyhead;
 }
 
 // Allocate and initialize a new proc as child 'cn' of parent 'p'.
