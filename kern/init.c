@@ -102,7 +102,7 @@ init(void)
 void
 user()
 {
-	cprintf("in user()\n");
+	//cprintf("in user()\n");
 	assert(read_esp() > (uint32_t) &user_stack[0]);
 	assert(read_esp() < (uint32_t) &user_stack[sizeof(user_stack)]);
 

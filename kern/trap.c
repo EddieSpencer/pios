@@ -86,9 +86,10 @@ trap_init_idt(void)
   SETGATE(idt[T_SIMD],   0,     CPU_GDT_KCODE, &trap_simd,   0);
   SETGATE(idt[T_SECEV],  0,     CPU_GDT_KCODE, &trap_secev,  0);
   SETGATE(idt[T_IRQ0],   0,     CPU_GDT_KCODE, &trap_irq0,   0);
-  SETGATE(idt[T_SYSCALL],0,     CPU_GDT_KCODE, &trap_syscall,0);
+  SETGATE(idt[T_SYSCALL],0,     CPU_GDT_KCODE, &trap_syscall,3);
   SETGATE(idt[T_LTIMER], 0,     CPU_GDT_KCODE, &trap_ltimer, 0);
   SETGATE(idt[T_LERROR], 0,     CPU_GDT_KCODE, &trap_lerror, 0);
+
 }
 
 void
@@ -103,8 +104,8 @@ trap_init(void)
 	asm volatile("lidt %0" : : "m" (idt_pd));
 
 	// Check for the correct IDT and trap handler operation.
-	if (cpu_onboot())
-		trap_check_kernel();
+	//if (cpu_onboot())
+	//	trap_check_kernel();
 }
 
 const char *trap_name(int trapno)
@@ -173,6 +174,9 @@ trap_print(trapframe *tf)
 void gcc_noreturn
 trap(trapframe *tf)
 {
+  cprintf("in trap");
+  cprintf("trapno: %d\n", tf->trapno);
+  cprintf("T_SYS: %d\n", T_SYSCALL);
 	// The user-level environment may have set the DF flag,
 	// and some versions of GCC rely on DF being clear.
 	asm volatile("cld" ::: "cc");
@@ -183,7 +187,12 @@ trap(trapframe *tf)
 		c->recover(tf, c->recoverdata);
 
 	// Lab 2: your trap handling code here!
-
+  switch (tf->trapno) {
+  case T_SYSCALL:
+    assert(tf->cs & 3);
+    syscall(tf);
+    break;
+  }
 	// If we panic while holding the console lock,
 	// release it so we don't get into a recursive panic that way.
 	if (spinlock_holding(&cons_lock))

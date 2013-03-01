@@ -73,12 +73,7 @@ void
 proc_ready(proc *p)
 {
   spinlock_acquire(&readylock);
-<<<<<<< HEAD
   p->state = PROC_READY;
-=======
-
-	p->state = PROC_READY;
->>>>>>> 5cc105c1209242ff52d45f8c8b649c7b4528aa27
   p->readynext = NULL;
   *readytail = p;
   readytail = &p->readynext;
@@ -96,16 +91,10 @@ proc_ready(proc *p)
 void
 proc_save(proc *p, trapframe *tf, int entry)
 {
-<<<<<<< HEAD
   assert(p == proc_cur());
 
   if (tf != &p->sv.tf)
     p->sv.tf = *tf;
-=======
-  assert(p == proc_cur()); // only save the current process
-  if (tf != &p->sv.tf)
-    p->sv.tf = *tf; //YAY!!!!!
->>>>>>> 5cc105c1209242ff52d45f8c8b649c7b4528aa27
   if (entry == 0)
     p->sv.tf.eip -= 2;
 }
