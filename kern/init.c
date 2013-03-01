@@ -107,6 +107,7 @@ user()
 	assert(read_esp() < (uint32_t) &user_stack[sizeof(user_stack)]);
 
 	// Check the system call and process scheduling code.
+  cprintf("proc_check");
 	proc_check();
 
 	// Check that we're in user mode and can handle traps from there.
