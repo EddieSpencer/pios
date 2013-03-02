@@ -86,7 +86,101 @@ do_cputs(trapframe *tf, uint32_t cmd)
 
 	trap_return(tf);	// syscall completed
 }
+static void
+do_put(trapframe *tf, uint32_t cmd)
+{
+  proc *p = proc_cur();
+  assert(p->state == PROC_RUN && p->runcpu == cpu_cur());
+  cprintf("PUT proc %x eip %x esp %x cmd %x\n", p, tf->eip, tf->esp, cmd);
 
+  spinlock_acquire(&p->lock);
+
+  // Find the named child process; create if it doesn't exist
+  uint32_t cn = tf->regs.edx & 0xff;
+  proc *cp = p->child[cn];
+  if (!cp) {
+    cp = proc_alloc(p, cn);
+    if (!cp)  // XX handle more gracefully
+      panic("sys_put: no memory for child");
+  }
+
+  // Synchronize with child if necessary.
+  if (cp->state != PROC_STOP)
+    proc_wait(p, cp, tf);
+
+  // Since the child is now stopped, it's ours to control;
+  // we no longer need our process lock -
+  // and we don't want to be holding it if usercopy() below aborts.
+  spinlock_release(&p->lock);
+
+  // Put child's general register state
+  if (cmd & SYS_REGS) {
+    int len = offsetof(procstate, fx);  // just integer regs
+    if (cmd & SYS_FPU) len = sizeof(procstate); // whole shebang
+
+    // Copy user's trapframe into child process
+    procstate *cs = (procstate*) tf->regs.ebx;
+    memcpy(&cp->sv, cs, len);
+
+    // Make sure process uses user-mode segments and eflag settings
+    cp->sv.tf.ds = CPU_GDT_UDATA | 3;
+    cp->sv.tf.es = CPU_GDT_UDATA | 3;
+    cp->sv.tf.cs = CPU_GDT_UCODE | 3;
+    cp->sv.tf.ss = CPU_GDT_UDATA | 3;
+    cp->sv.tf.eflags &= FL_USER;
+    cp->sv.tf.eflags |= FL_IF;  // enable interrupts
+  }
+
+  // Start the child if requested
+  if (cmd & SYS_START)
+    proc_ready(cp);
+
+  trap_return(tf);  // syscall completed
+}
+
+  static void
+do_get(trapframe *tf, uint32_t cmd)
+{
+  proc *p = proc_cur();
+  assert(p->state == PROC_RUN && p->runcpu == cpu_cur());
+  //cprintf("GET proc %x eip %x esp %x cmd %x\n", p, tf->eip, tf->esp, cmd);
+
+  spinlock_acquire(&p->lock);
+
+  // Find the named child process; DON'T create if it doesn't exist
+  uint32_t cn = tf->regs.edx & 0xff;
+  proc *cp = p->child[cn];
+  if (!cp)
+    cp = &proc_null;
+
+  // Synchronize with child if necessary.
+  if (cp->state != PROC_STOP)
+    proc_wait(p, cp, tf);
+
+  // Since the child is now stopped, it's ours to control;
+  // we no longer need our process lock -
+  // and we don't want to be holding it if usercopy() below aborts.
+  spinlock_release(&p->lock);
+
+  // Get child's general register state
+  if (cmd & SYS_REGS) {
+    int len = offsetof(procstate, fx);  // just integer regs
+    if (cmd & SYS_FPU) len = sizeof(procstate); // whole shebang
+
+    // Copy child process's trapframe into user space
+    procstate *cs = (procstate*) tf->regs.ebx;
+    memcpy(cs, &cp->sv, len);
+  }
+
+  trap_return(tf);  // syscall completed
+}
+
+  static void gcc_noreturn
+do_ret(trapframe *tf)
+{
+  //cprintf("RET proc %x eip %x esp %x\n", proc_cur(), tf->eip, tf->esp);
+  proc_ret(tf, 1);
+}
 // Common function to handle all system calls -
 // decode the system call type and call an appropriate handler function.
 // Be sure to handle undefined system calls appropriately.
@@ -97,6 +191,9 @@ syscall(trapframe *tf)
 	uint32_t cmd = tf->regs.eax;
 	switch (cmd & SYS_TYPE) {
 	case SYS_CPUTS:	return do_cputs(tf, cmd);
+	case SYS_PUT:	return do_put(tf, cmd);
+	case SYS_GET:	return do_get(tf, cmd);
+	case SYS_RET:	return do_ret(tf);
 	// Your implementations of SYS_PUT, SYS_GET, SYS_RET here...
 	default:	return;		// handle as a regular trap
 	}

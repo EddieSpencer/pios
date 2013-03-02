@@ -174,9 +174,7 @@ trap_print(trapframe *tf)
 void gcc_noreturn
 trap(trapframe *tf)
 {
-  cprintf("in trap");
   cprintf("trapno: %d\n", tf->trapno);
-  cprintf("T_SYS: %d\n", T_SYSCALL);
 	// The user-level environment may have set the DF flag,
 	// and some versions of GCC rely on DF being clear.
 	asm volatile("cld" ::: "cc");
@@ -191,6 +189,43 @@ trap(trapframe *tf)
   case T_SYSCALL:
     assert(tf->cs & 3);
     syscall(tf);
+    break;
+  case T_DIVIDE:
+  case T_DEBUG:
+  case T_BRKPT:
+  case T_OFLOW:
+  case T_NMI:
+  case T_BOUND:
+  case T_ILLOP:
+  case T_DEVICE:
+  case T_DBLFLT:
+  case T_TSS:
+  case T_SEGNP:
+  case T_STACK:
+  case T_GPFLT:
+  case T_PGFLT:
+  case T_FPERR:
+  case T_ALIGN:
+  case T_MCHK:
+  case T_SIMD:
+  case T_SECEV:
+    assert(tf->cs & 3);
+    proc_ret(tf, 1);
+    break;
+  case T_LTIMER:
+    lapic_eoi();
+    if (tf->cs & 3)
+      proc_yield(tf);
+
+    trap_return(tf);
+    break;
+  case T_LERROR:
+    lapic_errintr();
+    trap_return(tf);
+  case T_IRQ0 + IRQ_SPURIOUS:
+    cprintf("cpu%d: spurious interrupt at %x:%x\n",
+        c->id, tf->cs, tf->eip);
+    trap_return(tf); // Note: no EOI (see Local APIC manual)
     break;
   }
 	// If we panic while holding the console lock,
