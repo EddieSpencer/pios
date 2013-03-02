@@ -33,9 +33,6 @@ proc_init(void)
 	if (!cpu_onboot())
 		return;
 
-  spinlock_init(&readylock);
-  readytail = &readyhead;
-
 	// your module initialization code here
   spinlock_init(&readylock);
   readytail = &readyhead;

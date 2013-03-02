@@ -22,7 +22,9 @@
 
 size_t mem_max;			// Maximum physical address
 size_t mem_npage;		// Total number of physical memory pages
+
 spinlock page_spinlock;
+
 pageinfo *mem_pageinfo;		// Metadata array indexed by page number
 
 pageinfo *mem_freelist;		// Start of free page list
@@ -36,7 +38,6 @@ mem_init(void)
 	if (!cpu_onboot())	// only do once, on the boot CPU
 		return;
 
-        spinlock_init(&page_spinlock);
 	// Determine how much base (<640K) and extended (>1MB) memory
 	// is available in the system (in bytes),
 	// by reading the PC's BIOS-managed nonvolatile RAM (NVRAM).
@@ -46,13 +47,8 @@ mem_init(void)
 	size_t basemem = ROUNDDOWN(nvram_read16(NVRAM_BASELO)*1024, PAGESIZE);
 	size_t extmem = ROUNDDOWN(nvram_read16(NVRAM_EXTLO)*1024, PAGESIZE);
 
-  //<<< HEAD
-	//warn("Assuming we have 1GB of memory!");
-	//extmem = 1024*1024*1024 - MEM_EXT;	// assume 1GB total memory
-  //===
 	warn("Assuming we have 1GB of memory!");
 	extmem = 1024*1024*1024 - MEM_EXT;	// assume 1GB total memory
-  //>>> project1
 
 	// The maximum physical address is the top of extended memory.
 	mem_max = MEM_EXT + extmem;
@@ -91,6 +87,8 @@ mem_init(void)
 
   // set it all to zero
   memset(mem_pageinfo, 0, sizeof(pageinfo) * mem_npage);
+
+  spinlock_init(&page_spinlock);
 
 	pageinfo **freetail = &mem_freelist;
 
@@ -151,12 +149,13 @@ mem_alloc(void)
 void
 mem_free(pageinfo *pi)
 {
-  spinlock_acquire(&page_spinlock);
   // do not free in use, or already free pages
   if (pi->refcount != 0)
     panic("mem_free: refcound does not equal zero");
   if (pi->free_next != NULL)
     panic("mem_free: attempt to free already free page");
+
+  spinlock_acquire(&page_spinlock);
   pi->free_next = mem_freelist; // point this to the list
   mem_freelist = pi; // point the front of the list to this
   spinlock_release(&page_spinlock);
