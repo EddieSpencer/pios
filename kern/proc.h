@@ -19,6 +19,11 @@
 #include <kern/spinlock.h>
 #include <kern/pmap.h>
 #include <inc/file.h>
+#define PROC_CHILDREN	256	// Max # of children a process can have
+
+#define PROC_CHILDREN	256	// Max # of children a process can have
+
+
 
 typedef enum proc_state {
 	PROC_STOP	= 0,	// Passively waiting for parent to run it
@@ -60,6 +65,9 @@ extern proc proc_null;
 
 // Special root process - the only one that can do direct external I/O.
 extern proc *proc_root;
+
+proc *ready_pop(void);
+void ready_push(proc *p);
 
 
 void proc_init(void);	// Initialize process management code

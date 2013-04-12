@@ -60,7 +60,14 @@ pmap_init(void)
 		// Since these page mappings never change on context switches,
 		// we can also mark them global (PTE_G) so the processor
 		// doesn't flush these mappings when we reload the PDBR.
-		panic("pmap_init() not implemented");
+		//panic("pmap_init() not implemented");
+
+    int i;
+    for (i = 0; i < NPDENTRIES; i++)
+    pmap_bootpdir[i] = (i << PDXSHIFT)
+      | PTE_P | PTE_W | PTE_PS | PTE_G;
+    for (i = PDX(VM_USERLO); i < PDX(VM_USERHI); i++)
+    pmap_bootpdir[i] = PTE_ZERO;
 	}
 
 	// On x86, segmentation maps a VA to a LA (linear addr) and
@@ -75,6 +82,7 @@ pmap_init(void)
 	// Enable 4MB pages and global pages.
 	uint32_t cr4 = rcr4();
 	cr4 |= CR4_PSE | CR4_PGE;
+  cr4 |= CR4_OSFXSR | CR4_OSXMMEXCPT;
 	lcr4(cr4);
 
 	// Install the bootstrap page directory into the PDBR.
@@ -160,8 +168,55 @@ pmap_walk(pde_t *pdir, uint32_t va, bool writing)
 {
 	assert(va >= VM_USERLO && va < VM_USERHI);
 
-	// Fill in this function
-	return NULL;
+  uint32_t la = va;
+  pde_t *pde = &pdir[PDX(la)];
+  pte_t *ptab;
+  if (*pde & PTE_P){
+  ptab = mem_ptr(PGADDR(*pde));
+  } else {
+  assert(*pde == PTE_ZERO);
+  pageinfo *pi;
+  if (!writing || (pi = mem_alloc()) == NULL)
+  return NULL;
+  mem_incref(pi);
+  ptab = mem_pi2ptr(pi);
+
+  int i;
+  for (i = 0; i < NPTENTRIES; i++)
+  ptab[i] = PTE_ZERO;
+
+  *pde = mem_pi2phys(pi) | PTE_A | PTE_P | PTE_W | PTE_U;
+  }
+  
+  if(writing && !(*pde & PTE_W)) {
+  if(mem_ptr2pi(ptab) -> refcount == 1){
+  int i;
+  for (i = 0; i < NPTENTRIES; i++)
+    ptab[i] &= ~PTE_W;
+    } else {
+    pageinfo *pi = mem_alloc();
+    if (pi==NULL)
+    return NULL;
+    mem_incref(pi);
+    pte_t *nptab = mem_pi2ptr(pi);
+
+    int i;
+    for (i = 0; i < NPTENTRIES; i++){
+    uint32_t pte = ptab[i];
+    nptab[i] = pte & ~PTE_W;
+    assert(PGADDR(pte) != 0);
+    if (PGADDR(pte) != PTE_ZERO)
+    mem_incref(mem_phys2pi(PGADDR(pte)));
+    }
+
+    mem_decref(mem_ptr2pi(ptab), pmap_freeptab);
+    ptab = nptab;
+    }
+
+    *pde = (uint32_t)ptab | PTE_A | PTE_P | PTE_W | PTE_U;
+    }
+
+    return &ptab[PTX(la)];
 }
 
 //
@@ -188,9 +243,23 @@ pmap_walk(pde_t *pdir, uint32_t va, bool writing)
 pte_t *
 pmap_insert(pde_t *pdir, pageinfo *pi, uint32_t va, int perm)
 {
-	// Fill in this function
-	return NULL;
+  pte_t* pte = pmap_walk(pdir, va, 1);
+  if (pte == NULL)
+    return NULL;
+
+
+  mem_incref(pi);
+
+  if (*pte & PTE_P)
+    pmap_remove(pdir, va, PAGESIZE);
+
+  *pte = mem_pi2phys(pi) | perm | PTE_P;
+  return pte;
+
+
+
 }
+
 
 //
 // Unmap the physical pages starting at user virtual address 'va'
@@ -220,7 +289,38 @@ pmap_remove(pde_t *pdir, uint32_t va, size_t size)
 	assert(size <= VM_USERHI - va);
 
 	// Fill in this function
+  pmap_inval(pdir, va, size);
+
+  uint32_t vahi = va + size;
+  while (va < vahi){
+  pde_t *pde = &pdir[PDX(va)];
+  if (*pde == PTE_ZERO){
+    va = PTADDR(va + PTSIZE);
+      continue;
+      }
+
+    if (PTX(va) == 0 && vahi-va >= PTSIZE){
+    uint32_t ptabaddr = PGADDR(*pde);
+    if(ptabaddr != PTE_ZERO)
+      mem_decref(mem_phys2pi(ptabaddr), pmap_freeptab);
+      *pde = PTE_ZERO;
+      va += PTSIZE;
+      continue;
+      }
+  pte_t *pte = pmap_walk(pdir, va, 1);
+  assert(pte != NULL);
+
+  do{
+    uint32_t pgaddr = PGADDR(*pte);
+    if(pgaddr != PTE_ZERO)
+      mem_decref(mem_phys2pi(pgaddr), mem_free);
+      *pte++ = PTE_ZERO;
+      va += PAGESIZE;
+      } while (va < vahi && PTX(va) != 0);
+      }
+
 }
+
 
 //
 // Invalidate the TLB entry or entries for a given virtual address range,
@@ -258,7 +358,34 @@ pmap_copy(pde_t *spdir, uint32_t sva, pde_t *dpdir, uint32_t dva,
 	assert(size <= VM_USERHI - sva);
 	assert(size <= VM_USERHI - dva);
 
-	panic("pmap_copy() not implemented");
+  pmap_inval(spdir, sva, size);
+  pmap_inval(dpdir, dva, size);
+
+  uint32_t svahi = sva + size;
+  pde_t *spde = &spdir[PDX(sva)];
+  pte_t *dpde = &dpdir[PDX(dva)];
+
+  while (sva < svahi){
+
+    if (*dpde & PTE_P)
+      pmap_remove(dpdir, dva, PTSIZE);
+    assert(*dpde == PTE_ZERO);
+
+    *spde &= ~PTE_W;
+
+    *dpde = *spde;
+
+    if (*spde != PTE_ZERO)
+      mem_incref(mem_phys2pi(PGADDR(*spde)));
+
+      spde++, dpde++;
+      sva += PTSIZE;
+      dva += PTSIZE;
+      }
+
+      return 1;
+
+
 }
 
 //
@@ -275,7 +402,45 @@ pmap_pagefault(trapframe *tf)
 	uint32_t fva = rcr2();
 	//cprintf("pmap_pagefault fva %x eip %x\n", fva, tf->eip);
 
-	// Fill in the rest of this code.
+
+  if (fva < VM_USERLO || fva >= VM_USERHI || !(tf->err & PFE_WR)){
+  cprintf("pmap_pagefault: fva %x err %x\n", fva, tf->err);
+    return;
+    }
+
+
+    proc *p = proc_cur();
+    pde_t *pde = &p->pdir[PDX(fva)];
+    if(!(*pde & PTE_P)){
+    cprintf("pmap_pagefault: pde for fva %x does not exist\n", fva);
+      return;
+      }
+
+      pte_t *pte = pmap_walk(p->pdir, fva, 1);
+      if((*pte & (SYS_READ | SYS_WRITE | PTE_P)) !=
+        (SYS_READ | SYS_WRITE | PTE_P)){
+        cprintf("pmap_pagefault: page for fva %x does not exist\n", fva);
+        return;
+        }
+
+    assert(!(*pte & PTE_W));
+
+    uint32_t pg = PGADDR(*pte);
+    if(pg == PTE_ZERO || mem_phys2pi(pg)->refcount > 1){
+    pageinfo *npi = mem_alloc();
+    assert(npi);
+    mem_incref(npi);
+    uint32_t npg = mem_pi2phys(npi);
+    memmove((void*)npg, (void*)pg, PAGESIZE);
+    if(pg != PTE_ZERO)
+      mem_decref(mem_phys2pi(pg), mem_free);
+      pg = npg;
+      }
+
+      *pte = pg | SYS_RW | PTE_A | PTE_D | PTE_W | PTE_U | PTE_P;
+
+      pmap_inval(p->pdir, PGADDR(fva), PAGESIZE);
+      trap_return(tf);
 }
 
 //
@@ -288,7 +453,39 @@ pmap_pagefault(trapframe *tf)
 void
 pmap_mergepage(pte_t *rpte, pte_t *spte, pte_t *dpte, uint32_t dva)
 {
-	panic("pmap_mergepage() not implemented");
+  uint8_t *rpg = (uint8_t*)PGADDR(*rpte);
+
+  uint8_t *spg = (uint8_t*)PGADDR(*spte);
+
+  uint8_t *dpg = (uint8_t*)PGADDR(*dpte);
+  if(dpg == pmap_zero) return;
+
+  if(dpg == (uint8_t*)PTE_ZERO || mem_ptr2pi(dpg)->refcount > 1){
+    pageinfo *npi = mem_alloc(); assert(npi);
+    mem_incref(npi);
+    uint8_t *npg = mem_pi2ptr(npi);
+    memmove(npg, dpg, PAGESIZE);
+    if(dpg != (uint8_t*)PTE_ZERO)
+      mem_decref(mem_ptr2pi(dpg), mem_free);
+      dpg = npg;
+      *dpte = (uint32_t)npg | SYS_RW | PTE_A | PTE_D | PTE_W | PTE_U | PTE_P;
+      }
+
+      int i;
+      for(i = 0; i < PAGESIZE; i++){
+      if(spg[i] == rpg[i])
+      continue;
+      if(dpg[i] == rpg[i]){
+      dpg[i] = spg[i];
+      continue;
+      }
+
+      cprintf("pmap_mergepage: conflict ad dva %x\n", dva);
+      mem_decref(mem_phys2pi(PGADDR(*dpte)), mem_free);
+      *dpte = PTE_ZERO;
+      return;
+      }
+      
 }
 
 // 
@@ -307,7 +504,50 @@ pmap_merge(pde_t *rpdir, pde_t *spdir, uint32_t sva,
 	assert(size <= VM_USERHI - sva);
 	assert(size <= VM_USERHI - dva);
 
-	panic("pmap_merge() not implemented");
+  pde_t *rpde = &rpdir[PDX(sva)];
+  pde_t *spde = &spdir[PDX(sva)];
+  pde_t *dpde = &dpdir[PDX(dva)];
+  uint32_t svahi = sva + size;
+
+  for (; sva < svahi; rpde++, spde++, dpde++){
+  if(*spde == *rpde){
+  sva += PTSIZE, dva += PTSIZE;
+  continue;
+  }
+
+  if(*dpde == *rpde){
+    if(!pmap_copy(spdir, sva, dpdir, dva, PTSIZE))
+      return 0;
+      sva += PTSIZE, dva += PTSIZE;
+      continue;
+      }
+
+      pte_t *rpte = mem_ptr(PGADDR(*rpde));
+      pte_t *spte = mem_ptr(PGADDR(*spde));
+      pte_t *dpte = pmap_walk(dpdir, dva, 1);
+      if (dpte == NULL)
+        return 0;
+
+        pte_t *erpte = &rpte[NPTENTRIES];
+        for(; rpte <erpte; rpte++, spte++, dpte++, sva += PAGESIZE, dva += PAGESIZE){
+        
+        if (*spte == *rpte)
+        continue;
+        if (*dpte == *rpte)
+        { if(PGADDR(*dpte) != PTE_ZERO)
+          mem_decref(mem_phys2pi(PGADDR(*dpte)),mem_free);
+          *spte &= ~PTE_W;
+          *dpte = *spte;
+          mem_incref(mem_phys2pi(PGADDR(*spte)));
+          continue;
+          }
+                    
+
+          pmap_mergepage(rpte, spte, dpte, dva);
+         }
+         }
+          
+return 1;
 }
 
 //
@@ -327,7 +567,41 @@ pmap_setperm(pde_t *pdir, uint32_t va, uint32_t size, int perm)
 	assert(size <= VM_USERHI - va);
 	assert((perm & ~(SYS_RW)) == 0);
 
-	panic("pmap_merge() not implemented");
+
+  pmap_inval(pdir, va, size);
+
+  uint32_t pteand, pteor;
+  if(!(perm & SYS_READ))
+    pteand = ~(SYS_RW | PTE_W | PTE_P), pteor = 0;
+    else if (!(perm & SYS_WRITE))
+    pteand = ~(SYS_WRITE | PTE_W),
+    pteor = (SYS_READ | PTE_U | PTE_P | PTE_A);
+    else
+    pteand = ~0, pteor = (SYS_RW | PTE_U | PTE_P | PTE_A | PTE_D);
+
+    uint32_t vahi = va + size;
+    while(va < vahi){
+    pde_t *pde = &pdir[PDX(va)];
+    if (*pde == PTE_ZERO && pteor == 0){
+    va = PTADDR(va + PTSIZE);
+    continue;
+    }
+
+    pte_t *pte = pmap_walk(pdir, va, 1);
+    if (pte == NULL)
+      return 0;
+
+    do {
+    *pte = (*pte & pteand) | pteor;
+    pte++;
+    va += PAGESIZE;
+    } while(va < vahi && PTX(va) !=0);
+    }
+    return 1;
+
+
+
+
 }
 
 //

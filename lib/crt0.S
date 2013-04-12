@@ -69,3 +69,11 @@ exec_start:
 	jmp	start
 
 
+	call	main	// run the program
+	pushl	%eax	// use with main's return value as exit status
+        movl	$SYS_RET, %eax
+        int	$T_SYSCALL
+1:	jmp 1b
+
+
+

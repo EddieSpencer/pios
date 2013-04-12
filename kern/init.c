@@ -26,6 +26,7 @@
 #include <kern/proc.h>
 #include <kern/file.h>
 
+#include <dev/nvram.h>
 #include <dev/pic.h>
 #include <dev/lapic.h>
 #include <dev/ioapic.h>
@@ -58,6 +59,16 @@ init(void)
 	// Initialize the console.
 	// Can't call cprintf until after we do this!
 	cons_init();
+
+  extern uint8_t _binary_obj_boot_bootother_start[],
+    _binary_obj_boot_bootother_size[];
+
+  uint8_t *code = (uint8_t*)lowmem_bootother_vec;
+  memmove(code, _binary_obj_boot_bootother_start, (uint32_t) _binary_obj_boot_bootother_size);
+
+	// Lab 1: test cprintf and debug_trace
+	cprintf("1234 decimal is %o octal!\n", 1234);
+	debug_check();
 
 	// Initialize and load the bootstrap CPU's GDT, TSS, and IDT.
 	cpu_init();
@@ -96,6 +107,58 @@ init(void)
 	// running on the user_stack declared above,
 	// instead of just calling user() directly.
 	user();
+
+  //For LAB 3
+if(!cpu_onboot())
+proc_sched();
+  proc *root = proc_root = proc_alloc(NULL,0);
+  
+  elfhdr *eh = (elfhdr *)ROOTEXE_START;
+  assert(eh->e_magic == ELF_MAGIC);
+
+  proghdr *ph = (proghdr *) ((void *) eh + eh->e_phoff);
+  proghdr *eph = ph + eh->e_phnum;
+
+  for (; ph < eph; ph++){
+    if (ph->p_type != ELF_PROG_LOAD)
+      continue;
+
+    void *fa = (void *) eh + ROUNDDOWN(ph->p_offset, PAGESIZE);
+    uint32_t va = ROUNDDOWN(ph->p_va, PAGESIZE);
+    uint32_t zva = ph->p_va + ph->p_filesz;
+    uint32_t eva = ROUNDUP(ph->p_va + ph->p_memsz, PAGESIZE);
+
+    uint32_t perm = SYS_READ | PTE_P | PTE_U;
+    if(ph->p_flags & ELF_PROG_FLAG_WRITE)
+    perm |= SYS_WRITE | PTE_W;
+
+    for (; va < eva; va += PAGESIZE, fa += PAGESIZE) {
+    pageinfo *pi = mem_alloc(); assert(pi != NULL);
+      if(va < ROUNDDOWN(zva, PAGESIZE))
+        memmove(mem_pi2ptr(pi), fa, PAGESIZE);
+      else if (va < zva && ph->p_filesz){
+      memset(mem_pi2ptr(pi),0, PAGESIZE);
+      memmove(mem_pi2ptr(pi), fa, zva-va);
+      } else
+        memset(mem_pi2ptr(pi), 0, PAGESIZE);
+
+      pte_t *pte = pmap_insert(root->pdir, pi, va, perm);
+      assert(pte != NULL);
+      }
+      }
+
+      root->sv.tf.eip = eh->e_entry;
+      root->sv.tf.eflags |= FL_IF;
+
+      pageinfo *pi = mem_alloc(); assert(pi != NULL);
+      pte_t *pte = pmap_insert(root->pdir, pi, VM_STACKHI-PAGESIZE,
+        SYS_READ | SYS_WRITE | PTE_P | PTE_U | PTE_W);
+      assert(pte != NULL);
+      root->sv.tf.esp = VM_STACKHI;
+
+      proc_ready(root);
+      proc_sched();
+     // user();
 }
 
 // This is the first function that gets run in user mode (ring 3).
@@ -108,6 +171,12 @@ user()
 	assert(read_esp() > (uint32_t) &user_stack[0]);
 	assert(read_esp() < (uint32_t) &user_stack[sizeof(user_stack)]);
 
+	// Check the system call and process scheduling code.
+  cprintf("proc_check");
+	proc_check();
+
+	// Check that we're in user mode and can handle traps from there.
+	trap_check_user();
 
 	done();
 }

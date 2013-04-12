@@ -19,6 +19,10 @@
 void
 spinlock_init_(struct spinlock *lk, const char *file, int line)
 {
+  lk->file = file;
+  lk->line = line;
+  lk->locked = 0;
+  lk->cpu = NULL;
 }
 
 // Acquire the lock.
@@ -28,19 +32,34 @@ spinlock_init_(struct spinlock *lk, const char *file, int line)
 void
 spinlock_acquire(struct spinlock *lk)
 {
+  if (spinlock_holding(lk))
+    panic("Attempt to acquire lock already held by this cpu");
+  while(xchg(&lk->locked, 1) != 0) {
+    pause(); // buisy wait
+  }
+  lk->cpu = cpu_cur();
+  debug_trace(read_ebp(), lk->eips);
 }
 
 // Release the lock.
 void
 spinlock_release(struct spinlock *lk)
 {
+  if (!spinlock_holding(lk))
+    panic("Attempt to release lock not held by this cpu");
+  lk->eips[0] = 0;
+  lk->cpu = 0;
+  xchg(&lk->locked, 0);
 }
 
 // Check whether this cpu is holding the lock.
 int
+<<<<<<< HEAD
 spinlock_holding(spinlock *lock)
 {
-	panic("spinlock_holding() not implemented");
+spinlock_holding(spinlock *lk)
+{
+  return (lk->locked) && (lk->cpu == cpu_cur());
 }
 
 // Function that simply recurses to a specified depth.

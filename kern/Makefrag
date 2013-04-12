@@ -59,6 +59,9 @@ KERN_INITFILES :=	sh \
 
 # Binary program images to embed within the kernel.
 KERN_BINFILES +=	$(patsubst %,user/%,$(KERN_INITFILES))
+
+
+# Binary program images to embed within the kernel.
 KERN_BINFILES +=	boot/bootother
 
 # Kernel object files generated from C (.c) and assembly (.S) source files

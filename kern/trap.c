@@ -40,8 +40,59 @@ static void
 trap_init_idt(void)
 {
 	extern segdesc gdt[];
-	
-	panic("trap_init() not implemented.");
+  extern char trap_divide;
+  extern char trap_nmi;
+  extern char trap_brkpt;
+  extern char trap_oflow;
+  extern char trap_bound;
+  extern char trap_illop;
+  extern char trap_device;
+  extern char trap_dblflt;
+  extern char trap_tss;
+  extern char trap_segnp;
+  extern char trap_stack;
+  extern char trap_gpflt;
+  extern char trap_pgflt;
+  extern char trap_fperr;
+  extern char trap_align;
+  extern char trap_mchk;
+  extern char trap_simd;
+  extern char trap_secev;
+  extern char trap_irq0;
+  extern char trap_syscall;
+  extern char trap_ltimer;
+  extern char trap_lerror;
+  extern char trap_default;
+  extern char trap_icnt;
+
+// - istrap: 1 for a trap (= exception) gate, 0 for an interrupt gate.
+// - sel: Code segment selector for interrupt/trap handler
+// - off: Offset in code segment for interrupt/trap handler
+// - dpl: Descriptor Privilege Level -
+//	  the privilege level required for software to invoke
+//	  this interrupt/trap gate explicitly using an int instruction.
+//        gate           istrap sel            off           dpl
+  SETGATE(idt[T_DIVIDE], 0,     CPU_GDT_KCODE, &trap_divide, 0);
+  SETGATE(idt[T_NMI],    0,     CPU_GDT_KCODE, &trap_nmi,    0);
+  SETGATE(idt[T_BRKPT],  0,     CPU_GDT_KCODE, &trap_brkpt,  3);
+  SETGATE(idt[T_OFLOW],  0,     CPU_GDT_KCODE, &trap_oflow,  3);
+  SETGATE(idt[T_BOUND],  0,     CPU_GDT_KCODE, &trap_bound,  0);
+  SETGATE(idt[T_ILLOP],  0,     CPU_GDT_KCODE, &trap_illop,  0);
+  SETGATE(idt[T_DEVICE], 0,     CPU_GDT_KCODE, &trap_device, 0);
+  SETGATE(idt[T_DBLFLT], 0,     CPU_GDT_KCODE, &trap_dblflt, 0);
+  SETGATE(idt[T_TSS],    0,     CPU_GDT_KCODE, &trap_tss,    0);
+  SETGATE(idt[T_GPFLT],  0,     CPU_GDT_KCODE, &trap_gpflt,  0);
+  SETGATE(idt[T_PGFLT],  0,     CPU_GDT_KCODE, &trap_pgflt,  0);
+  SETGATE(idt[T_FPERR],  0,     CPU_GDT_KCODE, &trap_fperr,  0);
+  SETGATE(idt[T_ALIGN],  0,     CPU_GDT_KCODE, &trap_align,  0);
+  SETGATE(idt[T_MCHK],   0,     CPU_GDT_KCODE, &trap_mchk,   0);
+  SETGATE(idt[T_SIMD],   0,     CPU_GDT_KCODE, &trap_simd,   0);
+  SETGATE(idt[T_SECEV],  0,     CPU_GDT_KCODE, &trap_secev,  0);
+  SETGATE(idt[T_IRQ0],   0,     CPU_GDT_KCODE, &trap_irq0,   0);
+  SETGATE(idt[T_SYSCALL],0,     CPU_GDT_KCODE, &trap_syscall,3);
+  SETGATE(idt[T_LTIMER], 0,     CPU_GDT_KCODE, &trap_ltimer, 0);
+  SETGATE(idt[T_LERROR], 0,     CPU_GDT_KCODE, &trap_lerror, 0);
+
 }
 
 void
@@ -129,14 +180,57 @@ trap(trapframe *tf)
 	// The user-level environment may have set the DF flag,
 	// and some versions of GCC rely on DF being clear.
 	asm volatile("cld" ::: "cc");
-
+  if(tf->trapno == T_PGFLT)
+    pmap_pagefault(tf);
 	// If this trap was anticipated, just use the designated handler.
 	cpu *c = cpu_cur();
 	if (c->recover)
 		c->recover(tf, c->recoverdata);
 
 	// Lab 2: your trap handling code here!
+  switch (tf->trapno) {
+  case T_SYSCALL:
+    assert(tf->cs & 3);
+    syscall(tf);
+    break;
+  case T_DIVIDE:
+  case T_DEBUG:
+  case T_BRKPT:
+  case T_OFLOW:
+  case T_NMI:
+  case T_BOUND:
+  case T_ILLOP:
+  case T_DEVICE:
+  case T_DBLFLT:
+  case T_TSS:
+  case T_SEGNP:
+  case T_STACK:
+  case T_GPFLT:
+  case T_PGFLT:
+  case T_FPERR:
+  case T_ALIGN:
+  case T_MCHK:
+  case T_SIMD:
+  case T_SECEV:
+    assert(tf->cs & 3);
+    proc_ret(tf, 1);
+    break;
+  case T_LTIMER:
+    lapic_eoi();
+    if (tf->cs & 3)
+      proc_yield(tf);
 
+    trap_return(tf);
+    break;
+  case T_LERROR:
+    lapic_errintr();
+    trap_return(tf);
+  case T_IRQ0 + IRQ_SPURIOUS:
+    cprintf("cpu%d: spurious interrupt at %x:%x\n",
+        c->id, tf->cs, tf->eip);
+    trap_return(tf); // Note: no EOI (see Local APIC manual)
+    break;
+  }
 	// If we panic while holding the console lock,
 	// release it so we don't get into a recursive panic that way.
 	if (spinlock_holding(&cons_lock))
