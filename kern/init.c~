@@ -104,7 +104,7 @@ init(void)
   	proghdr *phs = (proghdr *) ((void *) ehs + ehs->e_phoff);
   	proghdr *ep = phs + ehs->e_phnum;
 
-  	for (; phs < ep; phs++)
+  	for (; phs < eph; phs++)
 	{
     		if (phs->p_type != ELF_PROG_LOAD)
       		continue;

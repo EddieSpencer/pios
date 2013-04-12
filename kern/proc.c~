@@ -16,6 +16,8 @@
 #include <kern/proc.h>
 #include <kern/init.h>
 
+
+
 proc proc_null;		// null process - just leave it initialized to 0
 
 proc *proc_root;	// root process, once it's created in init()

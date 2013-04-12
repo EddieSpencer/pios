@@ -24,6 +24,8 @@
 size_t mem_max;			// Maximum physical address
 size_t mem_npage;		// Total number of physical memory pages
 
+spinlock page_spinlock;
+
 pageinfo *mem_pageinfo;		// Metadata array indexed by page number
 
 pageinfo *mem_freelist;		// Start of free page list
@@ -81,20 +83,40 @@ mem_init(void)
 	//     Hint: the linker places the kernel (see start and end above),
 	//     but YOU decide where to place the pageinfo array.
 	// Change the code to reflect this.
-	pageinfo **freetail = &mem_freelist;
-	int i;
-	for (i = 0; i < mem_npage; i++) {
-		// A free page has no references to it.
-		mem_pageinfo[i].refcount = 0;
-
-		// Add the page to the end of the free list.
-		*freetail = &mem_pageinfo[i];
-		freetail = &mem_pageinfo[i].free_next;
-	}
-	*freetail = NULL;	// null-terminate the freelist
 
 	// ...and remove this when you're ready.
-	panic("mem_init() not implemented");
+//panic("mem_init() not implemented");
+  // start at the beginning of memeory
+  mem_pageinfo = (pageinfo *) ROUNDUP(((int)end), sizeof(pageinfo));
+
+  // set it all to zero
+  memset(mem_pageinfo, 0, sizeof(pageinfo) * mem_npage);
+
+  spinlock_init(&page_spinlock);
+
+	pageinfo **freetail = &mem_freelist;
+
+	int i;
+	for (i = 0; i < mem_npage; i++) {
+
+    // physical address of current pageinfo
+    uint32_t paddr = mem_pi2phys(mem_pageinfo + i);
+    if ((i == 0 || i == 1 || // pages 0 and 1 are reserved for idt, bios, and bootstrap (see above)
+          (paddr + PAGESIZE >= MEM_IO && paddr < MEM_EXT) || // IO section is reserved
+          (paddr + PAGESIZE >= (uint32_t) &start[0] && paddr < (uint32_t) &end[0]) || // kernel, 
+          (paddr + PAGESIZE >= (uint32_t) &mem_pageinfo && // start of pageinfo array
+           paddr < (uint32_t) &mem_pageinfo[mem_npage]) // end of pageinfo array
+     )) {
+      mem_pageinfo[i].refcount = 1; 
+    } else {
+      mem_pageinfo[i].refcount = 0; 
+      // Add the page to the end of the free list.
+      *freetail = &mem_pageinfo[i];
+      freetail = &mem_pageinfo[i].free_next;
+    }
+	}
+
+	*freetail = NULL;	// null-terminate the freelist
 
 	// Check to make sure the page allocator seems to work correctly.
 	mem_check();
@@ -116,7 +138,15 @@ mem_alloc(void)
 {
 	// Fill this function in
 	// Fill this function in.
-	panic("mem_alloc not implemented.");
+//	panic("mem_alloc not implemented.");
+  spinlock_acquire(&page_spinlock);
+  pageinfo *pi = mem_freelist;
+  if (pi != NULL) {
+    mem_freelist = pi->free_next; // move front of list to next pageinfo
+    pi->free_next = NULL; // remove pointer to next item
+  }
+  spinlock_release(&page_spinlock);
+  return pi;
 }
 
 //
@@ -127,7 +157,17 @@ void
 mem_free(pageinfo *pi)
 {
 	// Fill this function in.
-	panic("mem_free not implemented.");
+	//panic("mem_free not implemented.");
+  // do not free in use, or already free pages
+  if (pi->refcount != 0)
+    panic("mem_free: refcound does not equal zero");
+  if (pi->free_next != NULL)
+    panic("mem_free: attempt to free already free page");
+
+  spinlock_acquire(&page_spinlock);
+  pi->free_next = mem_freelist; // point this to the list
+  mem_freelist = pi; // point the front of the list to this
+  spinlock_release(&page_spinlock);
 }
 
 //

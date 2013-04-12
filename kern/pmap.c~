@@ -434,38 +434,41 @@ pmap_pagefault(trapframe *tf)
 void
 pmap_mergepage(pte_t *rpte, pte_t *spte, pte_t *dpte, uint32_t dva)
 {
-  uint8_t *rpg = (uint8_t*)PGADDR(*rpte);
+	uint8_t *rpg = (uint8_t*)PGADDR(*rpte);
+	uint8_t *spg = (uint8_t*)PGADDR(*spte);
+	uint8_t *dpg = (uint8_t*)PGADDR(*dpte);
 
-  uint8_t *spg = (uint8_t*)PGADDR(*spte);
+	if(dpg == pmap_zero) 
+		return;
 
-  uint8_t *dpg = (uint8_t*)PGADDR(*dpte);
-  if(dpg == pmap_zero) return;
+	if(dpg == (uint8_t*)PTE_ZERO || mem_ptr2pi(dpg)->refcount > 1)
+	{
+		pageinfo *npi = mem_alloc(); assert(npi);
+		mem_incref(npi);
+		uint8_t *npg = mem_pi2ptr(npi);
+		memmove(npg, dpg, PAGESIZE);
+		if(dpg != (uint8_t*)PTE_ZERO)
+			mem_decref(mem_ptr2pi(dpg), mem_free);
+		dpg = npg;
+		*dpte = (uint32_t)npg | SYS_RW | PTE_A | PTE_D | PTE_W | PTE_U | PTE_P;
+	}
 
-  if(dpg == (uint8_t*)PTE_ZERO || mem_ptr2pi(dpg)->refcount > 1){
-    pageinfo *npi = mem_alloc(); assert(npi);
-    mem_incref(npi);
-    uint8_t *npg = mem_pi2ptr(npi);
-    memmove(npg, dpg, PAGESIZE);
-    if(dpg != (uint8_t*)PTE_ZERO)
-      mem_decref(mem_ptr2pi(dpg), mem_free);
-      dpg = npg;
-      *dpte = (uint32_t)npg | SYS_RW | PTE_A | PTE_D | PTE_W | PTE_U | PTE_P;
-      }
+	int i;
+	for(i = 0; i < PAGESIZE; i++)
+	{
+		if(spg[i] == rpg[i])
+			continue;
+		if(dpg[i] == rpg[i])
+		{
+			dpg[i] = spg[i];
+			continue;
+		}
 
-      int i;
-      for(i = 0; i < PAGESIZE; i++){
-      if(spg[i] == rpg[i])
-      continue;
-      if(dpg[i] == rpg[i]){
-      dpg[i] = spg[i];
-      continue;
-      }
-
-      cprintf("pmap_mergepage: conflict ad dva %x\n", dva);
-      mem_decref(mem_phys2pi(PGADDR(*dpte)), mem_free);
-      *dpte = PTE_ZERO;
-      return;
-      }
+	cprintf("pmap_mergepage: conflict ad dva %x\n", dva);
+	mem_decref(mem_phys2pi(PGADDR(*dpte)), mem_free);
+	*dpte = PTE_ZERO;
+	return;
+	}
 }
 
 // 
@@ -476,7 +479,7 @@ int
 pmap_merge(pde_t *rpdir, pde_t *spdir, uint32_t sva,
 		pde_t *dpdir, uint32_t dva, size_t size)
 {
-	assert(PTOFF(sva) == 0);	// must be 4MB-aligned
+	assert(PTOFF(sva) == 0);
 	assert(PTOFF(dva) == 0);
 	assert(PTOFF(size) == 0);
 	assert(sva >= VM_USERLO && sva < VM_USERHI);
@@ -484,50 +487,53 @@ pmap_merge(pde_t *rpdir, pde_t *spdir, uint32_t sva,
 	assert(size <= VM_USERHI - sva);
 	assert(size <= VM_USERHI - dva);
 
-  pde_t *rpde = &rpdir[PDX(sva)];
-  pde_t *spde = &spdir[PDX(sva)];
-  pde_t *dpde = &dpdir[PDX(dva)];
-  uint32_t svahi = sva + size;
+	pde_t *rpde = &rpdir[PDX(sva)];
+	pde_t *spde = &spdir[PDX(sva)];
+	pde_t *dpde = &dpdir[PDX(dva)];
+	uint32_t svahi = sva + size;
 
-  for (; sva < svahi; rpde++, spde++, dpde++){
-  if(*spde == *rpde){
-  sva += PTSIZE, dva += PTSIZE;
-  continue;
-  }
+	for (; sva < svahi; rpde++, spde++, dpde++)
+	{
+		if(*spde == *rpde)
+		{
+			sva += PTSIZE, dva += PTSIZE;
+			continue;
+		}
 
-  if(*dpde == *rpde){
-    if(!pmap_copy(spdir, sva, dpdir, dva, PTSIZE))
-      return 0;
-      sva += PTSIZE, dva += PTSIZE;
-      continue;
-      }
+		if(*dpde == *rpde)
+		{
+			if(!pmap_copy(spdir, sva, dpdir, dva, PTSIZE))
+			return 0;
+			sva += PTSIZE, dva += PTSIZE;
+			continue;
+		}
 
-      pte_t *rpte = mem_ptr(PGADDR(*rpde));
-      pte_t *spte = mem_ptr(PGADDR(*spde));
-      pte_t *dpte = pmap_walk(dpdir, dva, 1);
-      if (dpte == NULL)
-        return 0;
+		pte_t *rpte = mem_ptr(PGADDR(*rpde));
+		pte_t *spte = mem_ptr(PGADDR(*spde));
+		pte_t *dpte = pmap_walk(dpdir, dva, 1);
+		if (dpte == NULL)
+			return 0;
 
-        pte_t *erpte = &rpte[NPTENTRIES];
-        for(; rpte <erpte; rpte++, spte++, dpte++, sva += PAGESIZE, dva += PAGESIZE){
-        
-        if (*spte == *rpte)
-        continue;
-        if (*dpte == *rpte)
-        { if(PGADDR(*dpte) != PTE_ZERO)
-          mem_decref(mem_phys2pi(PGADDR(*dpte)),mem_free);
-          *spte &= ~PTE_W;
-          *dpte = *spte;
-          mem_incref(mem_phys2pi(PGADDR(*spte)));
-          continue;
-          }
-                    
+		pte_t *erpte = &rpte[NPTENTRIES];
+		for(; rpte <erpte; rpte++, spte++, dpte++, sva += PAGESIZE, dva += PAGESIZE)
+		{
+			if (*spte == *rpte)
+				continue;
+			if (*dpte == *rpte)
+			{ 
+				if(PGADDR(*dpte) != PTE_ZERO)
+					mem_decref(mem_phys2pi(PGADDR(*dpte)),mem_free);
+				*spte &= ~PTE_W;
+				*dpte = *spte;
+				mem_incref(mem_phys2pi(PGADDR(*spte)));
+				continue;
+			}
 
-          pmap_mergepage(rpte, spte, dpte, dva);
-         }
-         }
-          
-return 1;
+			pmap_mergepage(rpte, spte, dpte, dva);
+		}
+	}
+
+	return 1;
 }
 
 //
