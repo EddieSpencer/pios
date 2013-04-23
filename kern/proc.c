@@ -15,6 +15,9 @@
 #include <kern/trap.h>
 #include <kern/proc.h>
 #include <kern/init.h>
+#include <kern/file.h>
+
+
 
 proc proc_null;		// null process - just leave it initialized to 0
 
@@ -311,7 +314,7 @@ proc_check(void)
 	cprintf("proc_check() trap reflection test succeeded\n");
 
 	cprintf("proc_check() succeeded!\n");
- }
+}
 
 static void child(int n)
 {
@@ -346,9 +349,10 @@ static void child(int n)
 	}
 
 	panic("child(): shouldn't have gotten here");
- }
+}
 
 static void grandchild(int n)
 {
 	panic("grandchild(): shouldn't have gotten here");
 }
+

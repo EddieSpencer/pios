@@ -27,5 +27,4 @@ void	exit(int status) gcc_noreturn;
 void	abort(void) gcc_noreturn;
 
 
-
 #endif /* !PIOS_INC_STDLIB_H */

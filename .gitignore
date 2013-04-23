@@ -25,3 +25,11 @@
 
 # grade files
 grade-out
+obj
+.gdbinit
+lab?-handin.tar.gz
+grade-out
+fs
+node?.dump
+*/_*.[ch]
+*~

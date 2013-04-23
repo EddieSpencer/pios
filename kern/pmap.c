@@ -68,6 +68,8 @@ pmap_init(void)
 	cr0 &= ~(CR0_EM);
 	lcr0(cr0);
 
+	// If we survived the lcr0, we're running with paging enabled.
+	// Now check the page table management functions below.
 	if (cpu_onboot())
 		pmap_check();
 }
@@ -105,13 +107,11 @@ void
 pmap_freeptab(pageinfo *ptabpi)
 {
 	pte_t *pte = mem_pi2ptr(ptabpi), *ptelim = pte + NPTENTRIES;
-	for (; pte < ptelim; pte++) 
-	{
+	for (; pte < ptelim; pte++) {
 		uint32_t pgaddr = PGADDR(*pte);
 		if (pgaddr != PTE_ZERO)
 			mem_decref(mem_phys2pi(pgaddr), mem_free);
 	}
-
 	mem_free(ptabpi);
 }
 
@@ -333,8 +333,7 @@ int
 pmap_copy(pde_t *spdir, uint32_t sva, pde_t *dpdir, uint32_t dva,
 		size_t size)
 {
-	
-	assert(PTOFF(sva) == 0);
+	assert(PTOFF(sva) == 0);	// must be 4MB-aligned
 	assert(PTOFF(dva) == 0);
 	assert(PTOFF(size) == 0);
 	assert(sva >= VM_USERLO && sva < VM_USERHI);
