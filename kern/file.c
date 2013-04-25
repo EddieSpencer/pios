@@ -1,4 +1,3 @@
-#line 2 "../kern/file.c"
 /*
  * Initial file system and file-based I/O support for the root process.
  *
@@ -110,7 +109,6 @@ file_initroot(proc *root)
 	// initfiles[i][2] is a pointer to the end of the file's content
 	// (i.e., a pointer to the first byte after the file's last byte).
 	int ninitfiles = sizeof(initfiles)/sizeof(initfiles[0]);
-#line 114 "../kern/file.c"
 	int i;
 	int ino = FILEINO_GENERAL;
 	for (i = 0; i < ninitfiles; i++) {
@@ -124,16 +122,13 @@ file_initroot(proc *root)
 					SYS_READ | SYS_WRITE);
 		memcpy(FILEDATA(ino), initfiles[i][1], filesize);
 		ino++;
-#line 141 "../kern/file.c"
 	}
-#line 146 "../kern/file.c"
 
 	// Set root process's current working directory
 	files->cwd = FILEINO_ROOTDIR;
 
 	// Child process state - reserve PID 0 as a "scratch" child process.
 	files->child[0].state = PROC_RESERVED;
-#line 159 "../kern/file.c"
 }
 
 // Called from proc_ret() when the root process "returns" -
@@ -156,7 +151,6 @@ file_io(trapframe *tf)
 	// Perform I/O with whatever devices we have access to.
 	bool iodone = 0;
 	iodone |= cons_io();
-#line 184 "../kern/file.c"
 
 	// Has the root process exited?
 	if (files->exited) {
@@ -176,7 +170,6 @@ file_io(trapframe *tf)
 	spinlock_release(&file_lock);
 
 	proc_sched();			// go do something else
-#line 211 "../kern/file.c"
 }
 
 // Check to see if any input is available for the root process

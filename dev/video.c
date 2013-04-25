@@ -22,7 +22,6 @@ static unsigned addr_6845;
 static uint16_t *crt_buf;
 static uint16_t crt_pos;
 
-#line 33 "../dev/video.c"
 void
 video_init(void)
 {
@@ -53,12 +52,10 @@ video_init(void)
 }
 
 
-#line 97 "../dev/video.c"
 
 void
 video_putc(int c)
 {
-#line 111 "../dev/video.c"
 	// if no attribute given, then use black on white
 	if (!(c & ~0xFF))
 		c |= 0x0700;
@@ -88,13 +85,10 @@ video_putc(int c)
 		break;
 	}
 
-#line 141 "../dev/video.c"
 	/* scroll if necessary */
-#line 145 "../dev/video.c"
 	if (crt_pos >= CRT_SIZE) {
 		int i;
 
-#line 158 "../dev/video.c"
 		memmove(crt_buf, crt_buf + CRT_COLS,
 			(CRT_SIZE - CRT_COLS) * sizeof(uint16_t));
 		for (i = CRT_SIZE - CRT_COLS; i < CRT_SIZE; i++)
@@ -109,5 +103,4 @@ video_putc(int c)
 	outb(addr_6845 + 1, crt_pos);
 }
 
-#line 190 "../dev/video.c"
 

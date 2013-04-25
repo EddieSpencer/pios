@@ -12,10 +12,8 @@
 #include <inc/string.h>
 #include <inc/assert.h>
 #include <inc/cdefs.h>
-#line 16 "../kern/init.c"
 #include <inc/elf.h>
 #include <inc/vm.h>
-#line 19 "../kern/init.c"
 
 #include <kern/init.h>
 #include <kern/cons.h>
@@ -23,22 +21,15 @@
 #include <kern/mem.h>
 #include <kern/cpu.h>
 #include <kern/trap.h>
-#line 27 "../kern/init.c"
 #include <kern/spinlock.h>
 #include <kern/mp.h>
 #include <kern/proc.h>
-#line 32 "../kern/init.c"
 #include <kern/file.h>
-#line 37 "../kern/init.c"
 
-#line 39 "../kern/init.c"
 #include <dev/pic.h>
 #include <dev/lapic.h>
 #include <dev/ioapic.h>
-#line 43 "../kern/init.c"
 #include <dev/nvram.h>
-#line 50 "../kern/init.c"
-#line 55 "../kern/init.c"
 
 
 // User-mode stack for user(), below, to run on.
@@ -46,9 +37,7 @@ static char gcc_aligned(16) user_stack[PAGESIZE];
 
 // Lab 3: ELF executable containing root process, linked into the kernel
 #ifndef ROOTEXE_START
-#line 65 "../kern/init.c"
 #define ROOTEXE_START _binary_obj_user_testfs_start
-#line 71 "../kern/init.c"
 #endif
 extern char ROOTEXE_START[];
 
@@ -78,7 +67,6 @@ init(void)
 	memmove(code, _binary_obj_boot_bootother_start,
 		(uint32_t)_binary_obj_boot_bootother_size);
 
-#line 106 "../kern/init.c"
 	// Initialize and load the bootstrap CPU's GDT, TSS, and IDT.
 	cpu_init();
 	trap_init();
@@ -87,45 +75,33 @@ init(void)
 	// Can't call mem_alloc until after we do this!
 	mem_init();
 
-#line 115 "../kern/init.c"
 	// Lab 2: check spinlock implementation
 	if (cpu_onboot())
 		spinlock_check();
 
-#line 120 "../kern/init.c"
 	// Initialize the paged virtual memory system.
 	pmap_init();
 
-#line 124 "../kern/init.c"
 	// Find and start other processors in a multiprocessor system
 	mp_init();		// Find info about processors in system
 	pic_init();		// setup the legacy PIC (mainly to disable it)
-#line 130 "../kern/init.c"
 	ioapic_init();		// prepare to handle external device interrupts
 	lapic_init();		// setup this CPU's local APIC
 	cpu_bootothers();	// Get other processors started
 //	cprintf("CPU %d (%s) has booted\n", cpu_cur()->id,
 //		cpu_onboot() ? "BP" : "AP");
 
-#line 137 "../kern/init.c"
 	// Initialize the I/O system.
 	file_init();		// Create root directory and console I/O files
-#line 143 "../kern/init.c"
 
-#line 145 "../kern/init.c"
 	cons_intenable();	// Let the console start producing interrupts
-#line 153 "../kern/init.c"
 
-#line 155 "../kern/init.c"
 	// Initialize the process management code.
 	proc_init();
-#line 158 "../kern/init.c"
 
-#line 190 "../kern/init.c"
 	if (!cpu_onboot())
 		proc_sched();	// just jump right into the scheduler
 
-#line 215 "../kern/init.c"
 
 	// Create our first actual user-mode process
 	proc *root = proc_root = proc_alloc(NULL, 0);
@@ -175,14 +151,11 @@ init(void)
 	assert(pte != NULL);
 	root->sv.tf.esp = VM_STACKHI;
 
-#line 265 "../kern/init.c"
 	// Give the root process an initial file system.
 	file_initroot(root);
-#line 268 "../kern/init.c"
 
 	proc_ready(root);	// make the root process ready
 	proc_sched();		// run it
-#line 277 "../kern/init.c"
 }
 
 // This is the first function that gets run in user mode (ring 3).
@@ -195,7 +168,6 @@ user()
 	assert(read_esp() > (uint32_t) &user_stack[0]);
 	assert(read_esp() < (uint32_t) &user_stack[sizeof(user_stack)]);
 
-#line 297 "../kern/init.c"
 
 	done();
 }

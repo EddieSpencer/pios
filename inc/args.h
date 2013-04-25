@@ -1,4 +1,3 @@
-#line 2 "../inc/args.h"
 /*
  * Simple command-line argument parser.
  *

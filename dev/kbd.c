@@ -19,10 +19,8 @@
 #include <kern/cons.h>
 
 #include <dev/kbd.h>
-#line 23 "../dev/kbd.c"
 #include <dev/pic.h>
 #include <dev/ioapic.h>
-#line 29 "../dev/kbd.c"
 
 
 #define NO		0
@@ -164,7 +162,6 @@ kbd_proc_data(void)
 	}
 
 	// Process special keys
-#line 183 "../dev/kbd.c"
 	// Ctrl-Alt-Del: reboot
 	if (!(~shift & (CTL | ALT)) && c == KEY_DEL) {
 		cprintf("Rebooting!\n");
@@ -185,7 +182,6 @@ kbd_init(void)
 {
 }
 
-#line 204 "../dev/kbd.c"
 void
 kbd_intenable(void)
 {
@@ -196,5 +192,4 @@ kbd_intenable(void)
 	// Drain the kbd buffer so that the hardware generates interrupts.
 	kbd_intr();
 }
-#line 215 "../dev/kbd.c"
 

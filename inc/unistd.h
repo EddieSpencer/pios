@@ -1,4 +1,3 @@
-#line 2 "../inc/unistd.h"
 /*
  * Unix compatibility API - standard Unix "low-level" file I/O functions.
  * In PIOS, the "low-level" and "high-level" APIs actually refer to
@@ -15,7 +14,6 @@
 
 #include <types.h>
 #include <cdefs.h>
-#line 21 "../inc/unistd.h"
 
 
 #define STDIN_FILENO	0
@@ -32,13 +30,11 @@
 // These are traditionally in <sys/wait.h>.
 #define WEXITED			0x0100	// Process exited via exit()
 #define WSIGNALED		0x0200	// Process exited via uncaught signal
-#line 44 "../inc/unistd.h"
 
 #define WIFEXITED(x)		(((x) & 0xf00) == WEXITED)
 #define WEXITSTATUS(x)		((x) & 0xff)
 #define WIFSIGNALED(x)		(((x) & 0xf00) == WSIGNALED)
 #define WTERMSIG(x)		((x) & 0xff)
-#line 60 "../inc/unistd.h"
 
 
 // Process management functions
@@ -47,7 +43,6 @@ pid_t	wait(int *status);				// trad. in sys/wait.h
 pid_t	waitpid(pid_t pid, int *status, int options);	// trad. in sys/wait.h
 int	execl(const char *path, const char *arg0, ...);
 int	execv(const char *path, char *const argv[]);
-#line 87 "../inc/unistd.h"
 
 // File management functions
 int	open(const char *path, int flags, ...);		// trad. in fcntl.h
@@ -64,12 +59,10 @@ int	isatty(int fn);
 int	remove(const char *path);
 int	fsync(int fn);
 
-#line 124 "../inc/unistd.h"
 
 // PIOS-specific thread fork/join functions
 int	tfork(uint16_t child);
 void	tjoin(uint16_t child);
-#line 134 "../inc/unistd.h"
 
 
 #endif	// !PIOS_INC_UNISTD_H

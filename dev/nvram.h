@@ -1,4 +1,3 @@
-#line 2 "../dev/nvram.h"
 /*
  * Definitions for the PC's nonvolatile RAM (NVRAM),
  * part of the PC's battery-backed real-time clock.

@@ -1,4 +1,3 @@
-#line 2 "../kern/cpu.c"
 /*
  * CPU setup and management of key protected-mode data structures,
  * such as global descriptor table (GDT) and task state segment (TSS).
@@ -16,9 +15,7 @@
 #include <kern/cpu.h>
 #include <kern/init.h>
 
-#line 20 "../kern/cpu.c"
 #include <dev/lapic.h>
-#line 22 "../kern/cpu.c"
 
 
 cpu cpu_boot = {
@@ -43,7 +40,6 @@ cpu cpu_boot = {
 		// 0x10 - kernel data segment
 		[CPU_GDT_KDATA >> 3] = SEGDESC32(1, STA_W, 0x0,
 					0xffffffff, 0),
-#line 47 "../kern/cpu.c"
 
 		// 0x18 - user code segment
 		[CPU_GDT_UCODE >> 3] = SEGDESC32(1, STA_X | STA_R,
@@ -53,22 +49,18 @@ cpu cpu_boot = {
 		[CPU_GDT_UDATA >> 3] = SEGDESC32(1, STA_W,
 					0x00000000, 0xffffffff, 3),
 
-#line 62 "../kern/cpu.c"
 		// 0x30 - tss, initialized in cpu_init()
 		[CPU_GDT_TSS >> 3] = SEGDESC_NULL,
-#line 65 "../kern/cpu.c"
 	},
 
 	magic: CPU_MAGIC
 };
 
-#line 135 "../kern/cpu.c"
 
 void cpu_init()
 {
 	cpu *c = cpu_cur();
 
-#line 145 "../kern/cpu.c"
 
 	// Setup the TSS for this cpu so that we get the right stack
 	// when we trap into the kernel from user mode.
@@ -80,7 +72,6 @@ void cpu_init()
 	c->gdt[CPU_GDT_TSS >> 3] = SEGDESC16(0, STS_T32A, (uint32_t) (&c->tss),
 					sizeof(taskstate)-1, 0);
 
-#line 157 "../kern/cpu.c"
 	// Load the GDT
 	struct pseudodesc gdt_pd = {
 		sizeof(c->gdt) - 1, (uint32_t) c->gdt };
@@ -96,14 +87,11 @@ void cpu_init()
 
 	// We don't need an LDT.
 	asm volatile("lldt %%ax" :: "a" (0));
-#line 173 "../kern/cpu.c"
 
 	// Load the TSS (from the GDT)
 	ltr(CPU_GDT_TSS);
-#line 177 "../kern/cpu.c"
 }
 
-#line 180 "../kern/cpu.c"
 // Allocate an additional cpu struct representing a non-bootstrap processor.
 cpu *
 cpu_alloc(void)
@@ -174,5 +162,4 @@ cpu_bootothers(void)
 			;
 	}
 }
-#line 251 "../kern/cpu.c"
 

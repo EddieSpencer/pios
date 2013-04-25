@@ -1,4 +1,3 @@
-#line 2 "../inc/dirent.h"
 /*
  * Directory entry (dirent) structure for the user-space Unix file system.
  *

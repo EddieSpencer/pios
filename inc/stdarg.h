@@ -1,4 +1,3 @@
-#line 2 "../inc/stdarg.h"
 /*
  * Variable argument (varargs) parsing macros compliant with the C standard.
  *

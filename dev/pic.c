@@ -1,4 +1,3 @@
-#line 2 "../dev/pic.c"
 /*
  * Driver code for the 8259A Programmable Interrupt Controller (PIC).
  *
@@ -85,7 +84,6 @@ pic_setmask(uint16_t mask)
 	irqmask = mask;
 	outb(IO_PIC1+1, (char)mask);
 	outb(IO_PIC2+1, (char)(mask >> 8));
-#line 95 "../dev/pic.c"
 }
 
 void

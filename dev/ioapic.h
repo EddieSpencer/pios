@@ -1,4 +1,3 @@
-#line 2 "../dev/ioapic.h"
 /*
  * I/O APIC (Advanced Programmable Interrupt Controller) definitions.
  *

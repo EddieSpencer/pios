@@ -1,4 +1,3 @@
-#line 2 "../inc/mmu.h"
 /*
  * x86 memory management unit (MMU) hardware definitions.
  *

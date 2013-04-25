@@ -119,6 +119,11 @@ exec_start:
 400001dc:	c7 45 d8 00 00 00 40 	movl   $0x40000000,0xffffffd8(%ebp)
 400001e3:	c7 45 d4 00 00 00 40 	movl   $0x40000000,0xffffffd4(%ebp)
 400001ea:	c7 45 d0 00 00 00 b0 	movl   $0xb0000000,0xffffffd0(%ebp)
+static void gcc_inline
+sys_put(uint32_t flags, uint16_t child, procstate *save,
+		void *localsrc, void *childdest, size_t size)
+{
+	asm volatile("int %0" :
 400001f1:	8b 45 e4             	mov    0xffffffe4(%ebp),%eax
 400001f4:	83 c8 01             	or     $0x1,%eax
 400001f7:	8b 5d dc             	mov    0xffffffdc(%ebp),%ebx
@@ -156,6 +161,21 @@ exec_start:
 40000256:	c7 45 d8 00 00 00 40 	movl   $0x40000000,0xffffffd8(%ebp)
 4000025d:	c7 45 d4 00 00 00 40 	movl   $0x40000000,0xffffffd4(%ebp)
 40000264:	c7 45 d0 00 00 c0 af 	movl   $0xafc00000,0xffffffd0(%ebp)
+		: "i" (T_SYSCALL),
+		  "a" (SYS_PUT | flags),
+		  "b" (save),
+		  "d" (child),
+		  "S" (localsrc),
+		  "D" (childdest),
+		  "c" (size)
+		: "cc", "memory");
+}
+
+static void gcc_inline
+sys_get(uint32_t flags, uint16_t child, procstate *save,
+		void *childsrc, void *localdest, size_t size)
+{
+	asm volatile("int %0" :
 4000026b:	8b 45 e4             	mov    0xffffffe4(%ebp),%eax
 4000026e:	83 c8 02             	or     $0x2,%eax
 40000271:	8b 5d dc             	mov    0xffffffdc(%ebp),%ebx
@@ -216,6 +236,20 @@ exec_start:
 40000335:	62 45 f8             	bound  %eax,0xfffffff8(%ebp)
 40000338:	0f 0b                	ud2a   
 4000033a:	0f 01 5d 08          	lidtl  0x8(%ebp)
+		: "i" (T_SYSCALL),
+		  "a" (SYS_GET | flags),
+		  "b" (save),
+		  "d" (child),
+		  "S" (childsrc),
+		  "D" (localdest),
+		  "c" (size)
+		: "cc", "memory");
+}
+
+static void gcc_inline
+sys_ret(void)
+{
+	asm volatile("int %0" : :
 4000033e:	b8 03 00 00 00       	mov    $0x3,%eax
 40000343:	cd 30                	int    $0x30
 40000345:	8b 45 08             	mov    0x8(%ebp),%eax
@@ -2682,6 +2716,11 @@ exec_start:
 40002cf0:	0f b6 00             	movzbl (%eax),%eax
 40002cf3:	0f b6 c0             	movzbl %al,%eax
 40002cf6:	89 45 f4             	mov    %eax,0xfffffff4(%ebp)
+static gcc_inline int iscntrl(int c)	{ return c < ' '; }
+static gcc_inline int isblank(int c)	{ return c == ' ' || c == '\t'; }
+static gcc_inline int isspace(int c)	{ return c == ' '
+						|| (c >= '\t' && c <= '\r'); }
+static gcc_inline int isprint(int c)	{ return c >= ' ' && c <= '~'; }
 40002cf9:	83 7d f4 1f          	cmpl   $0x1f,0xfffffff4(%ebp)
 40002cfd:	7e 12                	jle    40002d11 <debug_dump+0x86>
 40002cff:	83 7d f4 7e          	cmpl   $0x7e,0xfffffff4(%ebp)
@@ -3872,6 +3911,11 @@ cprintf(const char *fmt, ...)
 400039a7:	89 42 0c             	mov    %eax,0xc(%edx)
 400039aa:	a1 34 61 00 40       	mov    0x40006134,%eax
 400039af:	c7 40 08 01 00 00 00 	movl   $0x1,0x8(%eax)
+
+static void gcc_inline
+sys_ret(void)
+{
+	asm volatile("int %0" : :
 400039b6:	b8 03 00 00 00       	mov    $0x3,%eax
 400039bb:	cd 30                	int    $0x30
 400039bd:	c7 44 24 08 fc 60 00 	movl   $0x400060fc,0x8(%esp)

@@ -16,9 +16,7 @@
 #include <kern/cons.h>
 #include <kern/debug.h>
 #include <kern/init.h>
-#line 20 "../kern/debug.c"
 #include <kern/spinlock.h>
-#line 22 "../kern/debug.c"
 
 
 // Variable panicstr contains argument to first call to panic; used as flag
@@ -74,7 +72,6 @@ debug_warn(const char *file, int line, const char *fmt,...)
 void gcc_noinline
 debug_trace(uint32_t ebp, uint32_t eips[DEBUG_TRACEFRAMES])
 {
-#line 78 "../kern/debug.c"
 	const uint32_t *frame = (const uint32_t*)ebp;
 	int i;
 
@@ -84,7 +81,6 @@ debug_trace(uint32_t ebp, uint32_t eips[DEBUG_TRACEFRAMES])
 	}
 	for (; i < 10; i++)	// zero out rest of eips
 		eips[i] = 0;
-#line 90 "../kern/debug.c"
 }
 
 

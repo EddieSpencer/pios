@@ -8,26 +8,26 @@ testfs: in main()
 initfilecheck: found file 'consin' mode 0x9000 size 0
 initfilecheck: found file 'consout' mode 0x1000 size 0
 initfilecheck: found file '/' mode 0x2000 size 0
-initfilecheck: found file 'sh' mode 0x1000 size 78140
-initfilecheck: found file 'ls' mode 0x1000 size 55259
-initfilecheck: found file 'echo' mode 0x1000 size 49994
-initfilecheck: found file 'cat' mode 0x1000 size 48120
-initfilecheck: found file 'wc' mode 0x1000 size 54727
-initfilecheck: found file 'testfs' mode 0x1000 size 89545
-initfilecheck: found file 'testvm' mode 0x1000 size 62579
+initfilecheck: found file 'sh' mode 0x1000 size 78120
+initfilecheck: found file 'ls' mode 0x1000 size 55239
+initfilecheck: found file 'echo' mode 0x1000 size 49978
+initfilecheck: found file 'cat' mode 0x1000 size 48104
+initfilecheck: found file 'wc' mode 0x1000 size 54707
+initfilecheck: found file 'testfs' mode 0x1000 size 89525
+initfilecheck: found file 'testvm' mode 0x1000 size 62559
 initfilecheck passed
 readwritecheck passed
 seekcheck passed
 readdircheck: found file 'consin' mode 0x9000 size 0
 readdircheck: found file 'consout' mode 0x1000 size 0
 readdircheck: found file '/' mode 0x2000 size 0
-readdircheck: found file 'sh' mode 0x1000 size 78140
-readdircheck: found file 'ls' mode 0x1000 size 55259
-readdircheck: found file 'echo' mode 0x1000 size 49994
-readdircheck: found file 'cat' mode 0x1000 size 48120
-readdircheck: found file 'wc' mode 0x1000 size 54727
-readdircheck: found file 'testfs' mode 0x1000 size 89545
-readdircheck: found file 'testvm' mode 0x1000 size 62579
+readdircheck: found file 'sh' mode 0x1000 size 78120
+readdircheck: found file 'ls' mode 0x1000 size 55239
+readdircheck: found file 'echo' mode 0x1000 size 49978
+readdircheck: found file 'cat' mode 0x1000 size 48104
+readdircheck: found file 'wc' mode 0x1000 size 54707
+readdircheck: found file 'testfs' mode 0x1000 size 89525
+readdircheck: found file 'testvm' mode 0x1000 size 62559
 readdircheck passed
 conscheck: write() to STDOUT_FILENO
 conscheck: fprintf() to 'stdout'
@@ -47,16 +47,16 @@ reconcilecheck: basic file reconciliation successful
 forkwrite: reconcilefile0
 forkwrite: reconcilefile1
 forkwrite: reconcilefile2
--           7 consin
+-          13 consin
 -         253 consout
 d           0 /
--       78140 sh
--       55259 ls
--       49994 echo
--       48120 cat
--       54727 wc
--       89545 testfs
--       62579 testvm
+-       78120 sh
+-       55239 ls
+-       49978 echo
+-       48104 cat
+-       54707 wc
+-       89525 testfs
+-       62559 testvm
 -          26 reconcilefile0
 -          26 reconcilefile1
 -          26 reconcilefile2

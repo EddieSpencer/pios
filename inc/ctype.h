@@ -1,4 +1,3 @@
-#line 2 "../inc/ctype.h"
 #ifndef PIOS_INC_CTYPE_H
 #define PIOS_INC_CTYPE_H
 

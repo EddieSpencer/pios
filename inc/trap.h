@@ -1,4 +1,3 @@
-#line 2 "../inc/trap.h"
 /*
  * PIOS trap handling definitions.
  *
@@ -48,7 +47,6 @@
 // We use these vectors to receive local per-CPU interrupts
 #define T_LTIMER	49	// Local APIC timer interrupt
 #define T_LERROR	50	// Local APIC error interrupt
-#line 54 "../inc/trap.h"
 
 #define T_DEFAULT	500	// Unused trap vectors produce this value
 #define T_ICNT		501	// Child process instruction count expired

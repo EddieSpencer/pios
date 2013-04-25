@@ -1,4 +1,3 @@
-#line 2 "../inc/errno.h"
 /*
  * Unix-compatibility API - error number definitions.
  *
@@ -26,6 +25,5 @@
 #define EAGAIN		8	/* Resource temporarily unavailable */
 #define ECHILD		9	/* No child processes */
 #define ECONFLICT	10	/* Conflict detected (PIOS-specific) */
-#line 96 "../inc/errno.h"
 
 #endif	// !PIOS_INC_ERRNO_H

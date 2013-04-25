@@ -1,4 +1,3 @@
-#line 2 "../dev/lapic.c"
 /*
  * The local APIC manages internal (non-I/O) interrupts.
  * See Chapter 8 & Appendix C of Intel processor manual volume 3.
@@ -17,7 +16,6 @@
 
 #include <kern/cpu.h>
 
-#line 23 "../dev/lapic.c"
 #include <dev/lapic.h>
 
 
@@ -45,11 +43,9 @@ lapic_init()
 	lapicw(TDCR, X1);
 	lapicw(TIMER, PERIODIC | T_LTIMER);
 
-#line 70 "../dev/lapic.c"
 	// If we cared more about precise timekeeping,
 	// we would calibrate TICR with another time source such as the PIT.
 	lapicw(TICR, 10000000);
-#line 74 "../dev/lapic.c"
 
 	// Disable logical interrupt lines.
 	lapicw(LINT0, MASKED);
@@ -62,7 +58,6 @@ lapic_init()
 
 	// Map other interrupts to appropriate vectors.
 	lapicw(ERROR, T_LERROR);
-#line 89 "../dev/lapic.c"
 
 	// Set up to lowest-priority, "anycast" interrupts
 	lapicw(LDR, 0xff << 24);	// Accept all interrupts

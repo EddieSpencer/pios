@@ -34,6 +34,5 @@
 void video_init(void);
 void video_putc(int c);
 
-#line 43 "../dev/video.h"
 
 #endif /* PIOS_KERN_VIDEO_H_ */

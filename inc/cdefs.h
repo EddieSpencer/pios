@@ -27,5 +27,4 @@
 #define gcc_pure		__attribute__((pure))
 #define gcc_pure2		__attribute__((const))
 
-#line 48 "../inc/cdefs.h"
 #endif	// PIOS_INC_CDEFS_H

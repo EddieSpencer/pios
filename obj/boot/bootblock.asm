@@ -122,6 +122,11 @@ spin:
     7c69:	00 90 90 55 89 e5    	add    %dl,0xe5895590(%eax)
 
 00007c6c <waitdisk>:
+}
+
+void
+waitdisk(void)
+{
     7c6c:	55                   	push   %ebp
     7c6d:	89 e5                	mov    %esp,%ebp
 static gcc_inline uint8_t
@@ -131,68 +136,36 @@ inb(int port)
 	__asm __volatile("inb %w1,%0" : "=a" (data) : "d" (port));
     7c6f:	ba f7 01 00 00       	mov    $0x1f7,%edx
     7c74:	ec                   	in     (%dx),%al
+	// wait for disk reaady
+	while ((inb(0x1F7) & 0xC0) != 0x40)
     7c75:	25 c0 00 00 00       	and    $0xc0,%eax
     7c7a:	83 f8 40             	cmp    $0x40,%eax
     7c7d:	75 f0                	jne    7c6f <waitdisk+0x3>
+		/* do nothing */;
+}
     7c7f:	5d                   	pop    %ebp
     7c80:	c3                   	ret    
 
 00007c81 <readsect>:
+
+void
+readsect(void *dst, uint32_t offset)
+{
     7c81:	55                   	push   %ebp
     7c82:	89 e5                	mov    %esp,%ebp
     7c84:	8b 4d 0c             	mov    0xc(%ebp),%ecx
     7c87:	57                   	push   %edi
     7c88:	8b 7d 08             	mov    0x8(%ebp),%edi
+static gcc_inline uint8_t
+inb(int port)
+{
+	uint8_t data;
+	__asm __volatile("inb %w1,%0" : "=a" (data) : "d" (port));
     7c8b:	ba f7 01 00 00       	mov    $0x1f7,%edx
     7c90:	ec                   	in     (%dx),%al
     7c91:	25 c0 00 00 00       	and    $0xc0,%eax
     7c96:	83 f8 40             	cmp    $0x40,%eax
     7c99:	75 f0                	jne    7c8b <readsect+0xa>
-	return data;
-}
-
-static gcc_inline void
-insb(int port, void *addr, int cnt)
-{
-	__asm __volatile("cld\n\trepne\n\tinsb"			:
-			 "=D" (addr), "=c" (cnt)		:
-			 "d" (port), "0" (addr), "1" (cnt)	:
-			 "memory", "cc");
-}
-
-static gcc_inline uint16_t
-inw(int port)
-{
-	uint16_t data;
-	__asm __volatile("inw %w1,%0" : "=a" (data) : "d" (port));
-	return data;
-}
-
-static gcc_inline void
-insw(int port, void *addr, int cnt)
-{
-	__asm __volatile("cld\n\trepne\n\tinsw"			:
-			 "=D" (addr), "=c" (cnt)		:
-			 "d" (port), "0" (addr), "1" (cnt)	:
-			 "memory", "cc");
-}
-
-static gcc_inline uint32_t
-inl(int port)
-{
-	uint32_t data;
-	__asm __volatile("inl %w1,%0" : "=a" (data) : "d" (port));
-	return data;
-}
-
-static gcc_inline void
-insl(int port, void *addr, int cnt)
-{
-	__asm __volatile("cld\n\trepne\n\tinsl"			:
-			 "=D" (addr), "=c" (cnt)		:
-			 "d" (port), "0" (addr), "1" (cnt)	:
-			 "memory", "cc");
-}
 
 static gcc_inline void
 outb(int port, uint8_t data)
@@ -224,10 +197,31 @@ outb(int port, uint8_t data)
     7ccb:	25 c0 00 00 00       	and    $0xc0,%eax
     7cd0:	83 f8 40             	cmp    $0x40,%eax
     7cd3:	75 f0                	jne    7cc5 <readsect+0x44>
+
+static gcc_inline void
+insl(int port, void *addr, int cnt)
+{
+	__asm __volatile("cld\n\trepne\n\tinsl"			:
     7cd5:	b2 f0                	mov    $0xf0,%dl
     7cd7:	b9 80 00 00 00       	mov    $0x80,%ecx
     7cdc:	fc                   	cld    
     7cdd:	f2 6d                	repnz insl (%dx),%es:(%edi)
+	// wait for disk to be ready
+	waitdisk();
+
+	outb(0x1F2, 1);		// count = 1
+	outb(0x1F3, offset);
+	outb(0x1F4, offset >> 8);
+	outb(0x1F5, offset >> 16);
+	outb(0x1F6, (offset >> 24) | 0xE0);
+	outb(0x1F7, 0x20);	// cmd 0x20 - read sectors
+
+	// wait for disk to be ready
+	waitdisk();
+
+	// read a sector
+	insl(0x1F0, dst, SECTSIZE/4);
+}
     7cdf:	5f                   	pop    %edi
     7ce0:	5d                   	pop    %ebp
     7ce1:	c3                   	ret    
@@ -294,16 +288,6 @@ outb(int port, uint8_t data)
     7d7d:	a1 18 00 01 00       	mov    0x10018,%eax
     7d82:	25 ff ff ff 00       	and    $0xffffff,%eax
     7d87:	ff d0                	call   *%eax
-}
-
-static gcc_inline void
-outsb(int port, const void *addr, int cnt)
-{
-	__asm __volatile("cld\n\trepne\n\toutsb"		:
-			 "=S" (addr), "=c" (cnt)		:
-			 "d" (port), "0" (addr), "1" (cnt)	:
-			 "cc");
-}
 
 static gcc_inline void
 outw(int port, uint16_t data)

@@ -355,8 +355,6 @@ cli(void)
 	asm volatile("cli");
 }
 
-#line 375 "../inc/x86.h"
 
-#line 401 "../inc/x86.h"
 
 #endif /* !PIOS_INC_X86_H */

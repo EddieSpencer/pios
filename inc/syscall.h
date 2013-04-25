@@ -1,4 +1,3 @@
-#line 2 "../inc/syscall.h"
 /*
  * PIOS system call definitions.
  *
@@ -20,29 +19,23 @@
 #define SYS_PUT		0x00000001	// Push data to child and start it
 #define SYS_GET		0x00000002	// Pull results from child
 #define SYS_RET		0x00000003	// Return to parent
-#line 27 "../inc/syscall.h"
 
 #define SYS_START	0x00000010	// Put: start child running
-#line 33 "../inc/syscall.h"
 
 #define SYS_REGS	0x00001000	// Get/put register state
 #define SYS_FPU		0x00002000	// Get/put FPU state (with SYS_REGS)
-#line 37 "../inc/syscall.h"
 #define SYS_MEM		0x00004000	// Get/put memory mappings
-#line 41 "../inc/syscall.h"
 
 #define SYS_MEMOP	0x00030000	// Get/put memory operation
 #define SYS_ZERO	0x00010000	// Get/put fresh zero-filled memory
 #define SYS_COPY	0x00020000	// Get/put virtual copy
 #define SYS_MERGE	0x00030000	// Get: diffs only from last snapshot
 #define SYS_SNAP	0x00040000	// Put: snapshot child state
-#line 50 "../inc/syscall.h"
 
 #define SYS_PERM	0x00000100	// Set memory permissions on get/put
 #define SYS_READ	0x00000200	// Read permission (NB: in PTE_AVAIL)
 #define SYS_WRITE	0x00000400	// Write permission (NB: in PTE_AVAIL)
 #define SYS_RW		0x00000600	// Both read and write permission
-#line 60 "../inc/syscall.h"
 
 
 // Register conventions for CPUTS system call (write to debug console):
@@ -53,9 +46,7 @@
 
 // Register conventions on GET/PUT system call entry:
 //	EAX:	System call command/flags (SYS_*)
-#line 74 "../inc/syscall.h"
 //	EDX:	bits 7-0: Child process number to get/put
-#line 80 "../inc/syscall.h"
 //	EBX:	Get/put CPU state pointer for SYS_REGS and/or SYS_FPU)
 //	ECX:	Get/put memory region size
 //	ESI:	Get/put local memory region start
@@ -69,7 +60,6 @@
 typedef struct procstate {
 	trapframe	tf;		// general registers
 	uint32_t	pff;		// process feature flags - see below
-#line 97 "../inc/syscall.h"
 	fxsave		fx;		// x87/MMX/XMM registers
 } procstate;
 
@@ -139,7 +129,6 @@ sys_ret(void)
 		"a" (SYS_RET));
 }
 
-#line 189 "../inc/syscall.h"
 
 #endif /* !__ASSEMBLER__ */
 
