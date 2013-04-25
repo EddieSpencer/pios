@@ -8,6 +8,7 @@
  */
 
 #include <inc/mmu.h>
+#include <kern/mem.h>
 
 # Each non-boot CPU ("AP") is started up in response to a STARTUP
 # IPI from the boot CPU.  Section B.4.2 of the Multi-Processor
@@ -31,9 +32,18 @@
 #define SEG_KCODE 1  // kernel code
 #define SEG_KDATA 2  // kernel data+stack
 
+#define SEG_CODE_16 3 //16 bit CS
+#define SEG_DATA_16 4 //16 bit CS
+
+
 .code16                       # Assemble for 16-bit mode
 .globl start
 start:
+	.long bootother
+	.long bioscall
+
+bootother:
+
 	cli                         # Disable interrupts
 
 	# Set up the important data segment registers (DS, ES, SS).
@@ -80,14 +90,204 @@ start32:
 spin:
 	jmp     spin
 
+
+.code32
+.globl bioscall
+bioscall:
+	//we are still in 32-bit mode.
+
+	pushal
+	pushl %fs
+	pushl %gs
+	pushl %ds
+	pushl %es
+	pushl %ss
+
+	pushl %ebx
+	pushl %esi
+	pushl %edi
+	pushl %ebp
+
+	movl $(BIOSCALL_MEM_START+PROT_ESP),%eax
+	movl %esp,(%eax)
+
+	//save the protected mode IDT and GDT
+	sidt BIOSCALL_MEM_START+IDT_MEM_LOC
+	sgdt BIOSCALL_MEM_START+GDT_MEM_LOC
+
+	//start the transition into real mode
+	cli
+
+	// disable paging 
+//TODO:: Save the paging bit in a location and restore it. Dont disable and enable (since bios may be called w or w/o paging)
+	movl    %cr0,%eax
+	//andl    $~CR0_PG,%eax
+	movl    %eax,%cr0
+
+	//flush TLB
+	movl $0,%eax
+	movl  %eax,%cr3
+
+
+	lgdt gdtdesc
+	ljmp  $(SEG_CODE_16<<3),$1f
+
+.code16
+1:
+	//in 16 bit protected mode
+
+	movw $(SEG_DATA_16<<3),%ax
+	movw %ax,%ds
+	movw %ax,%ss
+	movw %ax,%es
+	movw %ax,%fs
+	movw %ax,%gs
+
+	lidt realidtptr
+
+	//patch the int instruction
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_INT_NO),%bp 
+	movb (%bp),%al
+	movb %al,int_call+1
+
+
+	//disable protection bit
+	movl %cr0,%eax
+	andl $~CR0_PE,%eax
+	movl %eax,%cr0
+
+	ljmp $0,$1f
+
+//real mode begins
+1:
+
+	// reload the real stack segment
+	xorw %ax,%ax
+	movw %ax,%ss
+	movw %ax,%ds
+	movw %ax,%es
+	movw %ax,%fs
+	movw %ax,%gs
+
+	//set up the real mode sp
+	movw REAL_STACK_HI,%sp
+	
+	//load the registers needed by the BIOS
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_EAX),%bp
+	movl (%bp),%eax
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_EBX),%bp
+	movl (%bp),%ebx
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_ECX),%bp
+	movl (%bp),%ecx
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_EDX),%bp
+	movl (%bp),%edx
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_ESI),%bp
+	movl (%bp),%esi
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_EDI),%bp
+	movl (%bp),%edi
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_DS),%bp
+	movw (%bp),%ds
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_ES),%bp
+	movw (%bp),%es
+
+	//make the bios call
+	cli
+int_call:
+	int $0
+
+
+	//move the register values back to the struct
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_EAX),%bp
+	movl %eax,(%bp)
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_EBX),%bp
+	movl %ebx,(%bp)
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_ECX),%bp
+	movl %ecx,(%bp)
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_EDX),%bp
+	movl %edx,(%bp)
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_ESI),%bp
+	movl %esi,(%bp)
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_EDI),%bp
+	movl %edi,(%bp)
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_DS),%bp
+	movw %ds,(%bp)
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_ES),%bp
+	movw %es,(%bp)
+
+	//check the carry flag
+	setc %al
+	movw $(start-BIOSREGS_SIZE+BIOSREGS_CF),%bp
+	movb %al,(%bp)
+
+	//prepare to go back in 32 bit
+//	cli
+
+	//load the protected mode gdt	
+	//lgdt gdtdesc
+	lidt BIOSCALL_MEM_START+IDT_MEM_LOC
+	lgdt BIOSCALL_MEM_START+GDT_MEM_LOC
+
+
+	// re-enter protected mode
+	movl    %cr0, %eax
+	orl     $CR0_PE, %eax
+	movl    %eax, %cr0
+
+	ljmp    $(SEG_KCODE<<3), $1f
+.code32
+1:      // we are now in a 32-bit protected mode code segment.
+
+
+	//set the segment registers
+	movw    $(SEG_KDATA<<3), %ax    # Our data segment selector
+	movw    %ax, %ds                # -> DS: Data Segment
+	movw    %ax, %es                # -> ES: Extra Segment
+	movw    %ax, %ss                # -> SS: Stack Segment
+	movw    $0, %ax                 # Zero segments not ready for use
+	movw    %ax, %fs                # -> FS
+	movw    %ax, %gs                # -> GS
+
+	//enable paging
+	movl    %cr0,%eax
+	//orl    $CR0_PG,%eax
+	movl    %eax,%cr0
+
+
+	//restore protected mode stack
+	movl $(BIOSCALL_MEM_START+PROT_ESP),%eax
+	movl (%eax),%esp
+
+
+	popl %ebp
+	popl %edi
+	popl %esi
+	popl %ebx
+
+	popl %ss
+	popl %es
+	popl %ds
+	popl %gs
+	popl %fs
+	popal
+
+	ret
+
+
 # Bootstrap GDT
 .p2align 2                                # force 4 byte alignment
 gdt:
 	SEG_NULL				# null seg
-	SEG(STA_X|STA_R, 0x0, 0xffffffff)	# code seg
-	SEG(STA_W, 0x0, 0xffffffff)		# data seg
+	SEG(STA_X|STA_R, 0x0, 0xffffffff)	# code seg (32 bit)
+	SEG(STA_W, 0x0, 0xffffffff)		# data seg (32 bit)
+	SEG16(STA_X|STA_R|STA_W,0x0,0xffff)  		#code seg (16 bit)
+	SEG16(STA_W|STA_R,0x0,0xffff)        		#data seg (16 bit)
 
 gdtdesc:
-	.word   (gdtdesc - gdt - 1)             # sizeof(gdt) - 1
+	.word   (gdtdesc - gdt -1)             # sizeof(gdt) - 1
 	.long   gdt                             # address gdt
+
+realidtptr:
+	.word   4*256-1                 // limit
+	.long   0                       // base
+
 

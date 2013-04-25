@@ -1,3 +1,4 @@
+#line 2 "../kern/proc.h"
 /*
  * PIOS process management definitions.
  *
@@ -17,17 +18,18 @@
 #include <inc/syscall.h>
 
 #include <kern/spinlock.h>
+#line 22 "../kern/proc.h"
 #include <kern/pmap.h>
+#line 25 "../kern/proc.h"
 #include <inc/file.h>
-
-
-
+#line 29 "../kern/proc.h"
 
 typedef enum proc_state {
 	PROC_STOP	= 0,	// Passively waiting for parent to run it
 	PROC_READY,		// Scheduled to run but not running now
 	PROC_RUN,		// Running on some CPU
 	PROC_WAIT,		// Waiting to synchronize with child
+#line 40 "../kern/proc.h"
 } proc_state;
 
 // Thread control block structure.
@@ -49,10 +51,12 @@ typedef struct proc {
 
 	// Save area for user-visible state when process is not running.
 	procstate	sv;
+#line 62 "../kern/proc.h"
 
 	// Virtual memory state for this process.
 	pde_t		*pdir;		// Working page directory
 	pde_t		*rpdir;		// Reference page directory
+#line 87 "../kern/proc.h"
 } proc;
 
 #define proc_cur()	(cpu_cur()->proc)
@@ -63,9 +67,6 @@ extern proc proc_null;
 
 // Special root process - the only one that can do direct external I/O.
 extern proc *proc_root;
-
-proc *ready_pop(void);
-void ready_push(proc *p);
 
 
 void proc_init(void);	// Initialize process management code

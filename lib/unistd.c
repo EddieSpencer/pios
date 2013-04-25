@@ -1,3 +1,4 @@
+#line 2 "../lib/unistd.c"
 /*
  * Basic user-space file and I/O support functions
  * compatible with Unix's "low-level" file API.
@@ -13,6 +14,7 @@
 #include <inc/dirent.h>
 #include <inc/assert.h>
 #include <inc/stdarg.h>
+#line 20 "../lib/unistd.c"
 
 int
 creat(const char *path, mode_t mode)
@@ -136,4 +138,5 @@ fsync(int fn)
 	return fileino_flush(files->fd[fn].ino);
 }
 
+#line 150 "../lib/unistd.c"
 

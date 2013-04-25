@@ -12,8 +12,10 @@
 #include <inc/string.h>
 #include <inc/assert.h>
 #include <inc/cdefs.h>
+#line 16 "../kern/init.c"
 #include <inc/elf.h>
 #include <inc/vm.h>
+#line 19 "../kern/init.c"
 
 #include <kern/init.h>
 #include <kern/cons.h>
@@ -21,15 +23,22 @@
 #include <kern/mem.h>
 #include <kern/cpu.h>
 #include <kern/trap.h>
+#line 27 "../kern/init.c"
 #include <kern/spinlock.h>
 #include <kern/mp.h>
 #include <kern/proc.h>
+#line 32 "../kern/init.c"
 #include <kern/file.h>
+#line 37 "../kern/init.c"
 
-#include <dev/nvram.h>
+#line 39 "../kern/init.c"
 #include <dev/pic.h>
 #include <dev/lapic.h>
 #include <dev/ioapic.h>
+#line 43 "../kern/init.c"
+#include <dev/nvram.h>
+#line 50 "../kern/init.c"
+#line 55 "../kern/init.c"
 
 
 // User-mode stack for user(), below, to run on.
@@ -37,7 +46,9 @@ static char gcc_aligned(16) user_stack[PAGESIZE];
 
 // Lab 3: ELF executable containing root process, linked into the kernel
 #ifndef ROOTEXE_START
+#line 65 "../kern/init.c"
 #define ROOTEXE_START _binary_obj_user_testfs_start
+#line 71 "../kern/init.c"
 #endif
 extern char ROOTEXE_START[];
 
@@ -60,16 +71,14 @@ init(void)
 	// Can't call cprintf until after we do this!
 	cons_init();
 
-  extern uint8_t _binary_obj_boot_bootother_start[],
-    _binary_obj_boot_bootother_size[];
+	//copy the low memory bootothers code.
+	extern uint8_t _binary_obj_boot_bootother_start[],
+			_binary_obj_boot_bootother_size[];
+	uint8_t *code = (uint8_t*)lowmem_bootother_vec;
+	memmove(code, _binary_obj_boot_bootother_start,
+		(uint32_t)_binary_obj_boot_bootother_size);
 
-  uint8_t *code = (uint8_t*)lowmem_bootother_vec;
-  memmove(code, _binary_obj_boot_bootother_start, (uint32_t) _binary_obj_boot_bootother_size);
-
-	// Lab 1: test cprintf and debug_trace
-//	cprintf("1234 decimal is %o octal!\n", 1234);
-//	debug_check();
-
+#line 106 "../kern/init.c"
 	// Initialize and load the bootstrap CPU's GDT, TSS, and IDT.
 	cpu_init();
 	trap_init();
@@ -78,90 +87,102 @@ init(void)
 	// Can't call mem_alloc until after we do this!
 	mem_init();
 
+#line 115 "../kern/init.c"
 	// Lab 2: check spinlock implementation
 	if (cpu_onboot())
 		spinlock_check();
 
+#line 120 "../kern/init.c"
 	// Initialize the paged virtual memory system.
 	pmap_init();
 
+#line 124 "../kern/init.c"
 	// Find and start other processors in a multiprocessor system
 	mp_init();		// Find info about processors in system
 	pic_init();		// setup the legacy PIC (mainly to disable it)
+#line 130 "../kern/init.c"
 	ioapic_init();		// prepare to handle external device interrupts
 	lapic_init();		// setup this CPU's local APIC
 	cpu_bootothers();	// Get other processors started
 //	cprintf("CPU %d (%s) has booted\n", cpu_cur()->id,
 //		cpu_onboot() ? "BP" : "AP");
 
+#line 137 "../kern/init.c"
 	// Initialize the I/O system.
 	file_init();		// Create root directory and console I/O files
+#line 143 "../kern/init.c"
 
-	// Lab 4: uncomment this when you can handle IRQ_SERIAL and IRQ_KBD.
-	//cons_intenable();	// Let the console start producing interrupts
-  cons_intenable();
+#line 145 "../kern/init.c"
+	cons_intenable();	// Let the console start producing interrupts
+#line 153 "../kern/init.c"
+
+#line 155 "../kern/init.c"
 	// Initialize the process management code.
 	proc_init();
+#line 158 "../kern/init.c"
 
-	// Lab 1: change this so it enters user() in user mode,
-	// running on the user_stack declared above,
-	// instead of just calling user() directly.
-//	user();
+#line 190 "../kern/init.c"
+	if (!cpu_onboot())
+		proc_sched();	// just jump right into the scheduler
 
-  //For LAB 3
-if(!cpu_onboot())
-proc_sched();
-  proc *root = proc_root = proc_alloc(NULL,0);
-  
-  elfhdr *eh = (elfhdr *)ROOTEXE_START;
-  assert(eh->e_magic == ELF_MAGIC);
+#line 215 "../kern/init.c"
 
-  proghdr *ph = (proghdr *) ((void *) eh + eh->e_phoff);
-  proghdr *eph = ph + eh->e_phnum;
+	// Create our first actual user-mode process
+	proc *root = proc_root = proc_alloc(NULL, 0);
 
-  for (; ph < eph; ph++){
-    if (ph->p_type != ELF_PROG_LOAD)
-      continue;
+	elfhdr *eh = (elfhdr *)ROOTEXE_START;
+	assert(eh->e_magic == ELF_MAGIC);
 
-    void *fa = (void *) eh + ROUNDDOWN(ph->p_offset, PAGESIZE);
-    uint32_t va = ROUNDDOWN(ph->p_va, PAGESIZE);
-    uint32_t zva = ph->p_va + ph->p_filesz;
-    uint32_t eva = ROUNDUP(ph->p_va + ph->p_memsz, PAGESIZE);
+	// Load each program segment
+	proghdr *ph = (proghdr *) ((void *) eh + eh->e_phoff);
+	proghdr *eph = ph + eh->e_phnum;
+	for (; ph < eph; ph++) {
+		if (ph->p_type != ELF_PROG_LOAD)
+			continue;
+	
+		void *fa = (void *) eh + ROUNDDOWN(ph->p_offset, PAGESIZE);
+		uint32_t va = ROUNDDOWN(ph->p_va, PAGESIZE);
+		uint32_t zva = ph->p_va + ph->p_filesz;
+		uint32_t eva = ROUNDUP(ph->p_va + ph->p_memsz, PAGESIZE);
 
-    uint32_t perm = SYS_READ | PTE_P | PTE_U;
-    if(ph->p_flags & ELF_PROG_FLAG_WRITE)
-    perm |= SYS_WRITE | PTE_W;
+		uint32_t perm = SYS_READ | PTE_P | PTE_U;
+		if (ph->p_flags & ELF_PROG_FLAG_WRITE)
+			perm |= SYS_WRITE | PTE_W;
 
-    for (; va < eva; va += PAGESIZE, fa += PAGESIZE) {
-    pageinfo *pi = mem_alloc(); assert(pi != NULL);
-      if(va < ROUNDDOWN(zva, PAGESIZE))
-        memmove(mem_pi2ptr(pi), fa, PAGESIZE);
-      else if (va < zva && ph->p_filesz){
-      memset(mem_pi2ptr(pi),0, PAGESIZE);
-      memmove(mem_pi2ptr(pi), fa, zva-va);
-      } else
-        memset(mem_pi2ptr(pi), 0, PAGESIZE);
+		for(; va < eva; va += PAGESIZE, fa += PAGESIZE) {
+			pageinfo *pi = mem_alloc(); assert(pi != NULL);
+			if (va < ROUNDDOWN(zva, PAGESIZE)) // complete page
+				memmove(mem_pi2ptr(pi), fa, PAGESIZE);
+			else if (va < zva && ph->p_filesz) {	// partial
+				memset(mem_pi2ptr(pi), 0, PAGESIZE);
+				memmove(mem_pi2ptr(pi), fa, zva-va);
+			} else			// all-zero page
+				memset(mem_pi2ptr(pi), 0, PAGESIZE);
+			pte_t *pte = pmap_insert(root->pdir, pi, va, perm);
+			assert(pte != NULL);
+		}
+	}
 
-      pte_t *pte = pmap_insert(root->pdir, pi, va, perm);
-      assert(pte != NULL);
-      }
-      }
+	// Start the process at the entry indicated in the ELF header
+	root->sv.tf.eip = eh->e_entry;
+	root->sv.tf.eflags |= FL_IF;	// enable interrupts
 
-      root->sv.tf.eip = eh->e_entry;
-      root->sv.tf.eflags |= FL_IF;
+	// Give the process a 1-page stack in high memory
+	// (the process can then increase its own stack as desired)
+	pageinfo *pi = mem_alloc(); assert(pi != NULL);
+	pte_t *pte = pmap_insert(root->pdir, pi, VM_STACKHI-PAGESIZE,
+				SYS_READ | SYS_WRITE | PTE_P | PTE_U | PTE_W);
+	assert(pte != NULL);
+	root->sv.tf.esp = VM_STACKHI;
 
-      pageinfo *pi = mem_alloc(); assert(pi != NULL);
-      pte_t *pte = pmap_insert(root->pdir, pi, VM_STACKHI-PAGESIZE,
-        SYS_READ | SYS_WRITE | PTE_P | PTE_U | PTE_W);
-      assert(pte != NULL);
-      root->sv.tf.esp = VM_STACKHI;
+#line 265 "../kern/init.c"
+	// Give the root process an initial file system.
+	file_initroot(root);
+#line 268 "../kern/init.c"
 
-      file_initroot(root);
-      proc_ready(root);
-      proc_sched();
-
-
-     // user();
+	proc_ready(root);	// make the root process ready
+	proc_sched();		// run it
+#line 277 "../kern/init.c"
 }
 
 // This is the first function that gets run in user mode (ring 3).
@@ -174,12 +195,7 @@ user()
 	assert(read_esp() > (uint32_t) &user_stack[0]);
 	assert(read_esp() < (uint32_t) &user_stack[sizeof(user_stack)]);
 
-	// Check the system call and process scheduling code.
-//  cprintf("proc_check");
-//	proc_check();
-
-	// Check that we're in user mode and can handle traps from there.
-//	trap_check_user();
+#line 297 "../kern/init.c"
 
 	done();
 }

@@ -61,6 +61,7 @@ typedef int			off_t;		// file offsets and lengths
 typedef int			pid_t;		// process IDs
 typedef int			ino_t;		// file inode numbers
 typedef int			mode_t;		// file mode flags
+#line 77 "../inc/types.h"
 
 // Efficient min and max operations
 #define MIN(_a, _b)						\
@@ -97,4 +98,5 @@ typedef int			mode_t;		// file mode flags
 #define USED(x)		(void)(x)
 
 
+#line 155 "../inc/types.h"
 #endif /* !PIOS_INC_TYPES_H */

@@ -1,3 +1,4 @@
+#line 2 "../user/echo.c"
 /*
  * Simple Unix-like program to echo command-line arguments to standard output.
  *

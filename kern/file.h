@@ -1,3 +1,4 @@
+#line 2 "../kern/file.h"
 /* 
  * Initial file system and file-based I/O support for the root process.
  *

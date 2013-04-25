@@ -1,3 +1,4 @@
+#line 2 "../inc/elf.h"
 /*
  * ELF (Executable and Linkable Format) definitions.
  *

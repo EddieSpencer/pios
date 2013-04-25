@@ -1,3 +1,4 @@
+#line 2 "../dev/nvram.c"
 /*
  * Device driver code for accessing the PC's nonvolatile RAM (NVRAM),
  * which is part of the PC's real-time clock/calendar.

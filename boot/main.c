@@ -1,3 +1,4 @@
+#line 2 "../boot/main.c"
 /*
  * Boot loader code to read the kernel image from disk and start it.
  *

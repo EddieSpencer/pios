@@ -1,3 +1,4 @@
+#line 2 "../lib/debug.c"
 /*
  * Debugging support code for user-space programs.
  *
@@ -12,7 +13,7 @@
 #include <inc/stdlib.h>
 #include <inc/assert.h>
 #include <inc/ctype.h>
-#include <inc/syscall.h>
+#line 19 "../lib/debug.c"
 
 char *argv0;
 
@@ -33,7 +34,9 @@ debug_panic(const char *file, int line, const char *fmt,...)
 	vcprintf(fmt, ap);
 	cprintf("\n");
 
+#line 40 "../lib/debug.c"
 	abort();
+#line 46 "../lib/debug.c"
 }
 
 /* like panic, but don't */

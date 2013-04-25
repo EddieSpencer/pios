@@ -1,3 +1,4 @@
+#line 2 "../kern/init.h"
 /*
  * Kernel initialization.
  *
@@ -16,8 +17,10 @@
 
 #include <inc/cdefs.h>
 
+
 #define lowmem_bootother_vec 0x1000
 #define lowmem_bioscall_vec 0x1004
+
 // Called on each processor to initialize the kernel.
 void init(void);
 

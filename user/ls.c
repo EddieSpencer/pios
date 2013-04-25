@@ -1,3 +1,4 @@
+#line 2 "../user/ls.c"
 /*
  * Simple Unix-like program to list the files in a directory.
  *

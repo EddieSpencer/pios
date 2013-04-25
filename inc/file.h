@@ -1,3 +1,4 @@
+#line 2 "../inc/file.h"
 /*
  * File storage and file-based I/O definitions.
  *
@@ -44,6 +45,7 @@
 #define	O_CREAT		0x0020		// create if nonexistent
 #define	O_TRUNC		0x0040		// truncate to zero length
 #define	O_EXCL		0x0080		// error if already exists
+#line 52 "../inc/file.h"
 
 // Each process contains its own copy of all file system state,
 // which resides between virtual addresses 0x80000000 and 0xc0000000
@@ -67,6 +69,7 @@
 struct stat;
 
 struct dirent {				// Directory entry - should be 64 bytes
+#line 78 "../inc/file.h"
 	char	d_name[NAME_MAX+1];	// Entry name
 };
 
@@ -98,6 +101,7 @@ typedef struct filedesc {		// Per-open file descriptor state
 //
 typedef struct fileinode {		// Per-file state - like an "inode"
 	int	dino;			// Directory this entry lives in
+#line 112 "../inc/file.h"
 	struct dirent de;		// Entry name, "" if free entry
 	int	ver;			// Version - bumped on every change
 	mode_t	mode;			// File mode (stat.h), 0 if deleted
@@ -134,6 +138,7 @@ typedef struct filestate {
 	filedesc	fd[OPEN_MAX];	// File descriptor table
 	fileinode	fi[FILE_INODES]; // "Inodes" describing actual files
 	procinfo	child[PROC_CHILDREN]; 	// Unix state of child processes
+#line 153 "../inc/file.h"
 } filestate;
 
 #define FILES		((filestate *) FILESVA)
@@ -146,6 +151,7 @@ extern filestate *const files;		// always = FILES
 #define FILEINO_ROOTDIR	3		// Inode 3 is the root dir
 #define FILEINO_GENERAL	4		// First general-purpose inode
 
+#line 171 "../inc/file.h"
 
 
 // Validity and status checking for file descriptor pointers ('f')

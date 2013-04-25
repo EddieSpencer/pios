@@ -17,8 +17,10 @@
 #include <kern/cons.h>
 
 #include <dev/serial.h>
+#line 21 "../dev/serial.c"
 #include <dev/pic.h>
 #include <dev/ioapic.h>
+#line 24 "../dev/serial.c"
 
 
 bool serial_exists;
@@ -90,6 +92,7 @@ serial_init(void)
 	(void) inb(COM1+COM_RX);
 }
 
+#line 96 "../dev/serial.c"
 void
 serial_intenable(void)
 {
@@ -99,4 +102,5 @@ serial_intenable(void)
 		ioapic_enable(IRQ_SERIAL);
 	}
 }
+#line 106 "../dev/serial.c"
 

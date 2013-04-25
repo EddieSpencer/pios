@@ -1,3 +1,4 @@
+#line 2 "../lib/readline.c"
 /*
  * Simple interactive console line reading function,
  * with no editing support other than handling backspace.

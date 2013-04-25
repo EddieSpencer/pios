@@ -17,13 +17,18 @@
 #include <inc/x86.h>
 #include <inc/string.h>
 #include <inc/assert.h>
+#line 21 "../kern/cons.c"
 #include <inc/syscall.h>
+#line 23 "../kern/cons.c"
 
 #include <kern/cpu.h>
 #include <kern/cons.h>
 #include <kern/mem.h>
+#line 28 "../kern/cons.c"
 #include <kern/spinlock.h>
+#line 31 "../kern/cons.c"
 #include <kern/file.h>
+#line 33 "../kern/cons.c"
 
 #include <dev/video.h>
 #include <dev/kbd.h>
@@ -32,7 +37,9 @@
 void cons_intr(int (*proc)(void));
 static void cons_putc(int c);
 
+#line 42 "../kern/cons.c"
 spinlock cons_lock;	// Spinlock to make console output atomic
+#line 44 "../kern/cons.c"
 
 /***** General device-independent console code *****/
 // Here we manage the console input buffer,
@@ -47,7 +54,10 @@ static struct {
 	uint32_t wpos;
 } cons;
 
-static int cons_outsize;
+#line 59 "../kern/cons.c"
+static int cons_outsize;	// Console output already written by root proc
+#line 61 "../kern/cons.c"
+
 // called by device interrupt routines to feed input characters
 // into the circular console input buffer.
 void
@@ -55,7 +65,9 @@ cons_intr(int (*proc)(void))
 {
 	int c;
 
+#line 70 "../kern/cons.c"
 	spinlock_acquire(&cons_lock);
+#line 72 "../kern/cons.c"
 	while ((c = (*proc)()) != -1) {
 		if (c == 0)
 			continue;
@@ -63,10 +75,13 @@ cons_intr(int (*proc)(void))
 		if (cons.wpos == CONSBUFSIZE)
 			cons.wpos = 0;
 	}
+#line 80 "../kern/cons.c"
 	spinlock_release(&cons_lock);
 
+#line 83 "../kern/cons.c"
 	// Wake the root process
 	file_wakeroot();
+#line 87 "../kern/cons.c"
 }
 
 // return the next input character from the console, or 0 if none waiting
@@ -106,7 +121,9 @@ cons_init(void)
 	if (!cpu_onboot())	// only do once, on the boot CPU
 		return;
 
+#line 127 "../kern/cons.c"
 	spinlock_init(&cons_lock);
+#line 129 "../kern/cons.c"
 	video_init();
 	kbd_init();
 	serial_init();
@@ -115,6 +132,7 @@ cons_init(void)
 		warn("Serial port does not exist!\n");
 }
 
+#line 138 "../kern/cons.c"
 // Enable console interrupts.
 void
 cons_intenable(void)
@@ -125,11 +143,13 @@ cons_intenable(void)
 	kbd_intenable();
 	serial_intenable();
 }
+#line 149 "../kern/cons.c"
 
 // `High'-level console I/O.  Used by readline and cprintf.
 void
 cputs(const char *str)
 {
+#line 155 "../kern/cons.c"
 	if (read_cs() & 3)
 		return sys_cputs(str);	// use syscall from user mode
 
@@ -140,20 +160,24 @@ cputs(const char *str)
 	if (!already)
 		spinlock_acquire(&cons_lock);
 
+#line 166 "../kern/cons.c"
 	char ch;
 	while (*str)
 		cons_putc(*str++);
+#line 170 "../kern/cons.c"
 
 	if (!already)
 		spinlock_release(&cons_lock);
+#line 174 "../kern/cons.c"
 }
 
+#line 177 "../kern/cons.c"
 // Synchronize the root process's console special files
 // with the actual console I/O device.
 bool
 cons_io(void)
 {
-	// Lab 4: your console I/O code here.
+#line 183 "../kern/cons.c"
 	spinlock_acquire(&cons_lock);
 	bool didio = 0;
 
@@ -182,5 +206,7 @@ cons_io(void)
 
 	spinlock_release(&cons_lock);
 	return didio;
+#line 216 "../kern/cons.c"
 }
+#line 218 "../kern/cons.c"
 

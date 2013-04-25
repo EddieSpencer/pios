@@ -1,3 +1,4 @@
+#line 2 "../kern/spinlock.h"
 /*
  * Spin locks for multiprocessor mutual exclusion in the kernel.
  *

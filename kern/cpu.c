@@ -1,3 +1,4 @@
+#line 2 "../kern/cpu.c"
 /*
  * CPU setup and management of key protected-mode data structures,
  * such as global descriptor table (GDT) and task state segment (TSS).
@@ -15,7 +16,9 @@
 #include <kern/cpu.h>
 #include <kern/init.h>
 
+#line 20 "../kern/cpu.c"
 #include <dev/lapic.h>
+#line 22 "../kern/cpu.c"
 
 
 cpu cpu_boot = {
@@ -40,30 +43,44 @@ cpu cpu_boot = {
 		// 0x10 - kernel data segment
 		[CPU_GDT_KDATA >> 3] = SEGDESC32(1, STA_W, 0x0,
 					0xffffffff, 0),
+#line 47 "../kern/cpu.c"
 
-		// 0x08 - kernel code segment
-		[CPU_GDT_UCODE >> 3] = SEGDESC32(1, STA_X | STA_R, 0x0,
-					0xffffffff, 3),
+		// 0x18 - user code segment
+		[CPU_GDT_UCODE >> 3] = SEGDESC32(1, STA_X | STA_R,
+					0x00000000, 0xffffffff, 3),
 
-		// 0x10 - kernel data segment
-		[CPU_GDT_UDATA >> 3] = SEGDESC32(1, STA_W, 0x0,
-					0xffffffff, 3),
+		// 0x20 - user data segment
+		[CPU_GDT_UDATA >> 3] = SEGDESC32(1, STA_W,
+					0x00000000, 0xffffffff, 3),
+
+#line 62 "../kern/cpu.c"
+		// 0x30 - tss, initialized in cpu_init()
+		[CPU_GDT_TSS >> 3] = SEGDESC_NULL,
+#line 65 "../kern/cpu.c"
 	},
 
 	magic: CPU_MAGIC
 };
 
+#line 135 "../kern/cpu.c"
 
 void cpu_init()
 {
 	cpu *c = cpu_cur();
 
-  c->tss.ts_esp0 = (uint32_t) c->kstackhi;
-  c->tss.ts_ss0 = CPU_GDT_KDATA;
+#line 145 "../kern/cpu.c"
 
-  c->gdt[CPU_GDT_TSS >> 3] = SEGDESC16(0, STS_T32A, (uint32_t) (&c->tss),
-                              sizeof(taskstate)-1, 0);
+	// Setup the TSS for this cpu so that we get the right stack
+	// when we trap into the kernel from user mode.
+	c->tss.ts_esp0 = (uint32_t) c->kstackhi;
+	c->tss.ts_ss0 = CPU_GDT_KDATA;
 
+	// Initialize the non-constant part of the cpu's GDT:
+	// the TSS descriptor is different for each cpu.
+	c->gdt[CPU_GDT_TSS >> 3] = SEGDESC16(0, STS_T32A, (uint32_t) (&c->tss),
+					sizeof(taskstate)-1, 0);
+
+#line 157 "../kern/cpu.c"
 	// Load the GDT
 	struct pseudodesc gdt_pd = {
 		sizeof(c->gdt) - 1, (uint32_t) c->gdt };
@@ -79,9 +96,14 @@ void cpu_init()
 
 	// We don't need an LDT.
 	asm volatile("lldt %%ax" :: "a" (0));
-  ltr(CPU_GDT_TSS);
+#line 173 "../kern/cpu.c"
+
+	// Load the TSS (from the GDT)
+	ltr(CPU_GDT_TSS);
+#line 177 "../kern/cpu.c"
 }
 
+#line 180 "../kern/cpu.c"
 // Allocate an additional cpu struct representing a non-bootstrap processor.
 cpu *
 cpu_alloc(void)
@@ -132,8 +154,8 @@ cpu_bootothers(void)
 
 	// Write bootstrap code to unused memory at 0x1000.
 	uint8_t *code = (uint8_t*)0x1000;
-	memmove(code, _binary_obj_boot_bootother_start,
-		(uint32_t)_binary_obj_boot_bootother_size);
+	//memmove(code, _binary_obj_boot_bootother_start,
+	//	(uint32_t)_binary_obj_boot_bootother_size);
 
 	cpu *c;
 	for(c = &cpu_boot; c; c = c->next){
@@ -143,11 +165,14 @@ cpu_bootothers(void)
 		// Fill in %esp, %eip and start code on cpu.
 		*(void**)(code-4) = c->kstackhi;
 		*(void**)(code-8) = init;
+		uint8_t *bootother = (uint8_t*)0x1010;
 		lapic_startcpu(c->id, (uint32_t)code);
+		//lapic_startcpu(c->id, (uint32_t)bootother);
 
 		// Wait for cpu to get through bootstrap.
 		while(c->booted == 0)
 			;
 	}
 }
+#line 251 "../kern/cpu.c"
 

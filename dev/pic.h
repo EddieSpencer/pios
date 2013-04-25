@@ -1,3 +1,4 @@
+#line 2 "../dev/pic.h"
 /*
  * Hardware definitions for the 8259A Programmable Interrupt Controller (PIC).
  *
@@ -34,6 +35,7 @@ extern uint16_t irq_mask_8259A;
 void pic_init(void);
 void pic_setmask(uint16_t mask);
 void pic_enable(int irq);
+#line 41 "../dev/pic.h"
 #endif // !__ASSEMBLER__
 
 #endif // !PIOS_DEV_PIC_H

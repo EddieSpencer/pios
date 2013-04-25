@@ -1,3 +1,4 @@
+#line 2 "../user/testvm.c"
 /*
  * Test suite for PIOS virtual memory facilities implemented in Lab 3.
  *

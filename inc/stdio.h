@@ -32,6 +32,7 @@ void	cputs(const char *str);			// lib/cputs.c or kern/cons.c
 int	cprintf(const char *fmt, ...);		// lib/cprintf.c
 int	vcprintf(const char *fmt, va_list);	// lib/cprintf.c
 
+#line 36 "../inc/stdio.h"
 #ifndef SEEK_SET
 #define SEEK_SET	0	/* seek relative to beginning of file */
 #define SEEK_CUR	1	/* seek relative to current file position */
@@ -49,6 +50,7 @@ extern FILE *const stderr;
 // lib/stdio.c
 int	fputc(int c, FILE *fh);
 int	fgetc(FILE *fh);
+#line 62 "../inc/stdio.h"
 #define putchar(c)	fputc(c, stdout)
 #define putc(c,fh)	fputc(c, fh)
 #define getchar()	fgetc(stdin)
@@ -60,11 +62,13 @@ int	vsprintf(char *str, const char *fmt, va_list args);
 int	snprintf(char *str, int size, const char *fmt, ...);
 int	vsnprintf(char *str, int size, const char *fmt, va_list args);
 
+#line 81 "../inc/stdio.h"
 // lib/fprintf.c
 int	printf(const char *fmt, ...);
 int	vprintf(const char *fmt, va_list args);
 int	fprintf(FILE *f, const char *fmt, ...);
 int	vfprintf(FILE *f, const char *fmt, va_list args);
+#line 94 "../inc/stdio.h"
 
 // lib/stdio.c
 FILE *	fopen(const char *filename, const char *mode);
@@ -77,9 +81,11 @@ long	ftell(FILE *fh);
 int	feof(FILE *fd);
 int	ferror(FILE *fd);
 void	clearerr(FILE *fd);
+#line 109 "../inc/stdio.h"
 int	fflush(FILE *fd);
 
 // lib/readline.c
 char*	readline(const char *prompt);
 
+#line 120 "../inc/stdio.h"
 #endif /* !PIOS_INC_STDIO_H */

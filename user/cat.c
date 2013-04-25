@@ -1,3 +1,4 @@
+#line 2 "../user/cat.c"
 /*
  * Simple Unix-like program to concatenate files to standard output.
  *

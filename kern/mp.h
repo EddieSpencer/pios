@@ -1,3 +1,4 @@
+#line 2 "../kern/mp.h"
 /*
  * Multiprocessor bootstrap definitions.
  * See MultiProcessor Specification Version 1.[14]

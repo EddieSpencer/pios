@@ -1,3 +1,4 @@
+#line 2 "../user/sh.c"
 /*
  * Simple Unix-style command shell usable in interactive or script mode.
  *
@@ -8,6 +9,11 @@
  * Adapted for PIOS by Bryan Ford at Yale University.
  */
 
+#line 13 "../user/sh.c"
+// NOTE: The "#if LAB >= 1" sections below used to be "#if SOL >= 7"
+// sections.  Now we gave them the entire shell in the last lab so
+// they would have more time to focus on the final project.
+#line 17 "../user/sh.c"
 #include <inc/cdefs.h>
 #include <inc/stdio.h>
 #include <inc/stdlib.h>
@@ -63,6 +69,7 @@ again:
 				cprintf("syntax error: < not followed by word\n");
 				exit(EXIT_FAILURE);
 			}
+#line 73 "../user/sh.c"
 			if ((fd = open(t, O_RDONLY)) < 0) {
 				cprintf("open %s for read: %e", t, fd);
 				exit(EXIT_FAILURE);
@@ -71,6 +78,7 @@ again:
 				dup2(fd, 0);
 				close(fd);
 			}
+#line 93 "../user/sh.c"
 			break;
 			
 		case '>':	// Output redirection
@@ -79,6 +87,7 @@ again:
 				cprintf("syntax error: > not followed by word\n");
 				exit(EXIT_FAILURE);
 			}
+#line 102 "../user/sh.c"
 			if ((fd = open(t, O_WRONLY | O_CREAT | O_TRUNC)) < 0) {
 				cprintf("open %s for write: %s", t,
 					strerror(errno));
@@ -88,8 +97,10 @@ again:
 				dup2(fd, 1);
 				close(fd);
 			}
+#line 124 "../user/sh.c"
 			break;
 			
+#line 185 "../user/sh.c"
 		case 0:		// String is complete
 			// Run the current command!
 			goto runit;

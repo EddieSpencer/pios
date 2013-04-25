@@ -1,3 +1,4 @@
+#line 2 "../lib/fork.c"
 /*
  * More-or-less Unix-compatible process fork and wait functions,
  * which PIOS implements completely in the user space C library.
@@ -288,55 +289,56 @@ reconcile_inode(pid_t pid, filestate *cfiles, int pino, int cino)
 	if (pfi->ver == rver)
 		assert(pfi->size >= rlen);
 
-	// Lab 4: insert your code here to reconcile the two inodes:
-	// copy the parent's file to the child if only the parent's has changed,
-	// copy the child's file to the parent if only the child's has changed,
-	// and mark both files conflicted if both have been modified.
-	// Then be sure to update the reconciliation state
-	// so that the next reconciliation will start from this point.
-	//
-	// Note: if only one process has made an exclusive modification
-	// that bumps the inode's version number,
-	// and the other process has NOT bumped its inode's version number
-	// but has performed append-only writes increasing the file's length,
-	// that situation still constitutes a conflict
-	// because we don't have a clean way to resolve it automatically.
-  if (pfi->ver == rver && cfi->ver == rver)
-    return reconcile_merge(pid, cfiles, pino, cino);
+#line 294 "../lib/fork.c"
+	// If no exclusive changes made in either parent or child,
+	// then just merge any non-exclusive, append-only updates.
+	if (pfi->ver == rver && cfi->ver == rver)
+		return reconcile_merge(pid, cfiles, pino, cino);
 
-    assert(pfi->size <= FILE_MAXSIZE);
-    assert(cfi->size <= FILE_MAXSIZE);
+	//cprintf("reconcile %s %d/%d: ver %d/%d(%d) len %d/%d(%d)\n",
+	//	pfi->de.d_name, pino, cino,
+	//	pfi->ver, cfi->ver, rver,
+	//	pfi->size, cfi->size, rlen);
+	assert(pfi->size <= FILE_MAXSIZE);
+	assert(cfi->size <= FILE_MAXSIZE);
 
-  if((pfi->ver > rver || pfi->size > rlen) && (cfi->ver > rver || cfi->size >rlen)){
-  warn("reconcile_inode: parent/child conflict: %s (%d/%d)", pfi->de.d_name, pino, cino);
+	// If both inodes have been changed and at least one was exclusive,
+	// then we have a conflict - just mark both inodes conflicted.
+	if ((pfi->ver > rver || pfi->size > rlen)
+			&& (cfi->ver > rver || cfi->size > rlen)) {
+		warn("reconcile_inode: parent/child conflict: %s (%d/%d)",
+			pfi->de.d_name, pino, cino);
+		pfi->mode |= S_IFCONF;
+		cfi->mode |= S_IFCONF;
+		pfi->ver = cfi->ver = cfi->rver = MAX(pfi->ver, cfi->ver);
+		return 1;	// Changes of sorts were "propagated"
+	}
 
-    pfi->mode |= S_IFCONF;
-    cfi->mode |= S_IFCONF;
-    pfi->ver = cfi->ver = cfi->rver = MAX(pfi->ver, cfi->ver);
-    return 1;
-    }
+	// No conflict: copy the latest version to the other.
+	if (pfi->ver > rver || pfi->size > rlen) {
+		// Parent's version is newer: copy to child.
+		cfi->ver = pfi->ver;
+		cfi->mode = pfi->mode;
+		cfi->size = pfi->size;
 
-  if (pfi->ver > rver || pfi->size > rlen){
-  cfi->ver = pfi->ver;
-  cfi->mode = pfi->mode;
-  cfi->size = pfi->size;
+		sys_put(SYS_COPY, pid, NULL, FILEDATA(pino), FILEDATA(cino),
+			PTSIZE);
+	} else {
+		// Child's version is newer: copy to parent.
+		pfi->ver = cfi->ver;
+		pfi->mode = cfi->mode;
+		pfi->size = cfi->size;
 
-  sys_put(SYS_COPY, pid, NULL, FILEDATA(pino), FILEDATA(cino),PTSIZE);
-  } else {
+		sys_get(SYS_COPY, pid, NULL, FILEDATA(cino), FILEDATA(pino),
+			PTSIZE);
+	}
 
-  pfi->ver = cfi->ver;
-  pfi->mode = cfi->mode;
-  pfi->size = cfi->size;
+	// Reset child's reconciliation state.
+	cfi->rver = pfi->ver;
+	cfi->rlen = pfi->size;
 
-  sys_put(SYS_COPY, pid, NULL, FILEDATA(cino), FILEDATA(pino), PTSIZE);
-  }
-
-  cfi->rver = pfi->ver;
-  cfi->rlen = pfi->size;
-
-  return 1;
+	return 1;
 }
-
 
 bool
 reconcile_merge(pid_t pid, filestate *cfiles, int pino, int cino)
@@ -351,53 +353,63 @@ reconcile_merge(pid_t pid, filestate *cfiles, int pino, int cino)
 	if (!S_ISREG(pfi->mode))
 		return 0;	// only regular files have data to merge
 
-	// Lab 4: insert your code here to merge inclusive appends:
-	// copy the parent's appends since last reconciliation into the child,
-	// and the child's appends since last reconciliation into the parent.
-	// Parent and child should be left with files of the same size,
+	// How much did the file grow in the src & dst since last reconcile?
+	int rlen = cfi->rlen;
+	int plen = pfi->size;
+	int clen = cfi->size;
+	int pgrow = plen - rlen;
+	int cgrow = clen - rlen;
+	assert(pgrow >= 0 && pgrow <= FILE_MAXSIZE);
+	assert(cgrow >= 0 && cgrow <= FILE_MAXSIZE);
 
-  int rlen = cfi->rlen;
-  int plen = pfi->size;
-  int clen = cfi->size;
-  int pgrow = plen - rlen;
-  int cgrow = clen - rlen;
-  assert(pgrow >=0 && pgrow <= FILE_MAXSIZE);
-  assert(cgrow >= 0 && cgrow <= FILE_MAXSIZE);
+	if (pgrow == 0 && cgrow == 0)
+		return 0;	// nothing to merge
 
-  if (pgrow == 0 && cgrow == 0)
-    return 0;
+	//cprintf("reconcile_merge %s %d/%d: ver %d/%d(%d) len %d/%d(%d)\n",
+	//	pfi->de.d_name, pino, cino,
+	//	pfi->ver, cfi->ver, cfi->rver,
+	//	pfi->size, cfi->size, rlen);
+	assert(pfi->size <= FILE_MAXSIZE);
+	assert(cfi->size <= FILE_MAXSIZE);
 
-    assert(pfi->size <= FILE_MAXSIZE);
-    assert(cfi->size <= FILE_MAXSIZE);
+	// Map if necessary and find src & dst file data areas.
+	// The child's inode table is sitting at VM_SCRATCHLO,
+	// so map the file data temporarily at VM_SCRATCHLO+PTSIZE.
+	void *pp = FILEDATA(pino);
+	void *cp = (void*)VM_SCRATCHLO+PTSIZE;
+	sys_get(SYS_COPY, pid, NULL, FILEDATA(cino), cp, PTSIZE);
 
-    void *pp = FILEDATA(pino);
-    void *cp = (void*)VM_SCRATCHLO+PTSIZE;
-    sys_get(SYS_COPY, pid, NULL, FILEDATA(cino), cp, PTSIZE);
+	// Would the new file size be too big after reconcile?  Conflict!
+	int newlen = rlen + pgrow + cgrow;
+	assert(newlen == plen + cgrow);
+	assert(newlen == clen + pgrow);
+	if (newlen > FILE_MAXSIZE) {
+		pfi->mode |= S_IFCONF;
+		cfi->mode |= S_IFCONF;
+		return 1;	// I/O of sorts did occur
+	}
 
-    int newlen = rlen + pgrow + cgrow;
-    assert(newlen == plen + cgrow);
-    assert(newlen == clen + pgrow);
-    if (newlen > FILE_MAXSIZE){
-    pfi->mode |= S_IFCONF;
-    cfi->mode |= S_IFCONF;
-    return 1;
-    }
+	// Make sure the perms are adequate in both copies of file
+	int pagelen = ROUNDUP(newlen, PAGESIZE);
+	sys_get(SYS_PERM | SYS_RW, 0, NULL, NULL, pp, pagelen);
+	sys_get(SYS_PERM | SYS_RW, 0, NULL, NULL, cp, pagelen);
 
-    int pagelen = ROUNDUP(newlen, PAGESIZE);
-    sys_get(SYS_PERM | SYS_RW, 0, NULL, NULL, pp, pagelen);
-    sys_get(SYS_PERM | SYS_RW, 0, NULL, NULL, cp, pagelen);
+	// Copy the newly-added parts of the file in both directions.
+	// Note that if both parent and child appended simultaneously,
+	// the appended chunks will be left in opposite order in the two!
+	// This is unavoidable if we want to allow simultaneous appends
+	// and don't want to change already-written portions:
+	// it's a price we pay for this relaxed consistency model.
+	memcpy(pp + plen, cp + rlen, cgrow);
+	memcpy(cp + clen, pp + rlen, pgrow);
+	pfi->size = newlen; assert(newlen == plen + cgrow);
+	cfi->size = newlen; assert(newlen == clen + pgrow);
+	cfi->rlen = newlen; assert(newlen == rlen + pgrow + cgrow);
 
-    memcpy(pp + plen, cp + rlen, cgrow);
-    memcpy(cp + clen, pp + rlen, pgrow);
-    pfi->size = newlen; assert(newlen == plen + cgrow);
-    cfi->size = newlen; assert(newlen == clen + pgrow);
-    cfi->rlen = newlen; assert(newlen == rlen + pgrow + cgrow);
+	// Copy child's updated file data back into the child
+	sys_put(SYS_COPY, pid, NULL, cp, FILEDATA(cino), PTSIZE);
 
-    sys_put(SYS_COPY, pid, NULL, cp, FILEDATA(cino), PTSIZE);
-
-    return 1;
-
-
+	// File merged!
+	return 1;
 }
-
 

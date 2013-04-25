@@ -1,3 +1,4 @@
+#line 2 "../lib/stdio.c"
 /*
  * "High-level" C standard I/O functions for PIOS.
  *
@@ -92,6 +93,7 @@ fputc(int c, FILE *fd)
 	return ch;
 }
 
+#line 114 "../lib/stdio.c"
 size_t
 fread(void *buf, size_t eltsize, size_t count, FILE *fd)
 {
@@ -104,6 +106,9 @@ fwrite(const void *buf, size_t eltsize, size_t count, FILE *fd)
 {
 	ssize_t actual = filedesc_write(fd, buf, eltsize, count);
 
+	// Make sure console output gets flushed every one
+	if (isatty(fd - files->fd) && memchr(buf, '\n', eltsize*count))
+		fflush(fd);
 		
 	return actual >= 0 ? actual : 0;	// no error indication
 }
@@ -145,6 +150,7 @@ clearerr(FILE *fd)
 	fd->err = 0;
 }
 
+#line 178 "../lib/stdio.c"
 
 int
 fflush(FILE *f)

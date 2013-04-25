@@ -1,3 +1,4 @@
+#line 2 "../inc/vm.h"
 /*
  * User-visible virtual memory layout definitions for PIOS.
  *
@@ -69,6 +70,7 @@
 //
 //                     |                              |
 //    VM_USERHI, ----> +==============================+ 0xf0000000
+#line 79 "../inc/vm.h"
 //    VM_STACKHI       |                              |
 //                     |          User stack          |
 //                     |                              |
@@ -91,7 +93,9 @@
 //    VM_SHARELO, ---> +==============================+ 0x40000000
 //    VM_USERLO        |                              |
 
+#line 111 "../inc/vm.h"
 #define VM_STACKHI	0xf0000000
+#line 113 "../inc/vm.h"
 #define VM_STACKLO	0xd0000000
 
 // Scratch address space region for general use (e.g., by exec)

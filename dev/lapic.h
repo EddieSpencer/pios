@@ -1,3 +1,4 @@
+#line 2 "../dev/lapic.h"
 /*
  * Local APIC (Advanced Programmable Interrupt Controller) definitions.
  *

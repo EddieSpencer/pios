@@ -1,3 +1,4 @@
+#line 2 "../lib/stdlib.c"
 /*
  * Basic C standard library functions.
  *

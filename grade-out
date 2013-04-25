@@ -1,572 +1,79 @@
-1234 decimal is 2322 octal!
-debug_check() succeeded!
 trap_check_kernel() succeeded!
-kernel warning at kern/mem.c:51: Assuming we have 1GB of memory!
-Physical memory: 1048576K available, base = 640K, extended = 1047552K
-mem_check: 261497 free pages
+Physical memory: 1126012K available
+mem_check: 280817 free pages
 mem_check() succeeded!
 spinlock_check() succeeded!
 pmap_check() succeeded!
-1234 decimal is 2322 octal!
-debug_check() succeeded!
-testvm: in main()
-testvm: in main()
-testvm: loadcheck passed
-testvm: loadcheck passed
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffcf0 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffcf0 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffcf0 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffcf0 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffcf0 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffcf0 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 21011
-pmap_pagefault: fva 0 err 5
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 21011
-pmap_pagefault: fva 3ffffffc err 5
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 21011
-pmap_pagefault: fva f0000000 err 5
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 21011
-pmap_pagefault: fva fffffffc err 5
-testvm: forkcheck passed
-testvm: forkcheck passed
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 11000 eip 4000094e esp effffe10 cmd 1001
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 11000 eip 400009ee esp effffe10 cmd 1001
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 11000 eip 40000a8e esp effffe10 cmd 1001
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 11000 eip 40000b2e esp effffe10 cmd 1001
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-user warning at user/testvm.c:221: user warning at user/testvm.c:221: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: fva 40400000 err 4
-user warning at user/testvm.c:224: user warning at user/testvm.c:224: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: fva efc00000 err 4
-user warning at user/testvm.c:226: user warning at user/testvm.c:226: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: fva ef800000 err 4
-user warning at user/testvm.c:228: user warning at user/testvm.c:228: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: fva 40400000 err 0
-user warning at user/testvm.c:230: user warning at user/testvm.c:230: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: fva efc00000 err 0
-user warning at user/testvm.c:232: user warning at user/testvm.c:232: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: fva ef800000 err 0
-user warning at user/testvm.c:234: user warning at user/testvm.c:234: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 11000 eip 400010ce esp effffe10 cmd 1001
-pmap_pagefault: fva 40400000 err 0
-user warning at user/testvm.c:236: user warning at user/testvm.c:236: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 11000 eip 4000118a esp effffe10 cmd 1001
-pmap_pagefault: fva efc00000 err 0
-user warning at user/testvm.c:238: user warning at user/testvm.c:238: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-PUT proc 11000 eip 40001246 esp effffe10 cmd 1001
-pmap_pagefault: fva ef800000 err 0
-user warning at user/testvm.c:240: user warning at user/testvm.c:240: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: pde for fva 40400000 does not exist
-user warning at user/testvm.c:242: user warning at user/testvm.c:242: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: page for fva efc00000 does not exist
-user warning at user/testvm.c:244: user warning at user/testvm.c:244: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: pde for fva ef800000 does not exist
-user warning at user/testvm.c:246: user warning at user/testvm.c:246: herehere
-
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: page for fva 40000100 does not exist
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: page for fva 40003c43 does not exist
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: page for fva 40000100 does not exist
-PUT proc 4000 eip 400001d5 esp effffb60 cmd 21011
-pmap_pagefault: page for fva 40003c43 does not exist
-testvm: protcheck passed
-testvm: protcheck passed
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: fva 40401000 err 4
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: page for fva 40401000 does not exist
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: fva 40401000 err 4
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: page for fva 40401000 does not exist
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: fva 40400000 err 4
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: page for fva 40400000 does not exist
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: fva 40400000 err 4
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: fva 40400000 err 4
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: page for fva 40400000 does not exist
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: fva 407ffffc err 4
-PUT proc 4000 eip 40001f9b esp effffd70 cmd 10001
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: fva 40800000 err 4
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: fva 40bffffc err 4
-PUT proc 4000 eip 400021c4 esp effffd70 cmd 20001
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: page for fva 40800000 does not exist
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: fva 40bffffc err 4
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: fva 403ff000 err 4
-PUT proc 4000 eip 4000248a esp effffd70 cmd 20001
-PUT proc 4000 eip 400001d5 esp effffac0 cmd 21011
-pmap_pagefault: fva 40bff000 err 4
-testvm: memopcheck passed
-testvm: memopcheck passed
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffd10 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 11000 eip 400001d5 esp effffc90 cmd 61011
-PUT proc 11000 eip 400001d5 esp effffc90 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 16000 eip 400001d5 esp effffc90 cmd 61011
-PUT proc 16000 eip 400001d5 esp effffc90 cmd 61011
-PUT proc 3e000 eip 400001d5 esp effffc50 cmd 61011
-PUT proc 54000 eip 400001d5 esp effffc50 cmd 61011
-PUT proc 54000 eip 400001d5 esp effffc50 cmd 61011
-PUT proc 64000 eip 400001d5 esp effffc10 cmd 61011
-PUT proc 64000 eip 400001d5 esp effffc10 cmd 61011
-PUT proc 69000 eip 400001d5 esp effffc10 cmd 61011
-PUT proc 69000 eip 400001d5 esp effffc10 cmd 61011
-PUT proc 77000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 77000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 80000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 80000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 85000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 85000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 5d000 eip 400001d5 esp effffc10 cmd 61011
-PUT proc 5d000 eip 400001d5 esp effffc10 cmd 61011
-PUT proc 3e000 eip 400001d5 esp effffc50 cmd 61011
-PUT proc 96000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 96000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 324000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 324000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 329000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 329000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 72000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 72000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 332000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 332000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 337000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 337000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 345000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 345000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 34d000 eip 400001d5 esp effffc10 cmd 61011
-PUT proc 34d000 eip 400001d5 esp effffc10 cmd 61011
-PUT proc 358000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 358000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 35d000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 35d000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 340000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 36b000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 36b000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 374000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 379000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 379000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 37e000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 37e000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 374000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 383000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 383000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 39a000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 39a000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 3aa000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 3aa000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 3af000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 3bd000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 3bd000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 3c4000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 3c4000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 3c9000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 3c9000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 3d2000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 3d2000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 340000 eip 400001d5 esp effffbd0 cmd 61011
-PUT proc 3e3000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 3e3000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 3a3000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 3f1000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 3f1000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 3d7000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 3d7000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 409000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 409000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 41c000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 41c000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 421000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 421000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 433000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 433000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 438000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 438000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 443000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 443000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 448000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 448000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 451000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 451000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 3af000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 45a000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 46f000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 46f000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 478000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 478000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 47d000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 47d000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 48b000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 48b000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 494000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 494000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 4a2000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 4a2000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 3a3000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 400000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 4b1000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 4b1000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 3e8000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 3e8000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 4d4000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 4d4000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 4d9000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 4d9000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 4e6000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 4e6000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 4eb000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 4eb000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 4f2000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 4f2000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 4cb000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 51c000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 51c000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 52a000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 52a000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 53d000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 53d000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 54d000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 54d000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 45a000 eip 400001d5 esp effffb90 cmd 61011
-PUT proc 566000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 566000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 56b000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 56b000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 592000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 592000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 597000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 597000 eip 400001d5 esp effffb50 cmd 61011
-PUT proc 5a7000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 5a7000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 400000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 5ba000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 5ba000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 5bf000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 538000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 5dd000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 5dd000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 5bf000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 5e6000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 5e6000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 5eb000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 5f4000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 5f4000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 5f9000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 5f9000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 607000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 607000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 612000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 612000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 4cb000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 62b000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 62b000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 630000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 630000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 63b000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 513000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 513000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 64f000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 64f000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 67d000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 67d000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 5eb000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 684000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 684000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 69a000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 6a8000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 6a8000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 6bd000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 6bd000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 6c6000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 6c6000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 6d4000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 6d4000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 538000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 6f5000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 6f5000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 6fa000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 6fa000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 6fe000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 6fe000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 70a000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 70a000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 71d000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 71d000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 722000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 722000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 63b000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 785000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 713000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 713000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 795000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 795000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 7b5000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 7b5000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 7b2000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 7dc000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 7dc000 eip 400001d5 esp effffad0 cmd 61011
-PUT proc 7e9000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 7e9000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 7fc000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 7fc000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 820000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 820000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 825000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 825000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 84c000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 84c000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 833000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 833000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 855000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 855000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 863000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 863000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 871000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 69a000 eip 400001d5 esp effffb10 cmd 61011
-PUT proc 8a0000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 8a0000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 8a5000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 8a5000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 785000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 8c9000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 8c9000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 79a000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 79a000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 8e3000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 8e3000 eip 400001d5 esp effffa90 cmd 61011
-PUT proc 8f1000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc 8f1000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc 917000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 917000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 91c000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 7b2000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 93d000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 93d000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 8d8000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc 95b000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 95b000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 960000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 960000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 989000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 989000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 98e000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 98e000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 871000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 9a8000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 9a8000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 9b2000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 9b2000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 9c1000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 9c1000 eip 400001d5 esp effffa50 cmd 61011
-PUT proc 9da000 eip 400001d5 esp effff990 cmd 61011
-PUT proc 9da000 eip 400001d5 esp effff990 cmd 61011
-PUT proc 9f0000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc 9f0000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc 91c000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc a18000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a18000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc 9b7000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc 9b7000 eip 400001d5 esp effffa10 cmd 61011
-PUT proc a1d000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a1d000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc 8d8000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a33000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a33000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a41000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a41000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a52000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a52000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a60000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a60000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a65000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a65000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a2e000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a89000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a89000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a93000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc a93000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc ae5000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc af3000 eip 400001d5 esp effff990 cmd 61011
-PUT proc af3000 eip 400001d5 esp effff990 cmd 61011
-PUT proc af8000 eip 400001d5 esp effff990 cmd 61011
-PUT proc af8000 eip 400001d5 esp effff990 cmd 61011
-PUT proc ae2000 eip 400001d5 esp effff990 cmd 61011
-PUT proc ae2000 eip 400001d5 esp effff990 cmd 61011
-PUT proc b05000 eip 400001d5 esp effff990 cmd 61011
-PUT proc b05000 eip 400001d5 esp effff990 cmd 61011
-PUT proc b21000 eip 400001d5 esp effff990 cmd 61011
-PUT proc b21000 eip 400001d5 esp effff990 cmd 61011
-PUT proc b48000 eip 400001d5 esp effff990 cmd 61011
-PUT proc b48000 eip 400001d5 esp effff990 cmd 61011
-PUT proc a2e000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc b65000 eip 400001d5 esp effff990 cmd 61011
-PUT proc b65000 eip 400001d5 esp effff990 cmd 61011
-PUT proc b78000 eip 400001d5 esp effff990 cmd 61011
-PUT proc b78000 eip 400001d5 esp effff990 cmd 61011
-PUT proc bb4000 eip 400001d5 esp effff950 cmd 61011
-PUT proc bb4000 eip 400001d5 esp effff950 cmd 61011
-PUT proc ae5000 eip 400001d5 esp effff9d0 cmd 61011
-PUT proc bd3000 eip 400001d5 esp effff950 cmd 61011
-PUT proc bd3000 eip 400001d5 esp effff950 cmd 61011
-PUT proc bde000 eip 400001d5 esp effff950 cmd 61011
-PUT proc bde000 eip 400001d5 esp effff950 cmd 61011
-PUT proc bc7000 eip 400001d5 esp effff950 cmd 61011
-PUT proc bc7000 eip 400001d5 esp effff950 cmd 61011
-PUT proc c0f000 eip 400001d5 esp effff950 cmd 61011
-PUT proc c0f000 eip 400001d5 esp effff950 cmd 61011
-PUT proc c1a000 eip 400001d5 esp effff990 cmd 61011
-PUT proc c1a000 eip 400001d5 esp effff990 cmd 61011
-PUT proc c2a000 eip 400001d5 esp effff950 cmd 61011
-PUT proc c2a000 eip 400001d5 esp effff950 cmd 61011
-PUT proc c40000 eip 400001d5 esp effff950 cmd 61011
-PUT proc bc2000 eip 400001d5 esp effff950 cmd 61011
-PUT proc c4b000 eip 400001d5 esp effff910 cmd 61011
-PUT proc c4b000 eip 400001d5 esp effff910 cmd 61011
-PUT proc c56000 eip 400001d5 esp effff910 cmd 61011
-PUT proc c56000 eip 400001d5 esp effff910 cmd 61011
-PUT proc c80000 eip 400001d5 esp effff910 cmd 61011
-PUT proc c40000 eip 400001d5 esp effff950 cmd 61011
-PUT proc c85000 eip 400001d5 esp effff910 cmd 61011
-PUT proc c85000 eip 400001d5 esp effff910 cmd 61011
-PUT proc cc5000 eip 400001d5 esp effff910 cmd 61011
-PUT proc bc2000 eip 400001d5 esp effff950 cmd 61011
-PUT proc ccc000 eip 400001d5 esp effff8d0 cmd 61011
-PUT proc ccc000 eip 400001d5 esp effff8d0 cmd 61011
-PUT proc d03000 eip 400001d5 esp effff910 cmd 61011
-PUT proc d03000 eip 400001d5 esp effff910 cmd 61011
-PUT proc c80000 eip 400001d5 esp effff910 cmd 61011
-PUT proc d2e000 eip 400001d5 esp effff8d0 cmd 61011
-PUT proc d2e000 eip 400001d5 esp effff8d0 cmd 61011
-PUT proc cc5000 eip 400001d5 esp effff910 cmd 61011
-PUT proc d8c000 eip 400001d5 esp effff8d0 cmd 61011
-PUT proc d8c000 eip 400001d5 esp effff8d0 cmd 61011
-PUT proc d99000 eip 400001d5 esp effff890 cmd 61011
-PUT proc d99000 eip 400001d5 esp effff890 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-PUT proc 4000 eip 400001d5 esp effffcd0 cmd 61011
-testvm: mergecheck passed
-testvm: mergecheck passed
-testvm: all tests completed successfully!
-testvm: all tests completed successfully!
-root process terminated
+testfs: in main()
+initfilecheck: found file 'consin' mode 0x9000 size 0
+initfilecheck: found file 'consout' mode 0x1000 size 0
+initfilecheck: found file '/' mode 0x2000 size 0
+initfilecheck: found file 'sh' mode 0x1000 size 78140
+initfilecheck: found file 'ls' mode 0x1000 size 55259
+initfilecheck: found file 'echo' mode 0x1000 size 49994
+initfilecheck: found file 'cat' mode 0x1000 size 48120
+initfilecheck: found file 'wc' mode 0x1000 size 54727
+initfilecheck: found file 'testfs' mode 0x1000 size 89545
+initfilecheck: found file 'testvm' mode 0x1000 size 62579
+initfilecheck passed
+readwritecheck passed
+seekcheck passed
+readdircheck: found file 'consin' mode 0x9000 size 0
+readdircheck: found file 'consout' mode 0x1000 size 0
+readdircheck: found file '/' mode 0x2000 size 0
+readdircheck: found file 'sh' mode 0x1000 size 78140
+readdircheck: found file 'ls' mode 0x1000 size 55259
+readdircheck: found file 'echo' mode 0x1000 size 49994
+readdircheck: found file 'cat' mode 0x1000 size 48120
+readdircheck: found file 'wc' mode 0x1000 size 54727
+readdircheck: found file 'testfs' mode 0x1000 size 89545
+readdircheck: found file 'testvm' mode 0x1000 size 62579
+readdircheck passed
+conscheck: write() to STDOUT_FILENO
+conscheck: fprintf() to 'stdout'
+conscheck: fprintf() to 'consout' file
+Buffered console output should NOT have appeared yet
+Buffered console output SHOULD have appeared now
+123456789
+consoutcheck done
+Enter something: FOOBAR
+You typed: FOOBAR
+consincheck done
+called by execcheck
+execcheck done
+user warning at ../lib/fork.c:311: reconcile_inode: parent/child conflict: reconcilefileC (14/14)
+user panic at ../user/cat.c:43: can't open reconcilefileC: Conflict detected
+reconcilecheck: basic file reconciliation successful
+forkwrite: reconcilefile0
+forkwrite: reconcilefile1
+forkwrite: reconcilefile2
+-           7 consin
+-         253 consout
+d           0 /
+-       78140 sh
+-       55259 ls
+-       49994 echo
+-       48120 cat
+-       54727 wc
+-       89545 testfs
+-       62579 testvm
+-          26 reconcilefile0
+-          26 reconcilefile1
+-          26 reconcilefile2
+C          26 reconcilefileC
+reconcilecheck: running echo
+reconcilecheck: echo running
+called by reconcilecheck
+reconcilecheck: echo finished
+reconcilecheck done
+testfs: all tests completed; starting shell...
+$ echo echo in script >script
+$ sh <script >out
+$ cat script out
+echo in script
+in script
+$ wc script out
+1 3 15 script
+1 2 10 out
+$ exit
+root process exited with status 0
