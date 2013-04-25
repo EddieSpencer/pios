@@ -301,9 +301,42 @@ reconcile_inode(pid_t pid, filestate *cfiles, int pino, int cino)
 	// but has performed append-only writes increasing the file's length,
 	// that situation still constitutes a conflict
 	// because we don't have a clean way to resolve it automatically.
-	warn("reconcile_inode not implemented");
-	return 0;
+  if (pfi->ver == rver && cfi->ver == rver)
+    return reconcile_merge(pid, cfiles, pino, cino);
+
+    assert(pfi->size <= FILE_MAXSIZE);
+    assert(cfi->size <= FILE_MAXSIZE);
+
+  if((pfi->ver > rver || pfi->size > rlen) && (cfi->ver > rver || cfi->size >rlen)){
+  warn("reconcile_inode: parent/child conflict: %s (%d/%d)", pfi->de.d_name, pino, cino);
+
+    pfi->mode |= S_IFCONF;
+    cfi->mode |= S_IFCONF;
+    pfi->ver = cfi->ver = cfi->rver = MAX(pfi->ver, cfi->ver);
+    return 1;
+    }
+
+  if (pfi->ver > rver || pfi->size > rlen){
+  cfi->ver = pfi->ver;
+  cfi->mode = pfi->mode;
+  cfi->size = pfi->size;
+
+  sys_put(SYS_COPY, pid, NULL, FILEDATA(pino), FILEDATA(cino),PTSIZE);
+  } else {
+
+  pfi->ver = cfi->ver;
+  pfi->mode = cfi->mode;
+  pfi->size = cfi->size;
+
+  sys_put(SYS_COPY, pid, NULL, FILEDATA(cino), FILEDATA(pino), PTSIZE);
+  }
+
+  cfi->rver = pfi->ver;
+  cfi->rlen = pfi->size;
+
+  return 1;
 }
+
 
 bool
 reconcile_merge(pid_t pid, filestate *cfiles, int pino, int cino)
@@ -322,8 +355,49 @@ reconcile_merge(pid_t pid, filestate *cfiles, int pino, int cino)
 	// copy the parent's appends since last reconciliation into the child,
 	// and the child's appends since last reconciliation into the parent.
 	// Parent and child should be left with files of the same size,
-	// although the writes they contain may be in a different order.
-	warn("reconcile_merge not implemented");
-	return 0;
+
+  int rlen = cfi->rlen;
+  int plen = pfi->size;
+  int clen = cfi->size;
+  int pgrow = plen - rlen;
+  int cgrow = clen - rlen;
+  assert(pgrow >=0 && pgrow <= FILE_MAXSIZE);
+  assert(cgrow >= 0 && cgrow <= FILE_MAXSIZE);
+
+  if (pgrow == 0 && cgrow == 0)
+    return 0;
+
+    assert(pfi->size <= FILE_MAXSIZE);
+    assert(cfi->size <= FILE_MAXSIZE);
+
+    void *pp = FILEDATA(pino);
+    void *cp = (void*)VM_SCRATCHLO+PTSIZE;
+    sys_get(SYS_COPY, pid, NULL, FILEDATA(cino), cp, PTSIZE);
+
+    int newlen = rlen + pgrow + cgrow;
+    assert(newlen == plen + cgrow);
+    assert(newlen == clen + pgrow);
+    if (newlen > FILE_MAXSIZE){
+    pfi->mode |= S_IFCONF;
+    cfi->mode |= S_IFCONF;
+    return 1;
+    }
+
+    int pagelen = ROUNDUP(newlen, PAGESIZE);
+    sys_get(SYS_PERM | SYS_RW, 0, NULL, NULL, pp, pagelen);
+    sys_get(SYS_PERM | SYS_RW, 0, NULL, NULL, cp, pagelen);
+
+    memcpy(pp + plen, cp + rlen, cgrow);
+    memcpy(cp + clen, pp + rlen, pgrow);
+    pfi->size = newlen; assert(newlen == plen + cgrow);
+    cfi->size = newlen; assert(newlen == clen + pgrow);
+    cfi->rlen = newlen; assert(newlen == rlen + pgrow + cgrow);
+
+    sys_put(SYS_COPY, pid, NULL, cp, FILEDATA(cino), PTSIZE);
+
+    return 1;
+
+
 }
+
 

@@ -153,8 +153,14 @@ struct dirent *readdir(DIR *dir)
 	// Hint: a fileinode's 'dino' field indicates
 	// what directory the file is in;
 	// this function shouldn't return entries from other directories!
-	warn("readdir() not implemented");
-	return NULL;
+	assert(filedesc_isopen(dir));
+	int ino;
+	while ((ino = dir->ofs++) < FILE_INODES) {
+		if (!fileino_exists(ino) || files->fi[ino].dino != dir->ino)
+			continue;
+		return &files->fi[ino].de;	// Return inode's dirent
+	}
+	return NULL;	// End of directory
 }
 
 void rewinddir(DIR *dir)

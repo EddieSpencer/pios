@@ -92,9 +92,25 @@ fileino_read(int ino, off_t ofs, void *buf, size_t eltsize, size_t count)
 	assert(fi->size <= FILE_MAXSIZE);
 
 	// Lab 4: insert your file reading code here.
-	warn("fileino_read() not implemented");
-	errno = EINVAL;
-	return -1;
+  ssize_t actual = 0;
+  while (count > 0){
+
+    ssize_t avail = MIN(count, (fi->size - ofs) / eltsize);
+    if (ofs >= fi->size)
+      avail = 0;
+    if (avail > 0){
+    memmove(buf, FILEDATA(ino) + ofs, avail * eltsize);
+      buf += avail * eltsize;
+      actual += avail;
+		count -= avail;
+	}
+    if (count == 0 || !(fi->mode & S_IFPART))
+      break;
+
+    sys_ret();
+    }
+    
+    return actual;
 }
 
 // Write 'count' data elements each of size 'eltsize'
@@ -118,9 +134,27 @@ fileino_write(int ino, off_t ofs, const void *buf, size_t eltsize, size_t count)
 	assert(fi->size <= FILE_MAXSIZE);
 
 	// Lab 4: insert your file writing code here.
-	warn("fileino_write() not implemented");
-	errno = EINVAL;
-	return -1;
+	size_t len = eltsize * count;
+	size_t lim = ofs + len;
+	if (lim < ofs || lim > FILE_MAXSIZE) {
+		errno = EFBIG;
+		return -1;
+	}
+
+	// Grow the file as necessary.
+	if (lim > fi->size) {
+		size_t oldpagelim = ROUNDUP(fi->size, PAGESIZE);
+		size_t newpagelim = ROUNDUP(lim, PAGESIZE);
+		if (newpagelim > oldpagelim)
+			sys_get(SYS_PERM | SYS_READ | SYS_WRITE, 0, NULL, NULL,
+				FILEDATA(ino) + oldpagelim,
+				newpagelim - oldpagelim);
+		fi->size = lim;
+	}
+
+	// Write the data.
+	memmove(FILEDATA(ino) + ofs, buf, len);
+	return count;
 }
 
 // Return file statistics about a particular inode.
@@ -331,9 +365,15 @@ off_t filedesc_seek(filedesc *fd, off_t offset, int whence)
 	fileinode *fi = &files->fi[fd->ino];
 
 	// Lab 4: insert your file descriptor seek implementation here.
-	warn("filedesc_seek() not implemented");
-	errno = EINVAL;
-	return -1;
+	off_t newofs = offset;
+	if (whence == SEEK_CUR)
+		newofs += fd->ofs;
+	else if (whence == SEEK_END)
+		newofs += fi->size;
+	assert(newofs >= 0);
+
+	fd->ofs = newofs;
+	return newofs;
 }
 
 void

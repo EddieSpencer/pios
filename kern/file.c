@@ -109,8 +109,20 @@ file_initroot(proc *root)
 	// initfiles[i][2] is a pointer to the end of the file's content
 	// (i.e., a pointer to the first byte after the file's last byte).
 	int ninitfiles = sizeof(initfiles)/sizeof(initfiles[0]);
-	// Lab 4: your file system initialization code here.
-	warn("file_initroot: file system initialization not done\n");
+	int i;
+	int ino = FILEINO_GENERAL;
+	for (i = 0; i < ninitfiles; i++) {
+		int filesize = initfiles[i][2] - initfiles[i][1];
+		strcpy(files->fi[ino].de.d_name, initfiles[i][0]);
+		files->fi[ino].dino = FILEINO_ROOTDIR;
+		files->fi[ino].mode = S_IFREG;
+		files->fi[ino].size = filesize;
+		pmap_setperm(root->pdir, (uintptr_t)FILEDATA(ino),
+					ROUNDUP(filesize, PAGESIZE),
+					SYS_READ | SYS_WRITE);
+		memcpy(FILEDATA(ino), initfiles[i][1], filesize);
+    ino++;
+	}
 
 	// Set root process's current working directory
 	files->cwd = FILEINO_ROOTDIR;

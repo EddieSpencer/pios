@@ -19,9 +19,7 @@
 #include <kern/spinlock.h>
 #include <kern/pmap.h>
 #include <inc/file.h>
-#define PROC_CHILDREN	256	// Max # of children a process can have
 
-#define PROC_CHILDREN	256	// Max # of children a process can have
 
 
 

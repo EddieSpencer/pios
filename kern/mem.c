@@ -84,21 +84,6 @@ mem_init(void)
 	//     but YOU decide where to place the pageinfo array.
 	// Change the code to reflect this.
 	pageinfo **freetail = &mem_freelist;
-	int i;
-	for (i = 0; i < mem_npage; i++) {
-		// A free page has no references to it.
-		mem_pageinfo[i].refcount = 0;
-
-		// Add the page to the end of the free list.
-		*freetail = &mem_pageinfo[i];
-		freetail = &mem_pageinfo[i].free_next;
-	}
-	*freetail = NULL;	// null-terminate the freelist
-
-	// ...and remove this when you're ready.
-
-	// ...and remove this when you're ready.
-//panic("mem_init() not implemented");
   // start at the beginning of memeory
   mem_pageinfo = (pageinfo *) ROUNDUP(((int)end), sizeof(pageinfo));
 
@@ -106,10 +91,8 @@ mem_init(void)
   memset(mem_pageinfo, 0, sizeof(pageinfo) * mem_npage);
 
   spinlock_init(&page_spinlock);
+  int i;
 
-	pageinfo **freetail = &mem_freelist;
-
-	int i;
 	for (i = 0; i < mem_npage; i++) {
 
     // physical address of current pageinfo

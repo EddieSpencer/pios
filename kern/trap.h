@@ -1,3 +1,4 @@
+#line 2 "../kern/trap.h"
 /*
  * Processor trap handling module definitions.
  *

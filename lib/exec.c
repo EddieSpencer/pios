@@ -159,9 +159,28 @@ exec_copyargs(char *const argv[])
 	// but the pointers we're writing into this space will be
 	// interpreted by the newly executed process,
 	// where the stack will be mapped from VM_STACKHI-PTSIZE to VM_STACKHI.
-	warn("exec_copyargs not implemented yet");
-	intptr_t esp = VM_STACKHI;	// no arguments - fix this.
+  int argc;
+  for (argc = 0; argv[argc] != NULL; argc++)
+    ;
 
+  intptr_t esp = VM_STACKHI;
+  intptr_t scratchofs = VM_SCRATCHLO - (VM_STACKHI-PTSIZE);
+  esp -= (argc+1) * sizeof(intptr_t);
+  intptr_t dargv = esp;
+
+  int i;
+  for (i = 0; i < argc; i++){
+  int len = strlen(argv[i]);
+  esp -= len+1;
+  strcpy((void*)esp + scratchofs, argv[i]);
+  ((intptr_t*)(dargv + scratchofs))[i] = esp;
+  }
+
+  esp &= ~3;
+
+  esp -=4; *(intptr_t*)(esp + scratchofs) = dargv;
+  esp -= 4; *(intptr_t*)(esp + scratchofs) = argc;
+  
 	// Copy the stack into its correct position in child 0.
 	sys_put(SYS_COPY, 0, NULL, (void*)VM_SCRATCHLO,
 		(void*)VM_STACKHI-PTSIZE, PTSIZE);

@@ -212,8 +212,8 @@ proc_ret(trapframe *tf, int entry)
       trap_print(tf);
       panic("trap in root process");
     }
-    cprintf("root process terminated\n");
-    done();
+ 	assert(entry == 1);
+		file_io(tf);
   }
 
   spinlock_acquire(&p->lock);  // lock both in proper order

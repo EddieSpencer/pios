@@ -54,9 +54,6 @@ spinlock_release(struct spinlock *lk)
 
 // Check whether this cpu is holding the lock.
 int
-<<<<<<< HEAD
-spinlock_holding(spinlock *lock)
-{
 spinlock_holding(spinlock *lk)
 {
   return (lk->locked) && (lk->cpu == cpu_cur());

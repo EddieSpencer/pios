@@ -67,8 +67,8 @@ init(void)
   memmove(code, _binary_obj_boot_bootother_start, (uint32_t) _binary_obj_boot_bootother_size);
 
 	// Lab 1: test cprintf and debug_trace
-	cprintf("1234 decimal is %o octal!\n", 1234);
-	debug_check();
+//	cprintf("1234 decimal is %o octal!\n", 1234);
+//	debug_check();
 
 	// Initialize and load the bootstrap CPU's GDT, TSS, and IDT.
 	cpu_init();
@@ -99,14 +99,14 @@ init(void)
 
 	// Lab 4: uncomment this when you can handle IRQ_SERIAL and IRQ_KBD.
 	//cons_intenable();	// Let the console start producing interrupts
-
+  cons_intenable();
 	// Initialize the process management code.
 	proc_init();
 
 	// Lab 1: change this so it enters user() in user mode,
 	// running on the user_stack declared above,
 	// instead of just calling user() directly.
-	user();
+//	user();
 
   //For LAB 3
 if(!cpu_onboot())
@@ -156,8 +156,11 @@ proc_sched();
       assert(pte != NULL);
       root->sv.tf.esp = VM_STACKHI;
 
+      file_initroot(root);
       proc_ready(root);
       proc_sched();
+
+
      // user();
 }
 
@@ -172,11 +175,11 @@ user()
 	assert(read_esp() < (uint32_t) &user_stack[sizeof(user_stack)]);
 
 	// Check the system call and process scheduling code.
-  cprintf("proc_check");
-	proc_check();
+//  cprintf("proc_check");
+//	proc_check();
 
 	// Check that we're in user mode and can handle traps from there.
-	trap_check_user();
+//	trap_check_user();
 
 	done();
 }
