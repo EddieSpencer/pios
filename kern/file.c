@@ -121,6 +121,7 @@ file_initroot(proc *root)
 					ROUNDUP(filesize, PAGESIZE),
 					SYS_READ | SYS_WRITE);
 		memcpy(FILEDATA(ino), initfiles[i][1], filesize);
+    //some reason this makes everything work...
     ino++;
 	}
 
