@@ -1,6 +1,6 @@
 trap_check_kernel() succeeded!
 Physical memory: 1126012K available
-mem_check: 280817 free pages
+mem_check: 280818 free pages
 mem_check() succeeded!
 spinlock_check() succeeded!
 pmap_check() succeeded!
@@ -8,26 +8,26 @@ testfs: in main()
 initfilecheck: found file 'consin' mode 0x9000 size 0
 initfilecheck: found file 'consout' mode 0x1000 size 0
 initfilecheck: found file '/' mode 0x2000 size 0
-initfilecheck: found file 'sh' mode 0x1000 size 78120
-initfilecheck: found file 'ls' mode 0x1000 size 55239
-initfilecheck: found file 'echo' mode 0x1000 size 49978
-initfilecheck: found file 'cat' mode 0x1000 size 48104
-initfilecheck: found file 'wc' mode 0x1000 size 54707
-initfilecheck: found file 'testfs' mode 0x1000 size 89525
-initfilecheck: found file 'testvm' mode 0x1000 size 62559
+initfilecheck: found file 'sh' mode 0x1000 size 77712
+initfilecheck: found file 'ls' mode 0x1000 size 54879
+initfilecheck: found file 'echo' mode 0x1000 size 49658
+initfilecheck: found file 'cat' mode 0x1000 size 47796
+initfilecheck: found file 'wc' mode 0x1000 size 54347
+initfilecheck: found file 'testfs' mode 0x1000 size 89077
+initfilecheck: found file 'testvm' mode 0x1000 size 62307
 initfilecheck passed
 readwritecheck passed
 seekcheck passed
 readdircheck: found file 'consin' mode 0x9000 size 0
 readdircheck: found file 'consout' mode 0x1000 size 0
 readdircheck: found file '/' mode 0x2000 size 0
-readdircheck: found file 'sh' mode 0x1000 size 78120
-readdircheck: found file 'ls' mode 0x1000 size 55239
-readdircheck: found file 'echo' mode 0x1000 size 49978
-readdircheck: found file 'cat' mode 0x1000 size 48104
-readdircheck: found file 'wc' mode 0x1000 size 54707
-readdircheck: found file 'testfs' mode 0x1000 size 89525
-readdircheck: found file 'testvm' mode 0x1000 size 62559
+readdircheck: found file 'sh' mode 0x1000 size 77712
+readdircheck: found file 'ls' mode 0x1000 size 54879
+readdircheck: found file 'echo' mode 0x1000 size 49658
+readdircheck: found file 'cat' mode 0x1000 size 47796
+readdircheck: found file 'wc' mode 0x1000 size 54347
+readdircheck: found file 'testfs' mode 0x1000 size 89077
+readdircheck: found file 'testvm' mode 0x1000 size 62307
 readdircheck passed
 conscheck: write() to STDOUT_FILENO
 conscheck: fprintf() to 'stdout'
@@ -41,22 +41,22 @@ You typed: FOOBAR
 consincheck done
 called by execcheck
 execcheck done
-user warning at ../lib/fork.c:311: reconcile_inode: parent/child conflict: reconcilefileC (14/14)
-user panic at ../user/cat.c:43: can't open reconcilefileC: Conflict detected
+user warning at lib/fork.c:308: reconcile_inode: parent/child conflict: reconcilefileC (14/14)
+user panic at user/cat.c:42: can't open reconcilefileC: Conflict detected
 reconcilecheck: basic file reconciliation successful
 forkwrite: reconcilefile0
 forkwrite: reconcilefile1
 forkwrite: reconcilefile2
--          13 consin
+-           7 consin
 -         253 consout
 d           0 /
--       78120 sh
--       55239 ls
--       49978 echo
--       48104 cat
--       54707 wc
--       89525 testfs
--       62559 testvm
+-       77712 sh
+-       54879 ls
+-       49658 echo
+-       47796 cat
+-       54347 wc
+-       89077 testfs
+-       62307 testvm
 -          26 reconcilefile0
 -          26 reconcilefile1
 -          26 reconcilefile2

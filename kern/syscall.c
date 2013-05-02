@@ -1,4 +1,3 @@
-#line 2 "../kern/syscall.c"
 /*
  * System call handling.
  *
@@ -19,14 +18,10 @@
 #include <kern/trap.h>
 #include <kern/proc.h>
 #include <kern/syscall.h>
-#line 25 "../kern/syscall.c"
-
-#line 29 "../kern/syscall.c"
 
 
-#line 32 "../kern/syscall.c"
+
 static void gcc_noreturn do_ret(trapframe *tf);
-#line 34 "../kern/syscall.c"
 
 
 // This bit mask defines the eflags bits user code is allowed to set.
@@ -39,12 +34,10 @@ static void gcc_noreturn do_ret(trapframe *tf);
 static void gcc_noreturn
 systrap(trapframe *utf, int trapno, int err)
 {
-#line 47 "../kern/syscall.c"
 	//cprintf("systrap: reflect trap %d to parent process\n", trapno);
 	utf->trapno = trapno;
 	utf->err = err;
 	proc_ret(utf, 0);	// abort syscall insn and return to parent
-#line 54 "../kern/syscall.c"
 }
 
 // Recover from a trap that occurs during a copyin or copyout,
@@ -60,7 +53,6 @@ systrap(trapframe *utf, int trapno, int err)
 static void gcc_noreturn
 sysrecover(trapframe *ktf, void *recoverdata)
 {
-#line 70 "../kern/syscall.c"
 	trapframe *utf = (trapframe*)recoverdata;	// user trapframe
 
 	cpu *c = cpu_cur();
@@ -69,7 +61,6 @@ sysrecover(trapframe *ktf, void *recoverdata)
 
 	// Pretend that a trap caused this process to stop.
 	systrap(utf, ktf->trapno, ktf->err);
-#line 81 "../kern/syscall.c"
 }
 
 // Check a user virtual address block for validity:
@@ -83,14 +74,12 @@ sysrecover(trapframe *ktf, void *recoverdata)
 //
 static void checkva(trapframe *utf, uint32_t uva, size_t size)
 {
-#line 95 "../kern/syscall.c"
 	if (uva < VM_USERLO || uva >= VM_USERHI
 			|| size >= VM_USERHI - uva) {
 
 		// Outside of user address space!  Simulate a page fault.
 		systrap(utf, T_PGFLT, 0);
 	}
-#line 104 "../kern/syscall.c"
 }
 
 // Copy data to/from user space,
@@ -102,7 +91,6 @@ void usercopy(trapframe *utf, bool copyout,
 	checkva(utf, uva, size);
 
 	// Now do the copy, but recover from page faults.
-#line 116 "../kern/syscall.c"
 	cpu *c = cpu_cur();
 	assert(c->recover == NULL);
 	c->recover = sysrecover;
@@ -116,23 +104,19 @@ void usercopy(trapframe *utf, bool copyout,
 
 	assert(c->recover == sysrecover);
 	c->recover = NULL;
-#line 132 "../kern/syscall.c"
 }
 
 static void
 do_cputs(trapframe *tf, uint32_t cmd)
 {
 	// Print the string supplied by the user: pointer in EBX
-#line 139 "../kern/syscall.c"
 	char buf[CPUTS_MAX+1];
 	usercopy(tf, 0, buf, tf->regs.ebx, CPUTS_MAX);
 	buf[CPUTS_MAX] = 0;	// make sure it's null-terminated
 	cprintf("%s", buf);
-#line 146 "../kern/syscall.c"
 
 	trap_return(tf);	// syscall completed
 }
-#line 150 "../kern/syscall.c"
 
 static void
 do_put(trapframe *tf, uint32_t cmd)
@@ -141,7 +125,6 @@ do_put(trapframe *tf, uint32_t cmd)
 	assert(p->state == PROC_RUN && p->runcpu == cpu_cur());
 //cprintf("PUT proc %x eip %x esp %x cmd %x\n", p, tf->eip, tf->esp, cmd);
 
-#line 166 "../kern/syscall.c"
 	spinlock_acquire(&p->lock);
 
 	// Find the named child process; create if it doesn't exist
@@ -168,22 +151,17 @@ do_put(trapframe *tf, uint32_t cmd)
 		if (cmd & SYS_FPU) len = sizeof(procstate); // whole shebang
 
 		// Copy user's trapframe into child process
-#line 193 "../kern/syscall.c"
 		usercopy(tf, 0, &cp->sv, tf->regs.ebx, len);
-#line 198 "../kern/syscall.c"
 
 		// Make sure process uses user-mode segments and eflag settings
-#line 204 "../kern/syscall.c"
 		cp->sv.tf.ds = CPU_GDT_UDATA | 3;
 		cp->sv.tf.es = CPU_GDT_UDATA | 3;
 		cp->sv.tf.cs = CPU_GDT_UCODE | 3;
 		cp->sv.tf.ss = CPU_GDT_UDATA | 3;
 		cp->sv.tf.eflags &= FL_USER;
 		cp->sv.tf.eflags |= FL_IF;	// enable interrupts
-#line 216 "../kern/syscall.c"
 	}
 
-#line 219 "../kern/syscall.c"
 	uint32_t sva = tf->regs.esi;
 	uint32_t dva = tf->regs.edi;
 	uint32_t size = tf->regs.ecx;
@@ -231,7 +209,6 @@ do_put(trapframe *tf, uint32_t cmd)
 		pmap_copy(cp->pdir, VM_USERLO, cp->rpdir, VM_USERLO,
 				VM_USERHI-VM_USERLO);
 
-#line 267 "../kern/syscall.c"
 	// Start the child if requested
 	if (cmd & SYS_START)
 		proc_ready(cp);
@@ -246,7 +223,6 @@ do_get(trapframe *tf, uint32_t cmd)
 	assert(p->state == PROC_RUN && p->runcpu == cpu_cur());
 //cprintf("GET proc %x eip %x esp %x cmd %x\n", p, tf->eip, tf->esp, cmd);
 
-#line 289 "../kern/syscall.c"
 	spinlock_acquire(&p->lock);
 
 	// Find the named child process; DON'T create if it doesn't exist
@@ -269,14 +245,10 @@ do_get(trapframe *tf, uint32_t cmd)
 		int len = offsetof(procstate, fx);	// just integer regs
 		if (cmd & SYS_FPU) len = sizeof(procstate); // whole shebang
 
-#line 318 "../kern/syscall.c"
 		// Copy child process's trapframe into user space
-#line 320 "../kern/syscall.c"
 		usercopy(tf, 1, &cp->sv, tf->regs.ebx, len);
-#line 325 "../kern/syscall.c"
 	}
 
-#line 328 "../kern/syscall.c"
 	uint32_t sva = tf->regs.esi;
 	uint32_t dva = tf->regs.edi;
 	uint32_t size = tf->regs.ecx;
@@ -328,7 +300,6 @@ do_get(trapframe *tf, uint32_t cmd)
 	if (cmd & SYS_SNAP)
 		systrap(tf, T_GPFLT, 0);	// only valid for PUT
 
-#line 380 "../kern/syscall.c"
 	trap_return(tf);	// syscall completed
 }
 
@@ -339,7 +310,6 @@ do_ret(trapframe *tf)
 	proc_ret(tf, 1);	// Complete syscall insn and return to parent
 }
 
-#line 414 "../kern/syscall.c"
 
 // Common function to handle all system calls -
 // decode the system call type and call an appropriate handler function.
@@ -351,11 +321,9 @@ syscall(trapframe *tf)
 	uint32_t cmd = tf->regs.eax;
 	switch (cmd & SYS_TYPE) {
 	case SYS_CPUTS:	return do_cputs(tf, cmd);
-#line 426 "../kern/syscall.c"
 	case SYS_PUT:	return do_put(tf, cmd);
 	case SYS_GET:	return do_get(tf, cmd);
 	case SYS_RET:	return do_ret(tf);
-#line 436 "../kern/syscall.c"
 	default:	return;		// handle as a regular trap
 	}
 }

@@ -1,4 +1,3 @@
-#line 2 "../kern/proc.c"
 /*
  * PIOS process management.
  *
@@ -16,22 +15,17 @@
 #include <kern/trap.h>
 #include <kern/proc.h>
 #include <kern/init.h>
-#line 20 "../kern/proc.c"
 #include <kern/file.h>
-#line 25 "../kern/proc.c"
 
-#line 29 "../kern/proc.c"
 
 
 proc proc_null;		// null process - just leave it initialized to 0
 
 proc *proc_root;	// root process, once it's created in init()
 
-#line 36 "../kern/proc.c"
 static spinlock readylock;	// Spinlock protecting ready queue
 static proc *readyhead;		// Head of ready queue
 static proc **readytail;	// Tail of ready queue
-#line 42 "../kern/proc.c"
 
 
 void
@@ -40,10 +34,8 @@ proc_init(void)
 	if (!cpu_onboot())
 		return;
 
-#line 51 "../kern/proc.c"
 	spinlock_init(&readylock);
 	readytail = &readyhead;
-#line 56 "../kern/proc.c"
 }
 
 // Allocate and initialize a new proc as child 'cn' of parent 'p'.
@@ -61,22 +53,17 @@ proc_alloc(proc *p, uint32_t cn)
 	spinlock_init(&cp->lock);
 	cp->parent = p;
 	cp->state = PROC_STOP;
-#line 76 "../kern/proc.c"
 
 	// Integer register state
-#line 82 "../kern/proc.c"
 	cp->sv.tf.ds = CPU_GDT_UDATA | 3;
 	cp->sv.tf.es = CPU_GDT_UDATA | 3;
 	cp->sv.tf.cs = CPU_GDT_UCODE | 3;
 	cp->sv.tf.ss = CPU_GDT_UDATA | 3;
-#line 87 "../kern/proc.c"
 
 	// Floating-point register state
 	cp->sv.fx.fcw = 0x037f;	// round-to-nearest, 80-bit prec, mask excepts
 	cp->sv.fx.mxcsr = 0x00001f80;	// all MMX exceptions masked
-#line 92 "../kern/proc.c"
 
-#line 94 "../kern/proc.c"
 	// Allocate a page directory for this process
 	cp->pdir = pmap_newpdir();
 	cp->rpdir = pmap_newpdir();
@@ -84,7 +71,6 @@ proc_alloc(proc *p, uint32_t cn)
 		if (cp->pdir) pmap_freepdir(mem_ptr2pi(cp->pdir));
 		return NULL;
 	}
-#line 102 "../kern/proc.c"
 
 	if (p)
 		p->child[cn] = cp;
@@ -95,7 +81,6 @@ proc_alloc(proc *p, uint32_t cn)
 void
 proc_ready(proc *p)
 {
-#line 113 "../kern/proc.c"
 	spinlock_acquire(&readylock);
 
 	p->state = PROC_READY;
@@ -104,7 +89,6 @@ proc_ready(proc *p)
 	readytail = &p->readynext;
 
 	spinlock_release(&readylock);
-#line 124 "../kern/proc.c"
 }
 
 // Save the current process's state before switching to another process.
@@ -117,14 +101,12 @@ proc_ready(proc *p)
 void
 proc_save(proc *p, trapframe *tf, int entry)
 {
-#line 137 "../kern/proc.c"
 	assert(p == proc_cur());
 
 	if (tf != &p->sv.tf)
 		p->sv.tf = *tf;		// integer register state
 	if (entry == 0)
 		p->sv.tf.eip -= 2;	// back up to replay INT instruction
-#line 174 "../kern/proc.c"
 }
 
 // Go to sleep waiting for a given child process to finish running.
@@ -133,7 +115,6 @@ proc_save(proc *p, trapframe *tf, int entry)
 void gcc_noreturn
 proc_wait(proc *p, proc *cp, trapframe *tf)
 {
-#line 183 "../kern/proc.c"
 	assert(spinlock_holding(&p->lock));
 	assert(cp && cp != &proc_null);	// null proc is always stopped
 	assert(cp->state != PROC_STOP);
@@ -146,13 +127,11 @@ proc_wait(proc *p, proc *cp, trapframe *tf)
 	spinlock_release(&p->lock);
 
 	proc_sched();
-#line 198 "../kern/proc.c"
 }
 
 void gcc_noreturn
 proc_sched(void)
 {
-#line 204 "../kern/proc.c"
 	// Spin until something appears on the ready list.
 	// Would be better to use the hlt instruction and really go idle,
 	// but then we'd have to deal with inter-processor interrupts (IPIs).
@@ -187,14 +166,12 @@ proc_sched(void)
 
 	proc_run(p);
 
-#line 241 "../kern/proc.c"
 }
 
 // Switch to and run a specified process, which must already be locked.
 void gcc_noreturn
 proc_run(proc *p)
 {
-#line 248 "../kern/proc.c"
 	assert(spinlock_holding(&p->lock));
 
 	// Put it in running state
@@ -205,13 +182,10 @@ proc_run(proc *p)
 
 	spinlock_release(&p->lock);
 
-#line 295 "../kern/proc.c"
 	// Switch to the new process's address space.
 	lcr3(mem_phys(p->pdir));
 
-#line 299 "../kern/proc.c"
 	trap_return(&p->sv.tf);
-#line 303 "../kern/proc.c"
 }
 
 // Yield the current CPU to another ready process.
@@ -219,7 +193,6 @@ proc_run(proc *p)
 void gcc_noreturn
 proc_yield(trapframe *tf)
 {
-#line 311 "../kern/proc.c"
 	proc *p = proc_cur();
 	assert(p->runcpu == cpu_cur());
 	p->runcpu = NULL;	// this process no longer running
@@ -227,7 +200,6 @@ proc_yield(trapframe *tf)
 	proc_ready(p);		// put it on tail of ready queue
 
 	proc_sched();		// schedule a process from head of ready queue
-#line 321 "../kern/proc.c"
 }
 
 // Put the current process to sleep by "returning" to its parent process.
@@ -237,23 +209,19 @@ proc_yield(trapframe *tf)
 void gcc_noreturn
 proc_ret(trapframe *tf, int entry)
 {
-#line 331 "../kern/proc.c"
 	proc *cp = proc_cur();		// we're the child
 	assert(cp->state == PROC_RUN && cp->runcpu == cpu_cur());
 
-#line 342 "../kern/proc.c"
 	proc *p = cp->parent;		// find our parent
 	if (p == NULL) {		// "return" from root process!
 		if (tf->trapno != T_SYSCALL) {
 			trap_print(tf);
 			panic("trap in root process");
 		}
-#line 349 "../kern/proc.c"
 		// Allow the root process to do I/O via its special files.
 		// May put the root process to sleep waiting for input.
 		assert(entry == 1);
 		file_io(tf);
-#line 357 "../kern/proc.c"
 	}
 
 	spinlock_acquire(&p->lock);	// lock both in proper order
@@ -270,7 +238,6 @@ proc_ret(trapframe *tf, int entry)
 
 	spinlock_release(&p->lock);
 	proc_sched();			// find and run someone else
-#line 376 "../kern/proc.c"
 }
 
 // Helper functions for proc_check()

@@ -1,4 +1,3 @@
-#line 2 "../kern/syscall.h"
 /*
  * System call handling definitions.
  *

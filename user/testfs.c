@@ -1,4 +1,3 @@
-#line 2 "../user/testfs.c"
 /*
  * Test suite for the PIOS user-space file system implemented in Lab 4.
  *

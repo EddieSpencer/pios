@@ -1,4 +1,3 @@
-#line 2 "../lib/fork.c"
 /*
  * More-or-less Unix-compatible process fork and wait functions,
  * which PIOS implements completely in the user space C library.
@@ -289,7 +288,6 @@ reconcile_inode(pid_t pid, filestate *cfiles, int pino, int cino)
 	if (pfi->ver == rver)
 		assert(pfi->size >= rlen);
 
-#line 294 "../lib/fork.c"
 	// If no exclusive changes made in either parent or child,
 	// then just merge any non-exclusive, append-only updates.
 	if (pfi->ver == rver && cfi->ver == rver)

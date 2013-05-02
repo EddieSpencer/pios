@@ -1,4 +1,3 @@
-#line 2 "../kern/init.h"
 /*
  * Kernel initialization.
  *

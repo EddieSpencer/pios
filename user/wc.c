@@ -1,4 +1,3 @@
-#line 2 "../user/wc.c"
 /*
  * Simple Unix-like program to count characters, words, and lines in a file.
  *

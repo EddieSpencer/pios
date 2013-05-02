@@ -1,4 +1,3 @@
-#line 2 "../lib/fprintf.c"
 /*
  * Implementation of Unix-compatible formatted printing via file descriptors,
  * based on printfmt() and fwrite().

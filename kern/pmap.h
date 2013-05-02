@@ -1,4 +1,3 @@
-#line 2 "../kern/pmap.h"
 /*
  * Page mapping and page directory/table management definitions.
  *

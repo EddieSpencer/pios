@@ -1,4 +1,3 @@
-#line 2 "../kern/trap.c"
 /*
  * Processor trap handling.
  *
@@ -12,25 +11,18 @@
 #include <inc/mmu.h>
 #include <inc/x86.h>
 #include <inc/assert.h>
-#line 18 "../kern/trap.c"
 
 #include <kern/cpu.h>
 #include <kern/trap.h>
 #include <kern/cons.h>
 #include <kern/init.h>
-#line 24 "../kern/trap.c"
 #include <kern/proc.h>
 #include <kern/syscall.h>
-#line 27 "../kern/trap.c"
 #include <kern/pmap.h>
-#line 32 "../kern/trap.c"
 
-#line 37 "../kern/trap.c"
 #include <dev/lapic.h>
-#line 39 "../kern/trap.c"
 #include <dev/kbd.h>
 #include <dev/serial.h>
-#line 46 "../kern/trap.c"
 
 
 // Interrupt descriptor table.  Must be built at run time because
@@ -48,26 +40,21 @@ static void
 trap_init_idt(void)
 {
 	extern segdesc gdt[];
-#line 64 "../kern/trap.c"
 	extern char
 		Xdivide,Xdebug,Xnmi,Xbrkpt,Xoflow,Xbound,
 		Xillop,Xdevice,Xdblflt,Xtss,Xsegnp,Xstack,
 		Xgpflt,Xpgflt,Xfperr,Xalign,Xmchk,Xsimd,Xdefault;
-#line 69 "../kern/trap.c"
 	extern char
 		Xirq0,Xirq1,Xirq2,Xirq3,Xirq4,Xirq5,
 		Xirq6,Xirq7,Xirq8,Xirq9,Xirq10,Xirq11,
 		Xirq12,Xirq13,Xirq14,Xirq15,
 		Xsyscall,Xltimer,Xlerror,Xperfctr;
-#line 75 "../kern/trap.c"
 	int i;
 
 	// check that the SIZEOF_STRUCT_TRAPFRAME symbol is defined correctly
 	static_assert(sizeof(trapframe) == SIZEOF_STRUCT_TRAPFRAME);
-#line 80 "../kern/trap.c"
 	// check that T_IRQ0 is a multiple of 8
 	static_assert((T_IRQ0 & 7) == 0);
-#line 83 "../kern/trap.c"
 
 	// install a default handler
 	for (i = 0; i < sizeof(idt)/sizeof(idt[0]); i++)
@@ -92,7 +79,6 @@ trap_init_idt(void)
 	SETGATE(idt[T_MCHK],   0, CPU_GDT_KCODE, &Xmchk,   0);
 	SETGATE(idt[T_SIMD],   0, CPU_GDT_KCODE, &Xsimd,   0);
 
-#line 108 "../kern/trap.c"
 	SETGATE(idt[T_IRQ0 + 0], 0, CPU_GDT_KCODE, &Xirq0, 0);
 	SETGATE(idt[T_IRQ0 + 1], 0, CPU_GDT_KCODE, &Xirq1, 0);
 	SETGATE(idt[T_IRQ0 + 2], 0, CPU_GDT_KCODE, &Xirq2, 0);
@@ -117,9 +103,7 @@ trap_init_idt(void)
 	// Vectors we use for local APIC interrupts
 	SETGATE(idt[T_LTIMER], 0, CPU_GDT_KCODE, &Xltimer, 0);
 	SETGATE(idt[T_LERROR], 0, CPU_GDT_KCODE, &Xlerror, 0);
-#line 135 "../kern/trap.c"
 
-#line 141 "../kern/trap.c"
 }
 
 void
@@ -165,12 +149,10 @@ const char *trap_name(int trapno)
 
 	if (trapno < sizeof(excnames)/sizeof(excnames[0]))
 		return excnames[trapno];
-#line 187 "../kern/trap.c"
 	if (trapno == T_SYSCALL)
 		return "System call";
 	if (trapno >= T_IRQ0 && trapno < T_IRQ0 + 16)
 		return "Hardware Interrupt";
-#line 192 "../kern/trap.c"
 	return "(unknown trap)";
 }
 
@@ -192,7 +174,6 @@ trap_print(trapframe *tf)
 {
 	cprintf("TRAP frame at %p\n", tf);
 	trap_print_regs(&tf->regs);
-#line 217 "../kern/trap.c"
 	cprintf("  es   0x----%04x\n", tf->es);
 	cprintf("  ds   0x----%04x\n", tf->ds);
 	cprintf("  trap 0x%08x %s\n", tf->trapno, trap_name(tf->trapno));
@@ -211,20 +192,17 @@ trap(trapframe *tf)
 	// and some versions of GCC rely on DF being clear.
 	asm volatile("cld" ::: "cc");
 
-#line 236 "../kern/trap.c"
 	// If this is a page fault, first handle lazy copying automatically.
 	// If that works, this call just calls trap_return() itself -
 	// otherwise, it returns normally to blame the fault on the user.
 	if (tf->trapno == T_PGFLT)
 		pmap_pagefault(tf);
 
-#line 243 "../kern/trap.c"
 	// If this trap was anticipated, just use the designated handler.
 	cpu *c = cpu_cur();
 	if (c->recover)
 		c->recover(tf, c->recoverdata);
 
-#line 250 "../kern/trap.c"
 	proc *p = proc_cur();
 	switch (tf->trapno) {
 	case T_SYSCALL:
@@ -237,7 +215,6 @@ trap(trapframe *tf)
 		assert(tf->cs & 3);	// only allowed from user space
 		proc_ret(tf, 1);	// reflect trap to parent process
 
-#line 263 "../kern/trap.c"
 	case T_DEVICE:	// attempted to access FPU while TS flag set
 		//cprintf("trap: enabling FPU\n");
 		p->sv.pff |= PFF_USEFPU;
@@ -246,19 +223,14 @@ trap(trapframe *tf)
 		asm volatile("fxrstor %0" : : "m" (p->sv.fx));
 		trap_return(tf);
 
-#line 272 "../kern/trap.c"
 	case T_LTIMER: ;
-#line 276 "../kern/trap.c"
 		lapic_eoi();
-#line 293 "../kern/trap.c"
 		if (tf->cs & 3)	// If in user mode, context switch
 			proc_yield(tf);
-#line 296 "../kern/trap.c"
 		trap_return(tf);	// Otherwise, stay in idle loop
 	case T_LERROR:
 		lapic_errintr();
 		trap_return(tf);
-#line 301 "../kern/trap.c"
 	case T_IRQ0 + IRQ_KBD:
 		//cprintf("CPU%d: KBD\n", c->id);
 		kbd_intr();
@@ -269,28 +241,23 @@ trap(trapframe *tf)
 		lapic_eoi();
 		serial_intr();
 		trap_return(tf);
-#line 318 "../kern/trap.c"
 	case T_IRQ0 + IRQ_SPURIOUS:
 		cprintf("cpu%d: spurious interrupt at %x:%x\n",
 			c->id, tf->cs, tf->eip);
 		trap_return(tf); // Note: no EOI (see Local APIC manual)
 		break;
-#line 374 "../kern/trap.c"
 	}
-#line 382 "../kern/trap.c"
 	if (tf->cs & 3) {		// Unhandled trap from user mode
 		cprintf("trap in proc %x, reflecting to proc %x\n",
 			proc_cur(), proc_cur()->parent);
 		trap_print(tf);
 		proc_ret(tf, -1);	// Reflect trap to parent process
 	}
-#line 391 "../kern/trap.c"
 
 	// If we panic while holding the console lock,
 	// release it so we don't get into a recursive panic that way.
 	if (spinlock_holding(&cons_lock))
 		spinlock_release(&cons_lock);
-#line 397 "../kern/trap.c"
 	trap_print(tf);
 	panic("unhandled trap");
 }
@@ -319,9 +286,7 @@ trap_check_kernel(void)
 	trap_check(&c->recoverdata);
 	c->recover = NULL;	// No more mr. nice-guy; traps are real again
 
-#line 427 "../kern/trap.c"
 	cprintf("trap_check_kernel() succeeded!\n");
-#line 429 "../kern/trap.c"
 }
 
 // Check for correct handling of traps from user mode.
@@ -338,9 +303,7 @@ trap_check_user(void)
 	trap_check(&c->recoverdata);
 	c->recover = NULL;	// No more mr. nice-guy; traps are real again
 
-#line 447 "../kern/trap.c"
 	cprintf("trap_check_user() succeeded!\n");
-#line 449 "../kern/trap.c"
 }
 
 void after_div0();

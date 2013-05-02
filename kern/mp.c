@@ -1,4 +1,3 @@
-#line 2 "../kern/mp.c"
 /*
  * Multiprocessor bootstrap.
  * Searches physical memory for MP description structures.
@@ -130,7 +129,6 @@ mp_init(void)
 			cpu *c = (proc->flags & MPBOOT)
 					? &cpu_boot : cpu_alloc();
 			c->id = proc->apicid;
-#line 136 "../kern/mp.c"
 			ncpu++;
 			continue;
 		case MPIOAPIC:

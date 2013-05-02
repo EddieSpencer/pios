@@ -1,4 +1,3 @@
-#line 2 "../lib/cputs.c"
 /*
  * User-space implementation of cputs() for console output,
  * which just feeds the string to the sys_cputs() system call.

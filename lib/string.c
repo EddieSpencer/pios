@@ -1,4 +1,3 @@
-#line 2 "../lib/string.c"
 /*
  * Basic string routines.  Not hardware optimized, but not shabby.
  *
@@ -216,5 +215,4 @@ memchr(const void *s, int c, size_t n)
 	return NULL;
 }
 
-#line 277 "../lib/string.c"
 

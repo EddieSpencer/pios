@@ -1,4 +1,3 @@
-#line 2 "../kern/mem.c"
 /*
  * Physical memory management.
  *
@@ -16,11 +15,8 @@
 
 #include <kern/cpu.h>
 #include <kern/mem.h>
-#line 20 "../kern/mem.c"
 #include <kern/spinlock.h>
-#line 23 "../kern/mem.c"
 #include <kern/pmap.h>
-#line 28 "../kern/mem.c"
 
 size_t mem_max;			// Maximum physical address
 size_t mem_npage;		// Total number of physical memory pages
@@ -28,9 +24,7 @@ size_t mem_npage;		// Total number of physical memory pages
 pageinfo *mem_pageinfo;		// Metadata array indexed by page number
 
 pageinfo *mem_freelist;		// Start of free page list
-#line 36 "../kern/mem.c"
 spinlock mem_freelock;		// Spinlock protecting the free page list
-#line 38 "../kern/mem.c"
 
 
 void mem_check(void);
@@ -70,7 +64,6 @@ mem_init(void)
 					     //that cannot be used.
 					     //hence we initialize all the
 	                                    //ref counts to 1 (in later code)
-#line 78 "../kern/mem.c"
 	// Now that we know the size of physical memory,
 	// reserve enough space for the pageinfo array
 	// just past our statically-assigned program code/data/bss,
@@ -88,9 +81,7 @@ mem_init(void)
 	freemem = ROUNDUP(freemem, PAGESIZE);
 
 	// Chain all the available physical pages onto the free page list.
-#line 96 "../kern/mem.c"
 	spinlock_init(&mem_freelock);
-#line 98 "../kern/mem.c"
 	pageinfo **freetail = &mem_freelist;
 	
 	for(i=0;i<mem_npage;i++) {
@@ -142,7 +133,6 @@ mem_init(void)
 
 	*freetail = NULL;	// null-terminate the freelist
 
-#line 185 "../kern/mem.c"
 
 	// Check to make sure the page allocator seems to work correctly.
 	mem_check();
@@ -239,31 +229,23 @@ void bios_call(struct bios_regs *inp)
 //   - NULL if no available physical pages.
 //
 // Hint: pi->refs should not be incremented 
-#line 282 "../kern/mem.c"
 // Hint: be sure to use proper mutual exclusion for multiprocessor operation.
-#line 284 "../kern/mem.c"
 pageinfo *
 mem_alloc(void)
 {
 	// Fill this function in
-#line 290 "../kern/mem.c"
 	spinlock_acquire(&mem_freelock);
-#line 292 "../kern/mem.c"
 
 	pageinfo *pi = mem_freelist;
 	if (pi != NULL) {
 		mem_freelist = pi->free_next;	// Remove page from free list
 		pi->free_next = NULL;		// Mark it not on the free list
-#line 301 "../kern/mem.c"
 	}
 
-#line 304 "../kern/mem.c"
 	spinlock_release(&mem_freelock);
-#line 306 "../kern/mem.c"
 
 	return pi;	// Return pageinfo pointer or NULL
 
-#line 313 "../kern/mem.c"
 }
 
 //
@@ -273,26 +255,20 @@ mem_alloc(void)
 void
 mem_free(pageinfo *pi)
 {
-#line 323 "../kern/mem.c"
 	if (pi->refcount != 0)
 		panic("mem_free: attempt to free in-use page");
 	if (pi->free_next != NULL)
 		panic("mem_free: attempt to free already free page!");
 
-#line 329 "../kern/mem.c"
 	spinlock_acquire(&mem_freelock);
-#line 331 "../kern/mem.c"
 
 	// Insert the page at the head of the free list.
 	pi->free_next = mem_freelist;
 	mem_freelist = pi;
 
-#line 337 "../kern/mem.c"
 	spinlock_release(&mem_freelock);
-#line 343 "../kern/mem.c"
 }
 
-#line 418 "../kern/mem.c"
 //
 // Check the physical page allocator (mem_alloc(), mem_free())
 // for correct operation after initialization via mem_init().
@@ -357,8 +333,6 @@ mem_check()
 	mem_free(pp1);
 	mem_free(pp2);
 
-#line 484 "../kern/mem.c"
 	cprintf("mem_check() succeeded!\n");
-#line 486 "../kern/mem.c"
 }
 

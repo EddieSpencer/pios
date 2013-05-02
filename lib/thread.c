@@ -1,4 +1,3 @@
-#line 2 "../lib/thread.c"
 /*
  * Simple "thread" fork/join functions for PIOS.
  * Since the PIOS doesn't actually allow multiple threads

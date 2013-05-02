@@ -1,4 +1,3 @@
-#line 2 "../kern/mem.h"
 /*
  * Physical memory management definitions.
  *
@@ -101,7 +100,6 @@
 typedef struct pageinfo {
 	struct pageinfo	*free_next;	// Next page number on free list
 	int32_t	refcount;		// Reference count on allocated pages
-#line 110 "../kern/mem.h"
 } pageinfo;
 
 
@@ -134,9 +132,7 @@ pageinfo *mem_alloc(void);
 // Return a physical page to the free list.
 void mem_free(pageinfo *pi);
 
-#line 143 "../kern/mem.h"
 extern uint8_t pmap_zero[PAGESIZE];	// for the asserts below
-#line 150 "../kern/mem.h"
 
 
 // Atomically increment the reference count on a page.
@@ -144,9 +140,7 @@ static gcc_inline void
 mem_incref(pageinfo *pi)
 {
 	assert(pi > &mem_pageinfo[1] && pi < &mem_pageinfo[mem_npage]);
-#line 158 "../kern/mem.h"
 	assert(pi != mem_ptr2pi(pmap_zero));	// Don't alloc/free zero page!
-#line 160 "../kern/mem.h"
 	assert(pi < mem_ptr2pi(start) || pi > mem_ptr2pi(end-1));
 
 	lockadd(&pi->refcount, 1);
@@ -158,13 +152,10 @@ static gcc_inline void
 mem_decref(pageinfo* pi, void (*freefun)(pageinfo *pi))
 {
 	assert(pi > &mem_pageinfo[1] && pi < &mem_pageinfo[mem_npage]);
-#line 172 "../kern/mem.h"
 	assert(pi != mem_ptr2pi(pmap_zero));	// Don't alloc/free zero page!
-#line 174 "../kern/mem.h"
 	assert(pi < mem_ptr2pi(start) || pi > mem_ptr2pi(end-1));
 
 	if (lockaddz(&pi->refcount, -1))
-#line 180 "../kern/mem.h"
 			freefun(pi);
 	assert(pi->refcount >= 0);
 }

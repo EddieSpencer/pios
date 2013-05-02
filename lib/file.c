@@ -1,4 +1,3 @@
-#line 2 "../lib/file.c"
 /*
  * Basic user-space file and I/O support functions,
  * used by the C/Unix file API functions in stdio.c and unistd.c.
@@ -90,11 +89,8 @@ fileino_read(int ino, off_t ofs, void *buf, size_t eltsize, size_t count)
 	assert(eltsize > 0);
 
 	fileinode *fi = &files->fi[ino];
-#line 96 "../lib/file.c"
 	assert(fi->size <= FILE_MAXSIZE);
-#line 98 "../lib/file.c"
 
-#line 100 "../lib/file.c"
 	ssize_t actual = 0;
 	while (count > 0) {
 		// Read as many elements as we can from the file.
@@ -115,11 +111,9 @@ fileino_read(int ino, off_t ofs, void *buf, size_t eltsize, size_t count)
 			break;
 
 		// Wait for our parent to extend (or close) the file.
-#line 124 "../lib/file.c"
 		sys_ret();
 	}
 	return actual;
-#line 133 "../lib/file.c"
 }
 
 // Write 'count' data elements each of size 'eltsize'
@@ -142,7 +136,6 @@ fileino_write(int ino, off_t ofs, const void *buf, size_t eltsize, size_t count)
 	fileinode *fi = &files->fi[ino];
 	assert(fi->size <= FILE_MAXSIZE);
 
-#line 156 "../lib/file.c"
 	// Return an error if we'd be growing the file too big.
 	size_t len = eltsize * count;
 	size_t lim = ofs + len;
@@ -165,7 +158,6 @@ fileino_write(int ino, off_t ofs, const void *buf, size_t eltsize, size_t count)
 	// Write the data.
 	memmove(FILEDATA(ino) + ofs, buf, len);
 	return count;
-#line 184 "../lib/file.c"
 }
 
 // Return file statistics about a particular inode.
@@ -178,7 +170,6 @@ fileino_stat(int ino, struct stat *st)
 
 	fileinode *fi = &files->fi[ino];
 	assert(fileino_isdir(fi->dino));	// Should be in a directory!
-#line 199 "../lib/file.c"
 	st->st_ino = ino;
 	st->st_mode = fi->mode;
 	st->st_size = fi->size;
@@ -376,7 +367,6 @@ off_t filedesc_seek(filedesc *fd, off_t offset, int whence)
 	assert(whence == SEEK_SET || whence == SEEK_CUR || whence == SEEK_END);
 	fileinode *fi = &files->fi[fd->ino];
 
-#line 397 "../lib/file.c"
 	off_t newofs = offset;
 	if (whence == SEEK_CUR)
 		newofs += fd->ofs;
@@ -386,7 +376,6 @@ off_t filedesc_seek(filedesc *fd, off_t offset, int whence)
 
 	fd->ofs = newofs;
 	return newofs;
-#line 412 "../lib/file.c"
 }
 
 void

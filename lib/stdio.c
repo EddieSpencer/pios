@@ -1,4 +1,3 @@
-#line 2 "../lib/stdio.c"
 /*
  * "High-level" C standard I/O functions for PIOS.
  *
@@ -93,7 +92,6 @@ fputc(int c, FILE *fd)
 	return ch;
 }
 
-#line 114 "../lib/stdio.c"
 size_t
 fread(void *buf, size_t eltsize, size_t count, FILE *fd)
 {
@@ -150,7 +148,6 @@ clearerr(FILE *fd)
 	fd->err = 0;
 }
 
-#line 178 "../lib/stdio.c"
 
 int
 fflush(FILE *f)

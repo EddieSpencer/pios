@@ -1,4 +1,3 @@
-#line 2 "../kern/pmap.c"
 /*
  * Page mapping and page directory/table management.
  *
@@ -61,14 +60,12 @@ pmap_init(void)
 		// Since these page mappings never change on context switches,
 		// we can also mark them global (PTE_G) so the processor
 		// doesn't flush these mappings when we reload the PDBR.
-#line 65 "../kern/pmap.c"
 		int i;
 		for (i = 0; i < NPDENTRIES; i++)
 			pmap_bootpdir[i] = (i << PDXSHIFT)
 				| PTE_P | PTE_W | PTE_PS | PTE_G;
 		for (i = PDX(VM_USERLO); i < PDX(VM_USERHI); i++)
 			pmap_bootpdir[i] = PTE_ZERO;	// clear user area
-#line 74 "../kern/pmap.c"
 	}
 
 	// On x86, segmentation maps a VA to a LA (linear addr) and
@@ -83,9 +80,7 @@ pmap_init(void)
 	// Enable 4MB pages and global pages.
 	uint32_t cr4 = rcr4();
 	cr4 |= CR4_PSE | CR4_PGE;
-#line 89 "../kern/pmap.c"
 	cr4 |= CR4_OSFXSR | CR4_OSXMMEXCPT; // enable 128-bit XMM instructions
-#line 91 "../kern/pmap.c"
 	lcr4(cr4);
 
 	// Install the bootstrap page directory into the PDBR.
@@ -171,7 +166,6 @@ pmap_walk(pde_t *pdir, uint32_t va, bool writing)
 {
 	assert(va >= VM_USERLO && va < VM_USERHI);
 
-#line 177 "../kern/pmap.c"
 	uint32_t la = va;			// linear = virtual address
 	pde_t *pde = &pdir[PDX(la)];		// find PDE
 	pte_t *ptab;
@@ -234,7 +228,6 @@ pmap_walk(pde_t *pdir, uint32_t va, bool writing)
 	}
 
 	return &ptab[PTX(la)];
-#line 243 "../kern/pmap.c"
 }
 
 //
@@ -261,7 +254,6 @@ pmap_walk(pde_t *pdir, uint32_t va, bool writing)
 pte_t *
 pmap_insert(pde_t *pdir, pageinfo *pi, uint32_t va, int perm)
 {
-#line 270 "../kern/pmap.c"
 	pte_t* pte = pmap_walk(pdir, va, 1);
 	if (pte == NULL)
 		return NULL;
@@ -277,7 +269,6 @@ pmap_insert(pde_t *pdir, pageinfo *pi, uint32_t va, int perm)
 
 	*pte = mem_pi2phys(pi) | perm | PTE_P;
 	return pte;
-#line 289 "../kern/pmap.c"
 }
 
 //
@@ -307,7 +298,6 @@ pmap_remove(pde_t *pdir, uint32_t va, size_t size)
 	assert(va >= VM_USERLO && va < VM_USERHI);
 	assert(size <= VM_USERHI - va);
 
-#line 319 "../kern/pmap.c"
 	pmap_inval(pdir, va, size);	// invalidate region we're removing
 
 	uint32_t vahi = va + size;
@@ -341,7 +331,6 @@ pmap_remove(pde_t *pdir, uint32_t va, size_t size)
 			va += PAGESIZE;
 		} while (va < vahi && PTX(va) != 0);
 	}
-#line 355 "../kern/pmap.c"
 }
 
 //
@@ -380,7 +369,6 @@ pmap_copy(pde_t *spdir, uint32_t sva, pde_t *dpdir, uint32_t dva,
 	assert(size <= VM_USERHI - sva);
 	assert(size <= VM_USERHI - dva);
 
-#line 394 "../kern/pmap.c"
 	// Invalidate both regions we may be modifying
 	pmap_inval(spdir, sva, size);
 	pmap_inval(dpdir, dva, size);
@@ -405,7 +393,6 @@ pmap_copy(pde_t *spdir, uint32_t sva, pde_t *dpdir, uint32_t dva,
 		dva += PTSIZE;
 	}
 	return 1;
-#line 421 "../kern/pmap.c"
 }
 
 //
@@ -422,7 +409,6 @@ pmap_pagefault(trapframe *tf)
 	uint32_t fva = rcr2();
 	//cprintf("pmap_pagefault fva %x eip %x\n", fva, tf->eip);
 
-#line 438 "../kern/pmap.c"
 	// It can't be our problem unless it's a write fault in user space!
 	if (fva < VM_USERLO || fva >= VM_USERHI || !(tf->err & PFE_WR)) {
 		cprintf("pmap_pagefault: fva %x err %x\n", fva, tf->err);
@@ -464,7 +450,6 @@ pmap_pagefault(trapframe *tf)
 	pmap_inval(p->pdir, PGADDR(fva), PAGESIZE);
 
 	trap_return(tf);
-#line 482 "../kern/pmap.c"
 }
 
 //
@@ -477,7 +462,6 @@ pmap_pagefault(trapframe *tf)
 void
 pmap_mergepage(pte_t *rpte, pte_t *spte, pte_t *dpte, uint32_t dva)
 {
-#line 495 "../kern/pmap.c"
 	uint8_t *rpg = (uint8_t*)PGADDR(*rpte);
 	uint8_t *spg = (uint8_t*)PGADDR(*spte);
 	uint8_t *dpg = (uint8_t*)PGADDR(*dpte);
@@ -511,7 +495,6 @@ pmap_mergepage(pte_t *rpte, pte_t *spte, pte_t *dpte, uint32_t dva)
 		*dpte = PTE_ZERO;
 		return;
 	}
-#line 531 "../kern/pmap.c"
 }
 
 // 
@@ -530,7 +513,6 @@ pmap_merge(pde_t *rpdir, pde_t *spdir, uint32_t sva,
 	assert(size <= VM_USERHI - sva);
 	assert(size <= VM_USERHI - dva);
 
-#line 550 "../kern/pmap.c"
 	// Invalidate the source and destination regions we may be modifying.
 	// (We may remove permissions from the source for copy-on-write.)
 	// No need to invalidate rpdir since rpdirs are never loaded.
@@ -588,7 +570,6 @@ pmap_merge(pde_t *rpdir, pde_t *spdir, uint32_t sva,
 		}
 	}
 	return 1;
-#line 610 "../kern/pmap.c"
 }
 
 //
@@ -608,7 +589,6 @@ pmap_setperm(pde_t *pdir, uint32_t va, uint32_t size, int perm)
 	assert(size <= VM_USERHI - va);
 	assert((perm & ~(SYS_RW)) == 0);
 
-#line 630 "../kern/pmap.c"
 	pmap_inval(pdir, va, size);	// invalidate region we're modifying
 
 	// Determine the nominal and actual bits to set or clear
@@ -642,7 +622,6 @@ pmap_setperm(pde_t *pdir, uint32_t va, uint32_t size, int perm)
 		} while (va < vahi && PTX(va) != 0);
 	}
 	return 1;
-#line 666 "../kern/pmap.c"
 }
 
 //
@@ -866,8 +845,6 @@ pmap_check(void)
 	mem_free(pi2);
 	mem_free(pi3);
 
-#line 891 "../kern/pmap.c"
 	cprintf("pmap_check() succeeded!\n");
-#line 898 "../kern/pmap.c"
 }
 

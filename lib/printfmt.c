@@ -1,4 +1,3 @@
-#line 2 "../lib/printfmt.c"
 /*
  * Stripped-down primitive printf-style formatting routines,
  * used in common by printf, sprintf, fprintf, etc.
@@ -22,7 +21,6 @@
 #include <inc/string.h>
 #include <inc/stdarg.h>
 #include <inc/assert.h>
-#line 29 "../lib/printfmt.c"
 
 typedef struct printstate {
 	void (*putch)(int ch, void *putdat);	// character output function
@@ -91,7 +89,6 @@ putstr(printstate *st, const char *str, int maxlen)
 		putpad(st);		// (also leaves st->width == 0)
 	while (str < lim) {
 		char ch = *str++;
-#line 102 "../lib/printfmt.c"
 			st->putch(ch, st->putdat);
 	}
 	putpad(st);			// print right-side padding
@@ -120,7 +117,6 @@ putint(printstate *st, uintmax_t num, int base)
 	putstr(st, buf, p-buf);		// print it with left/right padding
 }
 
-#line 221 "../lib/printfmt.c"
 
 // Main function to format and print a string.
 void
@@ -228,9 +224,7 @@ vprintfmt(void (*putch)(int, void*), void *putdat, const char *fmt, va_list ap)
 
 		// (unsigned) octal
 		case 'o':
-#line 329 "../lib/printfmt.c"
 			putint(&st, getuint(&st, &ap), 8);
-#line 336 "../lib/printfmt.c"
 			break;
 
 		// (unsigned) hexadecimal
@@ -245,7 +239,6 @@ vprintfmt(void (*putch)(int, void*), void *putdat, const char *fmt, va_list ap)
 			putint(&st, (uintptr_t) va_arg(ap, void *), 16);
 			break;
 
-#line 376 "../lib/printfmt.c"
 
 		// escaped '%' character
 		case '%':

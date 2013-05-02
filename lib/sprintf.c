@@ -1,4 +1,3 @@
-#line 2 "../lib/sprintf.c"
 // Formatted printing to strings,
 // based on the formatting code in printfmt.c.
 

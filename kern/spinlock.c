@@ -1,4 +1,3 @@
-#line 2 "../kern/spinlock.c"
 /*
  * Spin locks for multiprocessor mutual exclusion in the kernel.
  *
@@ -20,12 +19,10 @@
 void
 spinlock_init_(struct spinlock *lk, const char *file, int line)
 {
-#line 24 "../kern/spinlock.c"
 	lk->file = file;
 	lk->line = line;
 	lk->locked = 0;
 	lk->cpu = 0;
-#line 29 "../kern/spinlock.c"
 }
 
 // Acquire the lock.
@@ -35,7 +32,6 @@ spinlock_init_(struct spinlock *lk, const char *file, int line)
 void
 spinlock_acquire(struct spinlock *lk)
 {
-#line 39 "../kern/spinlock.c"
 	if(spinlock_holding(lk))
 		panic("recursive spinlock_acquire");
 
@@ -48,14 +44,12 @@ spinlock_acquire(struct spinlock *lk)
 	// Record info about lock acquisition for debugging.
 	lk->cpu = cpu_cur();
 	debug_trace(read_ebp(), lk->eips);
-#line 52 "../kern/spinlock.c"
 }
 
 // Release the lock.
 void
 spinlock_release(struct spinlock *lk)
 {
-#line 59 "../kern/spinlock.c"
 	if(!spinlock_holding(lk))
 		panic("spinlock_release");
 
@@ -72,16 +66,13 @@ spinlock_release(struct spinlock *lk)
 	// The xchg being asm volatile ensures gcc emits it after
 	// the above assignments (and after the critical section).
 	xchg(&lk->locked, 0);
-#line 76 "../kern/spinlock.c"
 }
 
 // Check whether this cpu is holding the lock.
 int
 spinlock_holding(spinlock *lock)
 {
-#line 83 "../kern/spinlock.c"
 	return lock->locked && lock->cpu == cpu_cur();
-#line 87 "../kern/spinlock.c"
 }
 
 // Function that simply recurses to a specified depth.
@@ -141,8 +132,6 @@ void spinlock_check()
 		// Make sure that all locks have holding correctly implemented.
 		for(i=0;i<NUMLOCKS;i++) assert(spinlock_holding(&locks[i]) == 0);
 	}
-#line 148 "../kern/spinlock.c"
 	cprintf("spinlock_check() succeeded!\n");
-#line 150 "../kern/spinlock.c"
 }
 

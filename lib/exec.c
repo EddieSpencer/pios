@@ -1,4 +1,3 @@
-#line 2 "../lib/exec.c"
 /*
  * PIOS user-space implementation of Unix-style executable loading (exec).
  *
@@ -153,7 +152,6 @@ exec_copyargs(char *const argv[])
 	sys_get(SYS_ZERO | SYS_PERM | SYS_READ | SYS_WRITE, 0, NULL,
 		NULL, (void*)VM_SCRATCHLO, PTSIZE);
 
-#line 157 "../lib/exec.c"
 	// How many arguments?
 	int argc;
 	for (argc = 0; argv[argc] != NULL; argc++)
@@ -178,7 +176,6 @@ exec_copyargs(char *const argv[])
 	// Push the arguments to main()
 	esp -= 4;	*(intptr_t*)(esp + scratchofs) = dargv;
 	esp -= 4;	*(intptr_t*)(esp + scratchofs) = argc;
-#line 192 "../lib/exec.c"
 
 	// Copy the stack into its correct position in child 0.
 	sys_put(SYS_COPY, 0, NULL, (void*)VM_SCRATCHLO,

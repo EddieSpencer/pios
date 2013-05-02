@@ -1,4 +1,3 @@
-#line 2 "../lib/dir.c"
 /*
  * Directory walking and scanning for the PIOS user-space file system.
  *
@@ -150,7 +149,6 @@ int closedir(DIR *dir)
 // or NULL if the directory being scanned contains no more entries.
 struct dirent *readdir(DIR *dir)
 {
-#line 154 "../lib/dir.c"
 	assert(filedesc_isopen(dir));
 	int ino;
 	while ((ino = dir->ofs++) < FILE_INODES) {
@@ -159,7 +157,6 @@ struct dirent *readdir(DIR *dir)
 		return &files->fi[ino].de;	// Return inode's dirent
 	}
 	return NULL;	// End of directory
-#line 170 "../lib/dir.c"
 }
 
 void rewinddir(DIR *dir)
@@ -177,5 +174,4 @@ long telldir(DIR *dir)
 	return dir->ofs;
 }
 
-#line 200 "../lib/dir.c"
 
