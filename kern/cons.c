@@ -154,33 +154,33 @@ cputs(const char *str)
 bool
 cons_io(void)
 {
+	// Lab 4: your console I/O code here.
 	spinlock_acquire(&cons_lock);
-	bool didio = 0;
+	bool dildio = 0;
 
 	// Console output from the root process's console output file
-	fileinode *outfi = &files->fi[FILEINO_CONSOUT];
+	fileinode *outfile = &files->fi[FILEINO_CONSOUT];
 	const char *outbuf = FILEDATA(FILEINO_CONSOUT);
-	assert(cons_outsize <= outfi->size);
-	while (cons_outsize < outfi->size) {
+	assert(cons_outsize <= outfile->size);
+	while (cons_outsize < outfile->size) {
 		cons_putc(outbuf[cons_outsize++]);
-		didio = 1;
+		dildio = 1;
 	}
 
-	// Console input to the root process's console input file
-	fileinode *infi = &files->fi[FILEINO_CONSIN];
+	fileinode *infile = &files->fi[FILEINO_CONSIN];
 	char *inbuf = FILEDATA(FILEINO_CONSIN);
 	int amount = cons.wpos - cons.rpos;
-	if (infi->size + amount > FILE_MAXSIZE)
-		panic("cons_io: root process's console input file full!");
+	if (infile->size + amount > FILE_MAXSIZE)
+		panic("cons_io: root process console input file full");
 	assert(amount >= 0 && amount <= CONSBUFSIZE);
 	if (amount > 0) {
-		memmove(&inbuf[infi->size], &cons.buf[cons.rpos], amount);
-		infi->size += amount;
+		memmove(&inbuf[infile->size], &cons.buf[cons.rpos], amount);
+		infile->size += amount;
 		cons.rpos = cons.wpos = 0;
-		didio = 1;
+		dildio = 1;
 	}
 
 	spinlock_release(&cons_lock);
-	return didio;
+	return dildio;
 }
 

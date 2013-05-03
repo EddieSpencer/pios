@@ -85,7 +85,7 @@ video_putc(int c)
 		break;
 	}
 
-	/* scroll if necessary */
+	// What is the purpose of this?
 	if (crt_pos >= CRT_SIZE) {
 		int i;
 

@@ -152,18 +152,21 @@ exec_copyargs(char *const argv[])
 	sys_get(SYS_ZERO | SYS_PERM | SYS_READ | SYS_WRITE, 0, NULL,
 		NULL, (void*)VM_SCRATCHLO, PTSIZE);
 
-	// How many arguments?
+	// Lab 4: insert your code here to copy our command-line arguments
+	// onto the new process's stack, taking into account the fact that
+	// the stack area is mapped at VM_SCRATCHLO to VM_SCRATCHLO+PTSIZE
+	// in _our_ address space while we're copying the arguments,
+	// but the pointers we're writing into this space will be
+	// interpreted by the newly executed process,
+	// where the stack will be mapped from VM_STACKHI-PTSIZE to VM_STACKHI.
 	int argc;
-	for (argc = 0; argv[argc] != NULL; argc++)
-		;
+	for (argc = 0; argv[argc] != NULL; argc++) { ; }
 
-	// Make room for the argv array
 	intptr_t esp = VM_STACKHI;
 	intptr_t scratchofs = VM_SCRATCHLO - (VM_STACKHI-PTSIZE);
-	esp -= (argc+1) * sizeof(intptr_t);	// room for arguments plus NULL
+	esp -= (argc+1) * sizeof(intptr_t);
 	intptr_t dargv = esp;
 
-	// Copy the argument strings
 	int i;
 	for (i = 0; i < argc; i++) {
 		int len = strlen(argv[i]);
@@ -171,9 +174,8 @@ exec_copyargs(char *const argv[])
 		strcpy((void*)esp + scratchofs, argv[i]);
 		((intptr_t*)(dargv + scratchofs))[i] = esp;
 	}
-	esp &= ~3;	// get esp word-aligned again
+	esp &= ~3;
 
-	// Push the arguments to main()
 	esp -= 4;	*(intptr_t*)(esp + scratchofs) = dargv;
 	esp -= 4;	*(intptr_t*)(esp + scratchofs) = argc;
 

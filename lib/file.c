@@ -93,12 +93,10 @@ fileino_read(int ino, off_t ofs, void *buf, size_t eltsize, size_t count)
 
 	ssize_t actual = 0;
 	while (count > 0) {
-		// Read as many elements as we can from the file.
-		// Note: fd->ofs could well point beyond the end of file,
-		// which means that avail will be negative - but that's OK.
 		ssize_t avail = MIN(count, (fi->size - ofs) / eltsize);
-		if (ofs >= fi->size)
+		if (ofs >= fi->size) {
 			avail = 0;
+		}
 		if (avail > 0) {
 			memmove(buf, FILEDATA(ino) + ofs, avail * eltsize);
 			buf += avail * eltsize;
@@ -106,11 +104,10 @@ fileino_read(int ino, off_t ofs, void *buf, size_t eltsize, size_t count)
 			count -= avail;
 		}
 
-		// If there's no more we can read, stop now.
-		if (count == 0 || !(fi->mode & S_IFPART))
+		if (count == 0 || !(fi->mode & S_IFPART)) {
 			break;
+		}
 
-		// Wait for our parent to extend (or close) the file.
 		sys_ret();
 	}
 	return actual;
@@ -136,15 +133,14 @@ fileino_write(int ino, off_t ofs, const void *buf, size_t eltsize, size_t count)
 	fileinode *fi = &files->fi[ino];
 	assert(fi->size <= FILE_MAXSIZE);
 
-	// Return an error if we'd be growing the file too big.
-	size_t len = eltsize * count;
-	size_t lim = ofs + len;
+	// Lab 4: insert your file writing code here.
+	size_t length = eltsize * count;
+	size_t lim = ofs + length;
 	if (lim < ofs || lim > FILE_MAXSIZE) {
 		errno = EFBIG;
 		return -1;
 	}
 
-	// Grow the file as necessary.
 	if (lim > fi->size) {
 		size_t oldpagelim = ROUNDUP(fi->size, PAGESIZE);
 		size_t newpagelim = ROUNDUP(lim, PAGESIZE);
@@ -155,8 +151,7 @@ fileino_write(int ino, off_t ofs, const void *buf, size_t eltsize, size_t count)
 		fi->size = lim;
 	}
 
-	// Write the data.
-	memmove(FILEDATA(ino) + ofs, buf, len);
+	memmove(FILEDATA(ino) + ofs, buf, length);
 	return count;
 }
 
@@ -367,15 +362,16 @@ off_t filedesc_seek(filedesc *fd, off_t offset, int whence)
 	assert(whence == SEEK_SET || whence == SEEK_CUR || whence == SEEK_END);
 	fileinode *fi = &files->fi[fd->ino];
 
-	off_t newofs = offset;
+	// Lab 4: insert your file descriptor seek implementation here.
+	off_t newoffset = offset;
 	if (whence == SEEK_CUR)
-		newofs += fd->ofs;
+		newoffset += fd->ofs;
 	else if (whence == SEEK_END)
-		newofs += fi->size;
-	assert(newofs >= 0);
+		newoffset += fi->size;
+	assert(newoffset >= 0);
 
-	fd->ofs = newofs;
-	return newofs;
+	fd->ofs = newoffset;
+	return newoffset;
 }
 
 void

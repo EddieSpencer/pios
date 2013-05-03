@@ -48,9 +48,6 @@ cpu cpu_boot = {
 		// 0x20 - user data segment
 		[CPU_GDT_UDATA >> 3] = SEGDESC32(1, STA_W,
 					0x00000000, 0xffffffff, 3),
-
-		// 0x30 - tss, initialized in cpu_init()
-		[CPU_GDT_TSS >> 3] = SEGDESC_NULL,
 	},
 
 	magic: CPU_MAGIC
@@ -62,13 +59,9 @@ void cpu_init()
 	cpu *c = cpu_cur();
 
 
-	// Setup the TSS for this cpu so that we get the right stack
-	// when we trap into the kernel from user mode.
 	c->tss.ts_esp0 = (uint32_t) c->kstackhi;
 	c->tss.ts_ss0 = CPU_GDT_KDATA;
 
-	// Initialize the non-constant part of the cpu's GDT:
-	// the TSS descriptor is different for each cpu.
 	c->gdt[CPU_GDT_TSS >> 3] = SEGDESC16(0, STS_T32A, (uint32_t) (&c->tss),
 					sizeof(taskstate)-1, 0);
 
@@ -87,9 +80,7 @@ void cpu_init()
 
 	// We don't need an LDT.
 	asm volatile("lldt %%ax" :: "a" (0));
-
-	// Load the TSS (from the GDT)
-	ltr(CPU_GDT_TSS);
+  ltr(CPU_GDT_TSS);
 }
 
 // Allocate an additional cpu struct representing a non-bootstrap processor.
@@ -142,8 +133,8 @@ cpu_bootothers(void)
 
 	// Write bootstrap code to unused memory at 0x1000.
 	uint8_t *code = (uint8_t*)0x1000;
-	//memmove(code, _binary_obj_boot_bootother_start,
-	//	(uint32_t)_binary_obj_boot_bootother_size);
+	memmove(code, _binary_obj_boot_bootother_start,
+		(uint32_t)_binary_obj_boot_bootother_size);
 
 	cpu *c;
 	for(c = &cpu_boot; c; c = c->next){
@@ -153,9 +144,7 @@ cpu_bootothers(void)
 		// Fill in %esp, %eip and start code on cpu.
 		*(void**)(code-4) = c->kstackhi;
 		*(void**)(code-8) = init;
-		uint8_t *bootother = (uint8_t*)0x1010;
 		lapic_startcpu(c->id, (uint32_t)code);
-		//lapic_startcpu(c->id, (uint32_t)bootother);
 
 		// Wait for cpu to get through bootstrap.
 		while(c->booted == 0)

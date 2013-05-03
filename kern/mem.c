@@ -18,13 +18,17 @@
 #include <kern/spinlock.h>
 #include <kern/pmap.h>
 
+#include <dev/nvram.h>
+
+
 size_t mem_max;			// Maximum physical address
 size_t mem_npage;		// Total number of physical memory pages
+
+spinlock page_spinlock;
 
 pageinfo *mem_pageinfo;		// Metadata array indexed by page number
 
 pageinfo *mem_freelist;		// Start of free page list
-spinlock mem_freelock;		// Spinlock protecting the free page list
 
 
 void mem_check(void);
@@ -35,188 +39,87 @@ mem_init(void)
 	if (!cpu_onboot())	// only do once, on the boot CPU
 		return;
 
-	// make an int 0x15, e820 call
-	// to determine physical memory.	
-	// refer to link: http://www.uruk.org/orig-grub/mem64mb.html	
+	// Determine how much base (<640K) and extended (>1MB) memory
+	// is available in the system (in bytes),
+	// by reading the PC's BIOS-managed nonvolatile RAM (NVRAM).
+	// The NVRAM tells us how many kilobytes there are.
+	// Since the count is 16 bits, this gives us up to 64MB of RAM;
+	// additional RAM beyond that would have to be detected another way.
+	size_t basemem = ROUNDDOWN(nvram_read16(NVRAM_BASELO)*1024, PAGESIZE);
+	size_t extmem = ROUNDDOWN(nvram_read16(NVRAM_EXTLO)*1024, PAGESIZE);
 
-	struct e820_mem_map mem_array[MEM_MAP_MAX];	
-	uint16_t mem_map_entries = detect_memory_e820(mem_array);
-	uint16_t temp_ctr;
-	uint64_t total_ram_size = 0;
-	mem_max = 0;
-	int i,j,k;
+	warn("Assuming we have 1GB of memory!");
+	extmem = 1024*1024*1024 - MEM_EXT;	// assume 1GB total memory
 
-	for(i=0;i<mem_map_entries;i++)
-	{
-		//the memory should be usable!
-		assert(mem_array[i].type == E820TYPE_MEMORY 
-				|| mem_array[i].type == E820TYPE_ACPI); 
-		
-		total_ram_size += mem_array[i].size;
+	// The maximum physical address is the top of extended memory.
+	mem_max = MEM_EXT + extmem;
 
-		mem_max = MAX(mem_max,mem_array[i].base+mem_array[i].size);
+	// Compute the total number of physical pages (including I/O holes)
+	mem_npage = mem_max / PAGESIZE;
 
-	}
-	cprintf("Physical memory: %dK available\n",total_ram_size/(1024));
+	cprintf("Physical memory: %dK available, ", (int)(mem_max/1024));
+	cprintf("base = %dK, extended = %dK\n",
+		(int)(basemem/1024), (int)(extmem/1024));
 
-	//total no of pages
-	mem_npage = (int)mem_max / PAGESIZE; //there are many pages in between
-					     //that cannot be used.
-					     //hence we initialize all the
-	                                    //ref counts to 1 (in later code)
-	// Now that we know the size of physical memory,
-	// reserve enough space for the pageinfo array
-	// just past our statically-assigned program code/data/bss,
-	// which the linker placed at the start of extended memory.
-	// Make sure the pageinfo entries are naturally aligned.
-	mem_pageinfo = (pageinfo *) ROUNDUP((size_t) end, sizeof(pageinfo));
 
-	// Initialize the entire pageinfo array to zero for good measure.
-	memset(mem_pageinfo, 0, sizeof(pageinfo) * mem_npage);
+	// Insert code here to:
+	// (1)	allocate physical memory for the mem_pageinfo array,
+	//	making it big enough to hold mem_npage entries.
+	// (2)	add all pageinfo structs in the array representing
+	//	available memory that is not in use for other purposes.
+	//
+	// For step (2), here is some incomplete/incorrect example code
+	// that simply marks all mem_npage pages as free.
+	// Which memory is actually free?
+	//  1) Reserve page 0 for the real-mode IDT and BIOS structures
+	//     (do not allow this page to be used for anything else).
+	//  2) Reserve page 1 for the AP bootstrap code (boot/bootother.S).
+	//  3) Mark the rest of base memory as free.
+	//  4) Then comes the IO hole [MEM_IO, MEM_EXT).
+	//     Mark it as in-use so that it can never be allocated.      
+	//  5) Then extended memory [MEM_EXT, ...).
+	//     Some of it is in use, some is free.
+	//     Which pages hold the kernel and the pageinfo array?
+	//     Hint: the linker places the kernel (see start and end above),
+	//     but YOU decide where to place the pageinfo array.
+	// Change the code to reflect this.
 
-	// Free extended memory starts just past the pageinfo array.
-	void *freemem = &mem_pageinfo[mem_npage];
+	// ...and remove this when you're ready.
+//panic("mem_init() not implemented");
+  // start at the beginning of memeory
+  mem_pageinfo = (pageinfo *) ROUNDUP(((int)end), sizeof(pageinfo));
 
-	// Align freemem to page boundary.
-	freemem = ROUNDUP(freemem, PAGESIZE);
+  // set it all to zero
+  memset(mem_pageinfo, 0, sizeof(pageinfo) * mem_npage);
 
-	// Chain all the available physical pages onto the free page list.
-	spinlock_init(&mem_freelock);
+  spinlock_init(&page_spinlock);
+
 	pageinfo **freetail = &mem_freelist;
-	
-	for(i=0;i<mem_npage;i++) {
-		mem_pageinfo[i].refcount = 1;
-	}
 
-	for(i=0;i<mem_map_entries;i++) {
-		
-		//The memory layout is as under
-		// -------------------------------------------------
-		// | p0 | p1 | p2 | ... | basemem | kernel | freemem
-		// -------------------------------------------------
-		// | B  | B  | F  | F   |           B      | F
-		// -------------------------------------------------
-		// here B indicates "not-free" and F indicates "free"
-		// we need to check if the memory map region lies in 
-		// the "F" region if it does not, 
-		// we try to clamp it so that it does.
+	int i;
+	for (i = 0; i < mem_npage; i++) {
 
-		int region_start = mem_array[i].base;
-		int region_end = region_start + mem_array[i].size;
-
-		if(region_start < 2*PAGESIZE ) {
-			region_start = 2*PAGESIZE;
-		}
-		else if (region_start < mem_phys(freemem) 
-				&& region_end > mem_phys(start)) {
-			region_start = mem_phys(freemem);
-		}
-
-		//need to start and end at page boundaries.
-		region_start = ROUNDUP(region_start, PAGESIZE);
-		region_end = ROUNDDOWN(region_end, PAGESIZE);
-
-		for(j=region_start;j<region_end;j+=PAGESIZE) {
-
-			//get the page index into the page info table
-			int page_no;
-			page_no = j/PAGESIZE;
-			assert(page_no<mem_npage);
-			//mark the page as unused
-			mem_pageinfo[page_no].refcount = 0;
-			// Add the page to the end of the free list.
-			*freetail = &mem_pageinfo[page_no];
-			freetail = &mem_pageinfo[page_no].free_next;
-		}
-
+    // physical address of current pageinfo
+    uint32_t paddr = mem_pi2phys(mem_pageinfo + i);
+    if ((i == 0 || i == 1 || // pages 0 and 1 are reserved for idt, bios, and bootstrap (see above)
+          (paddr + PAGESIZE >= MEM_IO && paddr < MEM_EXT) || // IO section is reserved
+          (paddr + PAGESIZE >= (uint32_t) &start[0] && paddr < (uint32_t) &end[0]) || // kernel, 
+          (paddr + PAGESIZE >= (uint32_t) &mem_pageinfo && // start of pageinfo array
+           paddr < (uint32_t) &mem_pageinfo[mem_npage]) // end of pageinfo array
+     )) {
+      mem_pageinfo[i].refcount = 1; 
+    } else {
+      mem_pageinfo[i].refcount = 0; 
+      // Add the page to the end of the free list.
+      *freetail = &mem_pageinfo[i];
+      freetail = &mem_pageinfo[i].free_next;
+    }
 	}
 
 	*freetail = NULL;	// null-terminate the freelist
 
-
 	// Check to make sure the page allocator seems to work correctly.
 	mem_check();
-}
-
-int detect_memory_e820(struct e820_mem_map mem_array[MEM_MAP_MAX])
-{
-	struct bios_regs regs; 
-	
-	//variables for e820 memory map
-	uint32_t *e820_base_low = (uint32_t*)(BIOS_BUFF_DI);
-	uint32_t *e820_base_high = (uint32_t*)(BIOS_BUFF_DI+4);
-	uint32_t *e820_size_low = (uint32_t*)(BIOS_BUFF_DI+8);
-	uint32_t *e820_size_high = (uint32_t*)(BIOS_BUFF_DI+12);
-	uint32_t *e820_type = (uint32_t*)(BIOS_BUFF_DI + 16);
-	
-	int e820_ctr = 0;
-
-	regs.ebx = 0x00000000; //must be set to 0 for initial call
-	regs.cf = 0x00; //initialize this to 0
-
-	do
-	{
-		regs.int_no = 0x15; //interrupt number
-		regs.eax = 0xe820; //BIOS function to call
-		regs.edx = SMAP; //must be set to SMAP value.
-		regs.ecx = 0x00000018; //ask the BIOS to fill 24 bytes 
-		                //(24 is the buffer size as needed by ACPI 3.x).
-		regs.es = BIOS_BUFF_ES; //segment number of the buffer
-		                        //the BIOS fills
-		regs.edi = BIOS_BUFF_DI;//offset of the buffer BIOS fills
-		                        //(es and di determine buffer address).
-		regs.ds = 0x0000; //ds is not needed
-		regs.esi = 0x00000000; //esi is not needed
-
-		bios_call(&regs);
-
-		//read the e820 memory map
-
-		//check if bios has trashed these registers
-  	        //we use these macros to read memory map
-		assert(regs.es == BIOS_BUFF_ES && regs.edi == BIOS_BUFF_DI);
-		
-		// check for usable memory
-		if (*e820_type == E820TYPE_MEMORY 
-				|| *e820_type == E820TYPE_ACPI) 
-		{
-			assert(e820_ctr < MEM_MAP_MAX); 
-
-			mem_array[e820_ctr].base = ((uint64_t)(*e820_base_high)<<32) + (*e820_base_low);
-			mem_array[e820_ctr].size = ((uint64_t)(*e820_size_high)<<32) + (*e820_size_low);
-			mem_array[e820_ctr].type = (*e820_type);
-			e820_ctr++;
-		}
-
-		
-	}
-	while(regs.ebx!=0 && regs.cf == 0 && regs.eax == SMAP);
-
-	if(regs.eax!=SMAP) {
-		warn("\nBIOS does not support e820 call!\n");
-	}
-
-	return e820_ctr;
-}
-
-void bios_call(struct bios_regs *inp)
-{
-	struct bios_regs *lowmem_bios_regs = 
-		(struct bios_regs *)
-			(lowmem_bootother_vec - sizeof(struct bios_regs));
-
-	//just a check to see if the struct and macro are updated and in sync
-	assert(BIOSREGS_SIZE == sizeof(struct bios_regs));
-
-	//now copy register values to low memory
-	*lowmem_bios_regs = *inp;
-	
-	asm volatile("call *0x1004": : :
-			"eax","ebx","ecx","edx","esi","memory");
-
-	//copy the values back into the regs structure.
-	*inp = *lowmem_bios_regs;
-	return;
 }
 
 //
@@ -234,18 +137,16 @@ pageinfo *
 mem_alloc(void)
 {
 	// Fill this function in
-	spinlock_acquire(&mem_freelock);
-
-	pageinfo *pi = mem_freelist;
-	if (pi != NULL) {
-		mem_freelist = pi->free_next;	// Remove page from free list
-		pi->free_next = NULL;		// Mark it not on the free list
-	}
-
-	spinlock_release(&mem_freelock);
-
-	return pi;	// Return pageinfo pointer or NULL
-
+	// Fill this function in.
+//	panic("mem_alloc not implemented.");
+  spinlock_acquire(&page_spinlock);
+  pageinfo *pi = mem_freelist;
+  if (pi != NULL) {
+    mem_freelist = pi->free_next; // move front of list to next pageinfo
+    pi->free_next = NULL; // remove pointer to next item
+  }
+  spinlock_release(&page_spinlock);
+  return pi;
 }
 
 //
@@ -255,18 +156,18 @@ mem_alloc(void)
 void
 mem_free(pageinfo *pi)
 {
-	if (pi->refcount != 0)
-		panic("mem_free: attempt to free in-use page");
-	if (pi->free_next != NULL)
-		panic("mem_free: attempt to free already free page!");
+	// Fill this function in.
+	//panic("mem_free not implemented.");
+  // do not free in use, or already free pages
+  if (pi->refcount != 0)
+    panic("mem_free: refcound does not equal zero");
+  if (pi->free_next != NULL)
+    panic("mem_free: attempt to free already free page");
 
-	spinlock_acquire(&mem_freelock);
-
-	// Insert the page at the head of the free list.
-	pi->free_next = mem_freelist;
-	mem_freelist = pi;
-
-	spinlock_release(&mem_freelock);
+  spinlock_acquire(&page_spinlock);
+  pi->free_next = mem_freelist; // point this to the list
+  mem_freelist = pi; // point the front of the list to this
+  spinlock_release(&page_spinlock);
 }
 
 //

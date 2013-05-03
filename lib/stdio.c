@@ -104,9 +104,6 @@ fwrite(const void *buf, size_t eltsize, size_t count, FILE *fd)
 {
 	ssize_t actual = filedesc_write(fd, buf, eltsize, count);
 
-	// Make sure console output gets flushed every one
-	if (isatty(fd - files->fd) && memchr(buf, '\n', eltsize*count))
-		fflush(fd);
 		
 	return actual >= 0 ? actual : 0;	// no error indication
 }

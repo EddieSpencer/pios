@@ -49,44 +49,20 @@ void
 pmap_init(void)
 {
 	if (cpu_onboot()) {
-		// Initialize pmap_bootpdir, the bootstrap page directory.
-		// Page directory entries (PDEs) corresponding to the 
-		// user-mode address space between VM_USERLO and VM_USERHI
-		// should all be initialized to PTE_ZERO (see kern/pmap.h).
-		// All virtual addresses below and above this user area
-		// should be identity-mapped to the same physical addresses,
-		// but only accessible in kernel mode (not in user mode).
-		// The easiest way to do this is to use 4MB page mappings.
-		// Since these page mappings never change on context switches,
-		// we can also mark them global (PTE_G) so the processor
-		// doesn't flush these mappings when we reload the PDBR.
-		int i;
-		for (i = 0; i < NPDENTRIES; i++)
-			pmap_bootpdir[i] = (i << PDXSHIFT)
-				| PTE_P | PTE_W | PTE_PS | PTE_G;
-		for (i = PDX(VM_USERLO); i < PDX(VM_USERHI); i++)
-			pmap_bootpdir[i] = PTE_ZERO;	// clear user area
+
+    	int a;
+    	for (a = 0; a < NPDENTRIES; a++)
+    		pmap_bootpdir[a] = (a << PDXSHIFT) | PTE_P | PTE_W | PTE_PS | PTE_G;
+    	for (a = PDX(VM_USERLO); a < PDX(VM_USERHI); a++)
+    		pmap_bootpdir[a] = PTE_ZERO;
 	}
 
-	// On x86, segmentation maps a VA to a LA (linear addr) and
-	// paging maps the LA to a PA.  i.e., VA => LA => PA.  If paging is
-	// turned off the LA is used as the PA.  There is no way to
-	// turn off segmentation.  At the moment we turn on paging,
-	// the code we're executing must be in an identity-mapped memory area
-	// where LA == PA according to the page mapping structures.
-	// In PIOS this is always the case for the kernel's address space,
-	// so we don't have to play any special tricks as in other kernels.
-
-	// Enable 4MB pages and global pages.
 	uint32_t cr4 = rcr4();
 	cr4 |= CR4_PSE | CR4_PGE;
-	cr4 |= CR4_OSFXSR | CR4_OSXMMEXCPT; // enable 128-bit XMM instructions
+  	cr4 |= CR4_OSFXSR | CR4_OSXMMEXCPT;
 	lcr4(cr4);
-
-	// Install the bootstrap page directory into the PDBR.
 	lcr3(mem_phys(pmap_bootpdir));
 
-	// Turn on paging.
 	uint32_t cr0 = rcr0();
 	cr0 |= CR0_PE|CR0_PG|CR0_AM|CR0_WP|CR0_NE|CR0_TS|CR0_MP|CR0_TS;
 	cr0 &= ~(CR0_EM);
@@ -164,70 +140,65 @@ pmap_freeptab(pageinfo *ptabpi)
 pte_t *
 pmap_walk(pde_t *pdir, uint32_t va, bool writing)
 {
-	assert(va >= VM_USERLO && va < VM_USERHI);
+  assert(va >= VM_USERLO && va < VM_USERHI);
 
-	uint32_t la = va;			// linear = virtual address
-	pde_t *pde = &pdir[PDX(la)];		// find PDE
-	pte_t *ptab;
-	if (*pde & PTE_P) {			// ptab already exist?
-		ptab = mem_ptr(PGADDR(*pde));
-	} else {				// no - create?
-		assert(*pde == PTE_ZERO);
-		pageinfo *pi;
-		if (!writing || (pi = mem_alloc()) == NULL)
-			return NULL;
-		mem_incref(pi);
-		ptab = mem_pi2ptr(pi);
+  uint32_t la = va;
+  pde_t *pde = &pdir[PDX(la)];
+  pte_t *ptab;
+  if (*pde & PTE_P)
+  {
+  	ptab = mem_ptr(PGADDR(*pde));
+  } 
+  else 
+  {
+  assert(*pde == PTE_ZERO);
+  pageinfo *pi;
+  	if (!writing || (pi = mem_alloc()) == NULL)
+  		return NULL;
+  mem_incref(pi);
+  ptab = mem_pi2ptr(pi);
 
-		// Clear all mappings in the page table
-		int i;
-		for (i = 0; i < NPTENTRIES; i++)
-			ptab[i] = PTE_ZERO;
+  int i;
+  for (i = 0; i < NPTENTRIES; i++)
+  	ptab[i] = PTE_ZERO;
 
-		// The permissions here are overly generous, but they can
-		// be further restricted by the permissions in the page table 
-		// entries, if necessary.
-		*pde = mem_pi2phys(pi) | PTE_A | PTE_P | PTE_W | PTE_U;
-	}
+  *pde = mem_pi2phys(pi) | PTE_A | PTE_P | PTE_W | PTE_U;
+  }
+  
+  if(writing && !(*pde & PTE_W)) 
+  {
+  	if(mem_ptr2pi(ptab) -> refcount == 1)
+	{
+  		int i;
+  		for (i = 0; i < NPTENTRIES; i++)
+    			ptab[i] &= ~PTE_W;
+    	} 
+	else 
+	{
+    		pageinfo *pi = mem_alloc();
+    		if (pi==NULL)
+    			return NULL;
+    		mem_incref(pi);
+    		pte_t *nptab = mem_pi2ptr(pi);
 
-	// If the page table is shared and we're writing, copy it first.
-	// Must propagate the read-only status down to the page mappings.
-	if (writing && !(*pde & PTE_W)) {
-		if (mem_ptr2pi(ptab)->refcount == 1) {
-			// Page table isn't shared, so we can use in-place;
-			// but must propagate the read-only status
-			// from the PDE level down to all individual PTEs.
-			int i;
-			for (i = 0; i < NPTENTRIES; i++)
-				ptab[i] &= ~PTE_W;
-		} else {
-			// Page table is or may still be shared - must copy.
-			pageinfo *pi = mem_alloc();
-			if (pi == NULL)
-				return NULL;
-			mem_incref(pi);
-			pte_t *nptab = mem_pi2ptr(pi);
-			//cprintf("pdir_walk %x %x: copy ptab %x->%x\n",
-			//	pdir, va, ptab, nptab);
+    		int i;
+    		for (i = 0; i < NPTENTRIES; i++)
+    		{
+    			uint32_t pte = ptab[i];
+    			nptab[i] = pte & ~PTE_W;
+    			assert(PGADDR(pte) != 0);
+    			if (PGADDR(pte) != PTE_ZERO)
+    				mem_incref(mem_phys2pi(PGADDR(pte)));
+    		}
 
-			// Copy all page table entries,
-			// incrementing each's refcount
-			int i;
-			for (i = 0; i < NPTENTRIES; i++) {
-				uint32_t pte = ptab[i];
-				nptab[i] = pte & ~PTE_W;
-				assert(PGADDR(pte) != 0);
-				if (PGADDR(pte) != PTE_ZERO)
-					mem_incref(mem_phys2pi(PGADDR(pte)));
-			}
+    	mem_decref(mem_ptr2pi(ptab), pmap_freeptab);
+    	ptab = nptab;
+    	}
 
-			mem_decref(mem_ptr2pi(ptab), pmap_freeptab);
-			ptab = nptab;
-		}
-		*pde = (uint32_t)ptab | PTE_A | PTE_P | PTE_W | PTE_U;
-	}
+    	*pde = (uint32_t)ptab | PTE_A | PTE_P | PTE_W | PTE_U;
+  }
 
-	return &ptab[PTX(la)];
+  return &ptab[PTX(la)];
 }
 
 //
@@ -254,21 +225,18 @@ pmap_walk(pde_t *pdir, uint32_t va, bool writing)
 pte_t *
 pmap_insert(pde_t *pdir, pageinfo *pi, uint32_t va, int perm)
 {
-	pte_t* pte = pmap_walk(pdir, va, 1);
-	if (pte == NULL)
-		return NULL;
+  pte_t* pte = pmap_walk(pdir, va, 1);
+  if (pte == NULL)
+    return NULL;
 
-	// We must increment pi->refcount before pmap_remove, so that
-	// if pi is already mapped at va (we're just changing perm),
-	// we don't lose the page when we decref in pmap_remove.
-	mem_incref(pi);
+  mem_incref(pi);
 
-	// Now remove the old mapping in this PTE.
-	if (*pte & PTE_P)
-		pmap_remove(pdir, va, PAGESIZE);
+  if (*pte & PTE_P)
+    pmap_remove(pdir, va, PAGESIZE);
 
-	*pte = mem_pi2phys(pi) | perm | PTE_P;
-	return pte;
+  *pte = mem_pi2phys(pi) | perm | PTE_P;
+
+  return pte;
 }
 
 //
@@ -294,43 +262,44 @@ pmap_insert(pde_t *pdir, pageinfo *pi, uint32_t va, int perm)
 void
 pmap_remove(pde_t *pdir, uint32_t va, size_t size)
 {
-	assert(PGOFF(size) == 0);	// must be page-aligned
-	assert(va >= VM_USERLO && va < VM_USERHI);
-	assert(size <= VM_USERHI - va);
+  assert(PGOFF(size) == 0);	// must be page-aligned
+  assert(va >= VM_USERLO && va < VM_USERHI);
+  assert(size <= VM_USERHI - va);
 
-	pmap_inval(pdir, va, size);	// invalidate region we're removing
+  pmap_inval(pdir, va, size);
 
-	uint32_t vahi = va + size;
-	while (va < vahi) {
-		pde_t *pde = &pdir[PDX(va)];		// find PDE
-		if (*pde == PTE_ZERO) {	// no page table - skip 4MB region
-			va = PTADDR(va + PTSIZE);	// start of next ptab
-			continue;
-		}
+  uint32_t vahi = va + size;
+  while (va < vahi)
+  {
+  	pde_t *pde = &pdir[PDX(va)];
+  	if (*pde == PTE_ZERO)
+  	{
+  	  va = PTADDR(va + PTSIZE);
+  	  continue;
+  	}
 
-		// Can we remove an entire page table at once?
-		if (PTX(va) == 0 && vahi-va >= PTSIZE) {
-			uint32_t ptabaddr = PGADDR(*pde);
-			if (ptabaddr != PTE_ZERO)	// drop ptab ref
-				mem_decref(mem_phys2pi(ptabaddr),
-						pmap_freeptab);
-			*pde = PTE_ZERO;
-			va += PTSIZE;
-			continue;
-		}
+  	if (PTX(va) == 0 && vahi-va >= PTSIZE)
+  	{
+  		uint32_t ptabaddr = PGADDR(*pde);
+    		if(ptabaddr != PTE_ZERO)
+      			mem_decref(mem_phys2pi(ptabaddr), pmap_freeptab);
+      		*pde = PTE_ZERO;
+      		va += PTSIZE;
+      		continue;
+  	}
 
-		pte_t *pte = pmap_walk(pdir, va, 1);	// find & unshare PTE
-		assert(pte != NULL);	// XXX
-
-		// Remove page mappings up to end of region or page table
-		do {
-			uint32_t pgaddr = PGADDR(*pte);
-			if (pgaddr != PTE_ZERO)
-				mem_decref(mem_phys2pi(pgaddr), mem_free);
-			*pte++ = PTE_ZERO;
-			va += PAGESIZE;
-		} while (va < vahi && PTX(va) != 0);
-	}
+  	pte_t *pte = pmap_walk(pdir, va, 1);
+  	assert(pte != NULL);
+	
+  	do
+  	{
+  		uint32_t pgaddr = PGADDR(*pte);
+  		if(pgaddr != PTE_ZERO)
+  			mem_decref(mem_phys2pi(pgaddr), mem_free);
+      		*pte++ = PTE_ZERO;
+      		va += PAGESIZE;
+  	} while (va < vahi && PTX(va) != 0);
+  }
 }
 
 //
@@ -369,22 +338,21 @@ pmap_copy(pde_t *spdir, uint32_t sva, pde_t *dpdir, uint32_t dva,
 	assert(size <= VM_USERHI - sva);
 	assert(size <= VM_USERHI - dva);
 
-	// Invalidate both regions we may be modifying
 	pmap_inval(spdir, sva, size);
 	pmap_inval(dpdir, dva, size);
 
 	uint32_t svahi = sva + size;
 	pde_t *spde = &spdir[PDX(sva)];
-	pde_t *dpde = &dpdir[PDX(dva)];
-	while (sva < svahi) {
+	pte_t *dpde = &dpdir[PDX(dva)];
 
-		if (*dpde & PTE_P)	// remove old ptable first
+	while (sva < svahi)
+	{
+		if (*dpde & PTE_P)
 			pmap_remove(dpdir, dva, PTSIZE);
 		assert(*dpde == PTE_ZERO);
+		*spde &= ~PTE_W;
+		*dpde = *spde;
 
-		*spde &= ~PTE_W;	// remove write permission
-
-		*dpde = *spde;		// copy ptable mapping
 		if (*spde != PTE_ZERO)
 			mem_incref(mem_phys2pi(PGADDR(*spde)));
 
@@ -392,6 +360,7 @@ pmap_copy(pde_t *spdir, uint32_t sva, pde_t *dpdir, uint32_t dva,
 		sva += PTSIZE;
 		dva += PTSIZE;
 	}
+	
 	return 1;
 }
 
@@ -405,50 +374,49 @@ pmap_copy(pde_t *spdir, uint32_t sva, pde_t *dpdir, uint32_t dva,
 void
 pmap_pagefault(trapframe *tf)
 {
-	// Read processor's CR2 register to find the faulting linear address.
-	uint32_t fva = rcr2();
-	//cprintf("pmap_pagefault fva %x eip %x\n", fva, tf->eip);
 
-	// It can't be our problem unless it's a write fault in user space!
-	if (fva < VM_USERLO || fva >= VM_USERHI || !(tf->err & PFE_WR)) {
+	uint32_t fva = rcr2();
+
+	if (fva < VM_USERLO || fva >= VM_USERHI || !(tf->err & PFE_WR))
+	{
 		cprintf("pmap_pagefault: fva %x err %x\n", fva, tf->err);
 		return;
 	}
 
+
 	proc *p = proc_cur();
 	pde_t *pde = &p->pdir[PDX(fva)];
-	if (!(*pde & PTE_P)) {
-		cprintf("pmap_pagefault: pde for fva %x doesn't exist\n", fva);
-		return;		// ptab doesn't exist at all - blame user
+	if(!(*pde & PTE_P))
+	{
+		cprintf("pmap_pagefault: pde for fva %x does not exist\n", fva);
+		return;
 	}
 
-	// Find the page table entry, copying the page table if it's shared.
 	pte_t *pte = pmap_walk(p->pdir, fva, 1);
-	if ((*pte & (SYS_READ | SYS_WRITE | PTE_P)) !=
-			(SYS_READ | SYS_WRITE | PTE_P)) {
-		cprintf("pmap_pagefault: page for fva %x doesn't exist\n", fva);
-		return;		// page doesn't exist at all - blame user
+	if((*pte & (SYS_READ | SYS_WRITE | PTE_P)) != (SYS_READ | SYS_WRITE | PTE_P))
+	{
+		cprintf("pmap_pagefault: page for fva %x does not exist\n", fva);
+		return;
 	}
+
 	assert(!(*pte & PTE_W));
 
-	// Find the "shared" page.  If refcount is 1, we have the only ref!
 	uint32_t pg = PGADDR(*pte);
-	if (pg == PTE_ZERO || mem_phys2pi(pg)->refcount > 1) {
-		pageinfo *npi = mem_alloc(); assert(npi);
+	if(pg == PTE_ZERO || mem_phys2pi(pg)->refcount > 1)
+	{
+		pageinfo *npi = mem_alloc();
+		assert(npi);
 		mem_incref(npi);
 		uint32_t npg = mem_pi2phys(npi);
-		memmove((void*)npg, (void*)pg, PAGESIZE); // copy the page
-		if (pg != PTE_ZERO)
-			mem_decref(mem_phys2pi(pg), mem_free); // drop old ref
-		//cprintf("pmap_pflt %x %x: copy page %x->%x\n",
-		//	p->pdir, fva, pg, npg);
+		memmove((void*)npg, (void*)pg, PAGESIZE);
+		if(pg != PTE_ZERO)
+			mem_decref(mem_phys2pi(pg), mem_free);
 		pg = npg;
 	}
+
 	*pte = pg | SYS_RW | PTE_A | PTE_D | PTE_W | PTE_U | PTE_P;
 
-	// Make sure the old mapping doesn't get used anymore
 	pmap_inval(p->pdir, PGADDR(fva), PAGESIZE);
-
 	trap_return(tf);
 }
 
@@ -462,39 +430,38 @@ pmap_pagefault(trapframe *tf)
 void
 pmap_mergepage(pte_t *rpte, pte_t *spte, pte_t *dpte, uint32_t dva)
 {
-	uint8_t *rpg = (uint8_t*)PGADDR(*rpte);
-	uint8_t *spg = (uint8_t*)PGADDR(*spte);
-	uint8_t *dpg = (uint8_t*)PGADDR(*dpte);
-	if (dpg == pmap_zero) return;	// Conflict - just leave dest unmapped
+  uint8_t *rpg = (uint8_t*)PGADDR(*rpte);
 
-	// Make sure the destination page isn't shared
-	if (dpg == (uint8_t*)PTE_ZERO || mem_ptr2pi(dpg)->refcount > 1) {
-		pageinfo *npi = mem_alloc(); assert(npi);
-		mem_incref(npi);
-		uint8_t *npg = mem_pi2ptr(npi);
-		memmove(npg, dpg, PAGESIZE); // copy the page
-		if (dpg != (uint8_t*)PTE_ZERO)
-			mem_decref(mem_ptr2pi(dpg), mem_free); // drop old ref
-		dpg = npg;
-		*dpte = (uint32_t)npg |
-			SYS_RW | PTE_A | PTE_D | PTE_W | PTE_U | PTE_P;
-	}
+  uint8_t *spg = (uint8_t*)PGADDR(*spte);
 
-	// Do a byte-by-byte diff-and-merge into the destination
-	int i;
-	for (i = 0; i < PAGESIZE; i++) {
-		if (spg[i] == rpg[i])
-			continue;	// unchanged in source - leave dest
-		if (dpg[i] == rpg[i]) {
-			dpg[i] = spg[i];	// unchanged in dest - use src
-			continue;
-		}
+  uint8_t *dpg = (uint8_t*)PGADDR(*dpte);
+  if(dpg == pmap_zero) return;
 
-		cprintf("pmap_mergepage: conflict at dva %x\n", dva);
-		mem_decref(mem_phys2pi(PGADDR(*dpte)), mem_free);
-		*dpte = PTE_ZERO;
-		return;
-	}
+  if(dpg == (uint8_t*)PTE_ZERO || mem_ptr2pi(dpg)->refcount > 1){
+    pageinfo *npi = mem_alloc(); assert(npi);
+    mem_incref(npi);
+    uint8_t *npg = mem_pi2ptr(npi);
+    memmove(npg, dpg, PAGESIZE);
+    if(dpg != (uint8_t*)PTE_ZERO)
+      mem_decref(mem_ptr2pi(dpg), mem_free);
+      dpg = npg;
+      *dpte = (uint32_t)npg | SYS_RW | PTE_A | PTE_D | PTE_W | PTE_U | PTE_P;
+      }
+
+      int i;
+      for(i = 0; i < PAGESIZE; i++){
+      if(spg[i] == rpg[i])
+      continue;
+      if(dpg[i] == rpg[i]){
+      dpg[i] = spg[i];
+      continue;
+      }
+
+      cprintf("pmap_mergepage: conflict ad dva %x\n", dva);
+      mem_decref(mem_phys2pi(PGADDR(*dpte)), mem_free);
+      *dpte = PTE_ZERO;
+      return;
+      }
 }
 
 // 
@@ -513,63 +480,50 @@ pmap_merge(pde_t *rpdir, pde_t *spdir, uint32_t sva,
 	assert(size <= VM_USERHI - sva);
 	assert(size <= VM_USERHI - dva);
 
-	// Invalidate the source and destination regions we may be modifying.
-	// (We may remove permissions from the source for copy-on-write.)
-	// No need to invalidate rpdir since rpdirs are never loaded.
-	pmap_inval(spdir, sva, size);
-	pmap_inval(dpdir, dva, size);
+  pde_t *rpde = &rpdir[PDX(sva)];
+  pde_t *spde = &spdir[PDX(sva)];
+  pde_t *dpde = &dpdir[PDX(dva)];
+  uint32_t svahi = sva + size;
 
-	pde_t *rpde = &rpdir[PDX(sva)];		// find PDEs
-	pde_t *spde = &spdir[PDX(sva)];
-	pde_t *dpde = &dpdir[PDX(dva)];
-	uint32_t svahi = sva + size;
-	for (; sva < svahi; rpde++, spde++, dpde++) {
+  for (; sva < svahi; rpde++, spde++, dpde++){
+  if(*spde == *rpde){
+  sva += PTSIZE, dva += PTSIZE;
+  continue;
+  }
 
-		if (*spde == *rpde) {	// unchanged in source - do nothing
-			sva += PTSIZE, dva += PTSIZE;
-			continue;
-		}
-		if (*dpde == *rpde) {	// unchanged in dest - copy from source
-			if (!pmap_copy(spdir, sva, dpdir, dva, PTSIZE))
-				return 0;
-			sva += PTSIZE, dva += PTSIZE;
-			continue;
-		}
-		//cprintf("pmap_merge: merging page table %x-%x\n",
-		//	sva, sva+PTSIZE);
+  if(*dpde == *rpde){
+    if(!pmap_copy(spdir, sva, dpdir, dva, PTSIZE))
+      return 0;
+      sva += PTSIZE, dva += PTSIZE;
+      continue;
+      }
 
-		// Find each of the page tables from the corresponding PDEs
-		pte_t *rpte = mem_ptr(PGADDR(*rpde));	// OK if PTE_ZERO
-		pte_t *spte = mem_ptr(PGADDR(*spde));	// OK if PTE_ZERO
-		pte_t *dpte = pmap_walk(dpdir, dva, 1);	// must exist, unshared
-		if (dpte == NULL)
-			return 0;
+      pte_t *rpte = mem_ptr(PGADDR(*rpde));
+      pte_t *spte = mem_ptr(PGADDR(*spde));
+      pte_t *dpte = pmap_walk(dpdir, dva, 1);
+      if (dpte == NULL)
+        return 0;
 
-		// Loop through and merge the corresponding page table entries
-		pte_t *erpte = &rpte[NPTENTRIES];
-		for (; rpte < erpte; rpte++, spte++, dpte++,
-				sva += PAGESIZE, dva += PAGESIZE) {
+        pte_t *erpte = &rpte[NPTENTRIES];
+        for(; rpte <erpte; rpte++, spte++, dpte++, sva += PAGESIZE, dva += PAGESIZE){
+        
+        if (*spte == *rpte)
+        continue;
+        if (*dpte == *rpte)
+        { if(PGADDR(*dpte) != PTE_ZERO)
+          mem_decref(mem_phys2pi(PGADDR(*dpte)),mem_free);
+          *spte &= ~PTE_W;
+          *dpte = *spte;
+          mem_incref(mem_phys2pi(PGADDR(*spte)));
+          continue;
+          }
+                    
 
-			if (*spte == *rpte)	// unchanged in source
-				continue;		// nothing to do
-			if (*dpte == *rpte) {	// unchanged in dest
-				// just copy source page using COW
-				if (PGADDR(*dpte) != PTE_ZERO)
-					mem_decref(mem_phys2pi(PGADDR(*dpte)),
-							mem_free);
-				*spte &= ~PTE_W;
-				*dpte = *spte;		// copy ptable mapping
-				mem_incref(mem_phys2pi(PGADDR(*spte)));
-				continue;
-			}
-			//cprintf("pmap_merge: merging page %x-%x\n",
-			//	sva, sva+PAGESIZE);
-
-			// changed in both spaces - must merge word-by-word
-			pmap_mergepage(rpte, spte, dpte, dva);
-		}
-	}
-	return 1;
+          pmap_mergepage(rpte, spte, dpte, dva);
+         }
+         }
+          
+return 1;
 }
 
 //
@@ -589,39 +543,41 @@ pmap_setperm(pde_t *pdir, uint32_t va, uint32_t size, int perm)
 	assert(size <= VM_USERHI - va);
 	assert((perm & ~(SYS_RW)) == 0);
 
-	pmap_inval(pdir, va, size);	// invalidate region we're modifying
 
-	// Determine the nominal and actual bits to set or clear
-	uint32_t pteand, pteor;
-	if (!(perm & SYS_READ))		// clear all permissions
-		pteand = ~(SYS_RW | PTE_W | PTE_P), pteor = 0;
-	else if (!(perm & SYS_WRITE))	// read-only permission
-		pteand = ~(SYS_WRITE | PTE_W),
-		pteor = (SYS_READ | PTE_U | PTE_P | PTE_A);
-	else	// nominal read/write (but don't add PTE_W to shared mappings!)
-		pteand = ~0, pteor = (SYS_RW | PTE_U | PTE_P | PTE_A | PTE_D);
+  pmap_inval(pdir, va, size);
 
-	uint32_t vahi = va + size;
-	while (va < vahi) {
-		pde_t *pde = &pdir[PDX(va)];		// find PDE
-		if (*pde == PTE_ZERO && pteor == 0) {
-			// clearing perms, but no page table - skip 4MB region
-			va = PTADDR(va + PTSIZE);	// start of next ptab
-			continue;
-		}
+  uint32_t pteand, pteor;
+  if(!(perm & SYS_READ))
+    pteand = ~(SYS_RW | PTE_W | PTE_P), pteor = 0;
+    else if (!(perm & SYS_WRITE))
+    pteand = ~(SYS_WRITE | PTE_W),
+    pteor = (SYS_READ | PTE_U | PTE_P | PTE_A);
+    else
+    pteand = ~0, pteor = (SYS_RW | PTE_U | PTE_P | PTE_A | PTE_D);
 
-		pte_t *pte = pmap_walk(pdir, va, 1);	// find & unshare PTE
-		if (pte == NULL)
-			return 0;	// page table alloc failed
+    uint32_t vahi = va + size;
+    while(va < vahi){
+    pde_t *pde = &pdir[PDX(va)];
+    if (*pde == PTE_ZERO && pteor == 0){
+    va = PTADDR(va + PTSIZE);
+    continue;
+    }
 
-		// Adjust page mappings up to end of region or page table
-		do {
-			*pte = (*pte & pteand) | pteor;
-			pte++;
-			va += PAGESIZE;
-		} while (va < vahi && PTX(va) != 0);
-	}
-	return 1;
+    pte_t *pte = pmap_walk(pdir, va, 1);
+    if (pte == NULL)
+      return 0;
+
+    do {
+    *pte = (*pte & pteand) | pteor;
+    pte++;
+    va += PAGESIZE;
+    } while(va < vahi && PTX(va) !=0);
+    }
+    return 1;
+
+
+
+
 }
 
 //

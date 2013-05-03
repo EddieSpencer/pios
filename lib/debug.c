@@ -12,6 +12,7 @@
 #include <inc/stdlib.h>
 #include <inc/assert.h>
 #include <inc/ctype.h>
+#include <inc/syscall.h>
 
 char *argv0;
 

@@ -288,33 +288,35 @@ reconcile_inode(pid_t pid, filestate *cfiles, int pino, int cino)
 	if (pfi->ver == rver)
 		assert(pfi->size >= rlen);
 
-	// If no exclusive changes made in either parent or child,
-	// then just merge any non-exclusive, append-only updates.
+	// Lab 4: insert your code here to reconcile the two inodes:
+	// copy the parent's file to the child if only the parent's has changed,
+	// copy the child's file to the parent if only the child's has changed,
+	// and mark both files conflicted if both have been modified.
+	// Then be sure to update the reconciliation state
+	// so that the next reconciliation will start from this point.
+	//
+	// Note: if only one process has made an exclusive modification
+	// that bumps the inode's version number,
+	// and the other process has NOT bumped its inode's version number
+	// but has performed append-only writes increasing the file's length,
+	// that situation still constitutes a conflict
+	// because we don't have a clean way to resolve it automatically.
 	if (pfi->ver == rver && cfi->ver == rver)
 		return reconcile_merge(pid, cfiles, pino, cino);
 
-	//cprintf("reconcile %s %d/%d: ver %d/%d(%d) len %d/%d(%d)\n",
-	//	pfi->de.d_name, pino, cino,
-	//	pfi->ver, cfi->ver, rver,
-	//	pfi->size, cfi->size, rlen);
-	assert(pfi->size <= FILE_MAXSIZE);
-	assert(cfi->size <= FILE_MAXSIZE);
-
-	// If both inodes have been changed and at least one was exclusive,
-	// then we have a conflict - just mark both inodes conflicted.
 	if ((pfi->ver > rver || pfi->size > rlen)
 			&& (cfi->ver > rver || cfi->size > rlen)) {
 		warn("reconcile_inode: parent/child conflict: %s (%d/%d)",
 			pfi->de.d_name, pino, cino);
-		pfi->mode |= S_IFCONF;
-		cfi->mode |= S_IFCONF;
 		pfi->ver = cfi->ver = cfi->rver = MAX(pfi->ver, cfi->ver);
-		return 1;	// Changes of sorts were "propagated"
+		cfi->mode |= S_IFCONF;
+		pfi->mode |= S_IFCONF;
+		return 1;
 	}
 
 	// No conflict: copy the latest version to the other.
 	if (pfi->ver > rver || pfi->size > rlen) {
-		// Parent's version is newer: copy to child.
+		// Parent is newer: copy to child.
 		cfi->ver = pfi->ver;
 		cfi->mode = pfi->mode;
 		cfi->size = pfi->size;
@@ -322,7 +324,7 @@ reconcile_inode(pid_t pid, filestate *cfiles, int pino, int cino)
 		sys_put(SYS_COPY, pid, NULL, FILEDATA(pino), FILEDATA(cino),
 			PTSIZE);
 	} else {
-		// Child's version is newer: copy to parent.
+		// Child is newer: copy to parent.
 		pfi->ver = cfi->ver;
 		pfi->mode = cfi->mode;
 		pfi->size = cfi->size;
@@ -331,7 +333,6 @@ reconcile_inode(pid_t pid, filestate *cfiles, int pino, int cino)
 			PTSIZE);
 	}
 
-	// Reset child's reconciliation state.
 	cfi->rver = pfi->ver;
 	cfi->rlen = pfi->size;
 
@@ -351,7 +352,11 @@ reconcile_merge(pid_t pid, filestate *cfiles, int pino, int cino)
 	if (!S_ISREG(pfi->mode))
 		return 0;	// only regular files have data to merge
 
-	// How much did the file grow in the src & dst since last reconcile?
+	// Lab 4: insert your code here to merge inclusive appends:
+	// copy the parent's appends since last reconciliation into the child,
+	// and the child's appends since last reconciliation into the parent.
+	// Parent and child should be left with files of the same size,
+	// although the writes they contain may be in a different order.
 	int rlen = cfi->rlen;
 	int plen = pfi->size;
 	int clen = cfi->size;
