@@ -158,12 +158,11 @@ cons_io(void)
 	spinlock_acquire(&cons_lock);
 	bool dildio = 0;
 
-	// Console output from the root process's console output file
 	fileinode *outfile = &files->fi[FILEINO_CONSOUT];
-	const char *outbuf = FILEDATA(FILEINO_CONSOUT);
-	assert(cons_outsize <= outfile->size);
+	const char *outbuffer = FILEDATA(FILEINO_CONSOUT);
+
 	while (cons_outsize < outfile->size) {
-		cons_putc(outbuf[cons_outsize++]);
+		cons_putc(outbuffer[cons_outsize++]);
 		dildio = 1;
 	}
 

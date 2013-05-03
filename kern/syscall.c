@@ -98,13 +98,12 @@ static void
 do_cputs(trapframe *tf, uint32_t cmd)
 {
 	// Print the string supplied by the user: pointer in EBX
-	char buf[CPUTS_MAX+1];
-	usercopy(tf,0,buf,tf->regs.ebx,CPUTS_MAX);
-	buf[CPUTS_MAX] = 0;
-	cprintf("%s",buf);
+char buf[CPUTS_MAX+1];
+usercopy(tf,0,buf,tf->regs.ebx,CPUTS_MAX);
+buf[CPUTS_MAX] = 0;
+cprintf("%s",buf);
 	trap_return(tf);	// syscall completed
 }
-
 static void
 do_put(trapframe *tf, uint32_t cmd)
 {

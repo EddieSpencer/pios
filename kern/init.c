@@ -30,6 +30,7 @@
 #include <dev/lapic.h>
 #include <dev/ioapic.h>
 
+
 // User-mode stack for user(), below, to run on.
 static char gcc_aligned(16) user_stack[PAGESIZE];
 
@@ -94,7 +95,6 @@ init(void)
 
 	file_init();		// Create root directory and console I/O files
 
-	// Lab 4: uncomment this when you can handle IRQ_SERIAL and IRQ_KBD.
 	cons_intenable();	// Let the console start producing interrupts
 
 	// Initialize the process management code.

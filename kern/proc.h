@@ -18,6 +18,9 @@
 
 #include <kern/spinlock.h>
 #include <kern/pmap.h>
+// Defined in inc/file.h
+//#define PROC_CHILDREN	256	// Max # of children a process can have
+
 #include <inc/file.h>
 
 typedef enum proc_state {

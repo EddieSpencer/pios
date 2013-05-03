@@ -135,20 +135,20 @@ fileino_write(int ino, off_t ofs, const void *buf, size_t eltsize, size_t count)
 
 	// Lab 4: insert your file writing code here.
 	size_t length = eltsize * count;
-	size_t lim = ofs + length;
-	if (lim < ofs || lim > FILE_MAXSIZE) {
+	size_t limit = ofs + length;
+	if (limit < ofs || limit > FILE_MAXSIZE) {
 		errno = EFBIG;
 		return -1;
 	}
 
-	if (lim > fi->size) {
-		size_t oldpagelim = ROUNDUP(fi->size, PAGESIZE);
-		size_t newpagelim = ROUNDUP(lim, PAGESIZE);
-		if (newpagelim > oldpagelim)
+	if (limit > fi->size) {
+		size_t oldpagelimit = ROUNDUP(fi->size, PAGESIZE);
+		size_t newpagelimit = ROUNDUP(limit, PAGESIZE);
+		if (newpagelimit > oldpagelimit)
 			sys_get(SYS_PERM | SYS_READ | SYS_WRITE, 0, NULL, NULL,
-				FILEDATA(ino) + oldpagelim,
-				newpagelim - oldpagelim);
-		fi->size = lim;
+				FILEDATA(ino) + oldpagelimit,
+				newpagelimit - oldpagelimit);
+		fi->size = limit;
 	}
 
 	memmove(FILEDATA(ino) + ofs, buf, length);

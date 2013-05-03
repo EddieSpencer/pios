@@ -308,7 +308,6 @@ reconcile_inode(pid_t pid, filestate *cfiles, int pino, int cino)
 			&& (cfi->ver > rver || cfi->size > rlen)) {
 		warn("reconcile_inode: parent/child conflict: %s (%d/%d)",
 			pfi->de.d_name, pino, cino);
-		pfi->ver = cfi->ver = cfi->rver = MAX(pfi->ver, cfi->ver);
 		cfi->mode |= S_IFCONF;
 		pfi->mode |= S_IFCONF;
 		return 1;
@@ -317,16 +316,16 @@ reconcile_inode(pid_t pid, filestate *cfiles, int pino, int cino)
 	// No conflict: copy the latest version to the other.
 	if (pfi->ver > rver || pfi->size > rlen) {
 		// Parent is newer: copy to child.
-		cfi->ver = pfi->ver;
 		cfi->mode = pfi->mode;
+		cfi->ver = pfi->ver;
 		cfi->size = pfi->size;
 
 		sys_put(SYS_COPY, pid, NULL, FILEDATA(pino), FILEDATA(cino),
 			PTSIZE);
 	} else {
 		// Child is newer: copy to parent.
-		pfi->ver = cfi->ver;
 		pfi->mode = cfi->mode;
+		pfi->ver = cfi->ver;
 		pfi->size = cfi->size;
 
 		sys_get(SYS_COPY, pid, NULL, FILEDATA(cino), FILEDATA(pino),
@@ -368,21 +367,11 @@ reconcile_merge(pid_t pid, filestate *cfiles, int pino, int cino)
 	if (pgrow == 0 && cgrow == 0)
 		return 0;	// nothing to merge
 
-	//cprintf("reconcile_merge %s %d/%d: ver %d/%d(%d) len %d/%d(%d)\n",
-	//	pfi->de.d_name, pino, cino,
-	//	pfi->ver, cfi->ver, cfi->rver,
-	//	pfi->size, cfi->size, rlen);
-	assert(pfi->size <= FILE_MAXSIZE);
-	assert(cfi->size <= FILE_MAXSIZE);
-
-	// Map if necessary and find src & dst file data areas.
-	// The child's inode table is sitting at VM_SCRATCHLO,
-	// so map the file data temporarily at VM_SCRATCHLO+PTSIZE.
+	// find source and destination file data areas.
 	void *pp = FILEDATA(pino);
 	void *cp = (void*)VM_SCRATCHLO+PTSIZE;
 	sys_get(SYS_COPY, pid, NULL, FILEDATA(cino), cp, PTSIZE);
 
-	// Would the new file size be too big after reconcile?  Conflict!
 	int newlen = rlen + pgrow + cgrow;
 	assert(newlen == plen + cgrow);
 	assert(newlen == clen + pgrow);
@@ -397,19 +386,14 @@ reconcile_merge(pid_t pid, filestate *cfiles, int pino, int cino)
 	sys_get(SYS_PERM | SYS_RW, 0, NULL, NULL, pp, pagelen);
 	sys_get(SYS_PERM | SYS_RW, 0, NULL, NULL, cp, pagelen);
 
-	// Copy the newly-added parts of the file in both directions.
-	// Note that if both parent and child appended simultaneously,
-	// the appended chunks will be left in opposite order in the two!
-	// This is unavoidable if we want to allow simultaneous appends
-	// and don't want to change already-written portions:
-	// it's a price we pay for this relaxed consistency model.
+	// copy the newly-added parts of the file in both directions.
 	memcpy(pp + plen, cp + rlen, cgrow);
 	memcpy(cp + clen, pp + rlen, pgrow);
 	pfi->size = newlen; assert(newlen == plen + cgrow);
 	cfi->size = newlen; assert(newlen == clen + pgrow);
 	cfi->rlen = newlen; assert(newlen == rlen + pgrow + cgrow);
 
-	// Copy child's updated file data back into the child
+	// copy child's updated file data back into the child
 	sys_put(SYS_COPY, pid, NULL, cp, FILEDATA(cino), PTSIZE);
 
 	// File merged!

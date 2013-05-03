@@ -155,7 +155,7 @@ struct dirent *readdir(DIR *dir)
 	// this function shouldn't return entries from other directories!
 	int ino;
 	while ((ino = dir->ofs++) < FILE_INODES) {
-		if (!fileino_exists(ino) || files->fi[ino].dino != dir->ino) {
+		if (!(fileino_exists(ino) && files->fi[ino].dino == dir->ino)) {
 			continue;
 		}
 		return &files->fi[ino].de;	// Return inode's dirent

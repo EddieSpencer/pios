@@ -160,10 +160,11 @@ exec_copyargs(char *const argv[])
 	// interpreted by the newly executed process,
 	// where the stack will be mapped from VM_STACKHI-PTSIZE to VM_STACKHI.
 	int argc;
+	// count the args
 	for (argc = 0; argv[argc] != NULL; argc++) { ; }
 
 	intptr_t esp = VM_STACKHI;
-	intptr_t scratchofs = VM_SCRATCHLO - (VM_STACKHI-PTSIZE);
+	intptr_t scratchoffset = VM_SCRATCHLO - (VM_STACKHI-PTSIZE);
 	esp -= (argc+1) * sizeof(intptr_t);
 	intptr_t dargv = esp;
 
@@ -171,13 +172,13 @@ exec_copyargs(char *const argv[])
 	for (i = 0; i < argc; i++) {
 		int len = strlen(argv[i]);
 		esp -= len+1;
-		strcpy((void*)esp + scratchofs, argv[i]);
-		((intptr_t*)(dargv + scratchofs))[i] = esp;
+		strcpy((void*)esp + scratchoffset, argv[i]);
+		((intptr_t*)(dargv + scratchoffset))[i] = esp;
 	}
 	esp &= ~3;
 
-	esp -= 4;	*(intptr_t*)(esp + scratchofs) = dargv;
-	esp -= 4;	*(intptr_t*)(esp + scratchofs) = argc;
+	esp -= 4;	*(intptr_t*)(esp + scratchoffset) = dargv;
+	esp -= 4;	*(intptr_t*)(esp + scratchoffset) = argc;
 
 	// Copy the stack into its correct position in child 0.
 	sys_put(SYS_COPY, 0, NULL, (void*)VM_SCRATCHLO,
