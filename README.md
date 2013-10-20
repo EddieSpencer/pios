@@ -11,4 +11,4 @@ Projects included:
 * paging
 * file system
 
-Project was completed in everett1992's github in a private repository and cloned once finished.
+Project was completed in everett1992's private repository and cloned once finished.
